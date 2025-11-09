@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Ottico</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>.hidden { display: none; }</style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <div id="login-view" class="min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm">
+      <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Dashboard Ottico</h2>
+      <div class="space-y-4">
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+          <input type="email" id="email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+          <input type="password" id="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <p id="login-error" class="text-red-500 text-sm hidden"></p>
+        <button id="login-button" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-blue-700">
+          Accedi
+        </button>
+        <button id="register-button" class="w-full bg-gray-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-gray-700">
+          Registrati (primo accesso)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="dashboard-view" class="hidden">
+    <nav class="bg-white shadow-md">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-16 items-center">
+        <h1 class="text-xl font-bold text-blue-600">Ordini Clienti</h1>
+        <div class="flex items-center">
+          <span id="user-email" class="text-sm text-gray-600 mr-4"></span>
+          <button id="logout-button" class="bg-red-500 text-white py-2 px-4 rounded-md shadow-sm text-sm font-medium hover:bg-red-600">
+            Esci
+          </button>
+        </div>
+      </div>
+    </nav>
+    
+    <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg mb-6">
+        <p class="font-bold">Il tuo Codice Ottico</p>
+        <p>Comunica questo codice ai tuoi pazienti.</p>
+        <code id="optician-id-code" class="block bg-white text-gray-800 font-mono text-lg p-2 mt-2 rounded break-all">...</code>
+      </div>
+
+      <h2 class="text-2xl font-semibold text-gray-800 mb-4">Ordini in Arrivo</h2>
+      <div id="orders-list" class="space-y-4">
+        <p id="loading-orders" class="text-gray-500">Caricamento ordini...</p>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    
+    // *** CORREZIONE 1: Aggiunto 'where' all'import ***
+    import { getFirestore, collection, onSnapshot, query, setLogLevel, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const appId = "ordinalac-app"; // Questo ID è corretto
+    const firebaseConfig = {
+      apiKey: "AIzaSyDMRWXipp7VCMQiezOZSSZAhSQo8MWVgKs",
+      authDomain: "ordinalac.firebaseapp.com",
+      projectId: "ordinalac",
+      storageBucket: "ordinalac.firebasestorage.app",
+      messagingSenderId: "642877461161",
+      appId: "1:642877461161:web:6a4d979e7a7ddd56140fb8"
+    };
+
+
+    let db, auth, unsubscribeOrders;
+
+    try {
+      const app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
+      setLogLevel('debug');
+    } catch (e) {
+      console.error("Errore inizializzazione Firebase:", e);
+    }
+
+    const loginView = document.getElementById('login-view');
+    const dashboardView = document.getElementById('dashboard-view');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loginButton = document.getElementById('login-button');
+    const registerButton = document.getElementById('register-button');
+    const logoutButton = document.getElementById('logout-button');
+    const loginError = document.getElementById('login-error');
+    const userEmailDisplay = document.getElementById('user-email');
+    const opticianIdCode = document.getElementById('optician-id-code');
+    const ordersList = document.getElementById('orders-list');
+    const loadingOrders = document.getElementById('loading-orders');
+
+    loginButton.addEventListener('click', async () => {
+      try {
+        loginError.classList.add('hidden');
+        await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+      } catch (error) {
+        loginError.innerText = error.message;
+        loginError.classList.remove('hidden');
+      }
+    });
+
+    registerButton.addEventListener('click', async () => {
+      try {
+        loginError.classList.add('hidden');
+        await createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+        alert('Registrazione completata! Ora puoi accedere.');
+      } catch (error) {
+        loginError.innerText = error.message;
+        loginError.classList.remove('hidden');
+      }
+    });
+
+    logoutButton.addEventListener('click', () => signOut(auth));
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginView.classList.add('hidden');
+        dashboardView.classList.remove('hidden');
+        userEmailDisplay.innerText = user.email;
+        opticianIdCode.innerText = user.uid;
+        loadOrders(user.uid);
+      } else {
+        loginView.classList.remove('hidden');
+        dashboardView.classList.add('hidden');
+        if (unsubscribeOrders) unsubscribeOrders();
+      }
+    });
+
+    // *** CORREZIONE 2: Funzione 'loadOrders' modificata per efficienza e sicurezza ***
+    function loadOrders(opticianUid) {
+      
+      // La query ora filtra per 'optician_id' direttamente sul server
+      const q = query(
+        collection(db, `artifacts/${appId}/public/data/orders`),
+        where("optician_id", "==", opticianUid) 
+      );
+
+      unsubscribeOrders = onSnapshot(q, (snapshot) => {
+        loadingOrders.classList.add('hidden');
+        
+        // Non è più necessario scaricare 'all' e filtrare
+        const myOrders = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        
+        myOrders.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+        renderOrders(myOrders);
+      }, (error) => {
+          // Gestione errori: molto importante per la query 'where'
+          console.error("Errore durante l'ascolto degli ordini:", error);
+          loadingOrders.innerText = "Errore nel caricamento degli ordini.";
+          // Controlla la console per un link per creare l'indice Firestore
+          if (error.code === 'failed-precondition') {
+            loadingOrders.innerHTML += '<br>Potrebbe essere necessario creare un indice in Firestore. Controlla la console del browser per il link.';
+          }
+      });
+    }
+
+    function renderOrders(orders) {
+      ordersList.innerHTML = '';
+      if (orders.length === 0) {
+        ordersList.innerHTML = '<p class="text-gray-500">Nessun ordine trovato.</p>';
+        return;
+      }
+      for (const order of orders) {
+        const date = order.timestamp?.seconds ? new Date(order.timestamp.seconds * 1000).toLocaleString('it-IT') : '';
+        const el = document.createElement('div');
+        el.className = 'bg-white p-6 rounded-lg shadow-md';
+        el.innerHTML = `
+          <div class="flex justify-between items-center mb-2">
+            <h3 class="text-lg font-semibold text-gray-900">Da: ${order.patient_name || 'Sconosciuto'}</h3>
+            <span class="text-sm text-gray-500">${date}</span>
+          </div>
+          <p class="text-gray-700">${order.message}</p>
+          <span class="mt-2 inline-block bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${order.status || ''}</span>
+        `;
+        ordersList.appendChild(el);
+      }
+    }
+  </script>
+</body>
+</html>
