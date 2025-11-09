@@ -7,15 +7,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .hidden { display: none; }
-    /* Stili per il Modal */
-    .modal-overlay {
-      background-color: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(4px);
-    }
-    .modal-content {
-      max-height: 90vh;
-      overflow-y: auto;
-    }
+    .modal-overlay { background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); }
+    .modal-content { max-height: 90vh; overflow-y: auto; }
     select:disabled { background-color: #f3f4f6; opacity: 0.7; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -56,7 +49,6 @@
         </div>
       </div>
     </nav>
-    
     <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
       <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg mb-6">
         <p class="font-bold">Il tuo Codice Ottico</p>
@@ -72,38 +64,16 @@
 
   <div id="client-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-6 hidden z-50">
     <div class="bg-white w-full max-w-lg rounded-lg shadow-xl modal-content relative">
-      
       <div id="client-form-container" class="p-6 space-y-4">
         <h1 class="text-2xl font-bold text-gray-800">Inserisci Nuovo Cliente</h1>
         <p class="text-gray-600">Compila i dati del cliente per generare il suo link di installazione rapida.</p>
-        
         <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 pt-2">Dati Paziente</h2>
-        <div>
-          <label for="client-name" class="block text-sm font-medium text-gray-700">Nome Cliente</label>
-          <input type="text" id="client-name" placeholder="Es: Mario Rossi" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
-        </div>
-
+        <div><label for="client-name" class="block text-sm font-medium text-gray-700">Nome Cliente</label><input type="text" id="client-name" placeholder="Es: Mario Rossi" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
         <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 pt-4">Lente Cliente</h2>
-        <div>
-          <label for="client-lens-manufacturer" class="block text-sm font-medium text-gray-700">Produttore</label>
-          <select id="client-lens-manufacturer" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
-            <option value="">-- Seleziona Produttore --</option>
-          </select>
-        </div>
-        <div>
-          <label for="client-lens-model" class="block text-sm font-medium text-gray-700">Modello Lente</label>
-          <select id="client-lens-model" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled>
-            <option value="">-- Prima seleziona produttore --</option>
-          </select>
-        </div>
-        
+        <div><label for="client-lens-manufacturer" class="block text-sm font-medium text-gray-700">Produttore</label><select id="client-lens-manufacturer" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"><option value="">-- Seleziona Produttore --</option></select></div>
+        <div><label for="client-lens-model" class="block text-sm font-medium text-gray-700">Modello Lente</label><select id="client-lens-model" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled><option value="">-- Prima seleziona produttore --</option></select></div>
         <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 pt-4">Occhio Destro (OD)</h2>
-        <div>
-          <label for="client-lens-type-od" class="block text-sm font-medium text-gray-700">Tipo Correzione (Destro)</label>
-          <select id="client-lens-type-od" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled>
-            <option value="">-- Seleziona Tipo --</option>
-          </select>
-        </div>
+        <div><label for="client-lens-type-od" class="block text-sm font-medium text-gray-700">Tipo Correzione (Destro)</label><select id="client-lens-type-od" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled><option value="">-- Seleziona Tipo --</option></select></div>
         <div id="client-prescription-fields-od" class="space-y-2">
           <p id="client-params-info-od" class="text-sm text-gray-500">Seleziona un tipo di correzione.</p>
           <div id="client-params-pwr-od" class="hidden"><input type="text" id="client-param-pwr-od" placeholder="Potere (PWR)" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
@@ -111,14 +81,8 @@
           <div id="client-params-axis-od" class="hidden"><input type="text" id="client-param-axis-od" placeholder="Asse (AXIS)" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
           <div id="client-params-add-od" class="hidden"><input type="text" id="client-param-add-od" placeholder="Addizione (ADD)" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
         </div>
-        
         <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 pt-4">Occhio Sinistro (OS)</h2>
-        <div>
-          <label for="client-lens-type-os" class="block text-sm font-medium text-gray-700">Tipo Correzione (Sinistro)</label>
-          <select id="client-lens-type-os" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled>
-            <option value="">-- Seleziona Tipo --</option>
-          </select>
-        </div>
+        <div><label for="client-lens-type-os" class="block text-sm font-medium text-gray-700">Tipo Correzione (Sinistro)</label><select id="client-lens-type-os" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled><option value="">-- Seleziona Tipo --</option></select></div>
         <div id="client-prescription-fields-os" class="space-y-2">
           <p id="client-params-info-os" class="text-sm text-gray-500">Seleziona un tipo di correzione.</p>
           <div id="client-params-pwr-os" class="hidden"><input type="text" id="client-param-pwr-os" placeholder="Potere (PWR)" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
@@ -127,20 +91,16 @@
           <div id="client-params-add-os" class="hidden"><input type="text" id="client-param-add-os" placeholder="Addizione (ADD)" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
         </div>
       </div>
-
       <div id="client-qr-container" class="p-6 text-center hidden">
         <h1 class="text-2xl font-bold text-gray-800">Link Cliente Generato</h1>
         <p class="text-gray-600 mb-4">Fai scansionare questo QR code al tuo cliente per installare l'app pre-configurata.</p>
-        <div id="qr-code-display" class="flex justify-center p-4 bg-white border rounded-lg">
-          </div>
+        <div id="qr-code-display" class="flex justify-center p-4 bg-white border rounded-lg"></div>
         <button id="close-qr-button" class="mt-6 w-full bg-gray-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-gray-700">Fatto</button>
       </div>
-      
       <div id="client-form-actions" class="bg-gray-50 px-6 py-4 flex justify-end space-x-4 rounded-b-lg">
         <button id="close-modal-button" class="bg-gray-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-gray-700">Annulla</button>
         <button id="generate-qr-button" class="bg-green-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-green-700">Genera QR Code</button>
       </div>
-
     </div>
   </div>
 
@@ -148,7 +108,8 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, query, setLogLevel, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    // *** IMPORT MODIFICATO: Aggiunti 'doc' e 'deleteDoc' ***
+    import { getFirestore, collection, onSnapshot, query, setLogLevel, where, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const appId = "ordinalac-app";
     const firebaseConfig = {
@@ -246,8 +207,7 @@
     const clientAxisInput_OS = document.getElementById('client-param-axis-os');
     const clientAddInput_OS = document.getElementById('client-param-add-os');
 
-
-    // *** FUNZIONI ORIGINALI (LOGIN E ORDINI) RIPRISTINATE ***
+    // Funzioni di Login e Caricamento Ordini (Originali)
     loginButton.addEventListener('click', async () => {
       try {
         loginError.classList.add('hidden');
@@ -273,7 +233,7 @@
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        currentOpticianUid = user.uid; // Salva L'UID
+        currentOpticianUid = user.uid;
         loginView.classList.add('hidden');
         dashboardView.classList.remove('hidden');
         userEmailDisplay.innerText = user.email;
@@ -292,7 +252,6 @@
         collection(db, `artifacts/${appId}/public/data/orders`),
         where("optician_id", "==", opticianUid) 
       );
-
       unsubscribeOrders = onSnapshot(q, (snapshot) => {
         loadingOrders.classList.add('hidden');
         const myOrders = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -302,11 +261,12 @@
           console.error("Errore durante l'ascolto degli ordini:", error);
           loadingOrders.innerText = "Errore nel caricamento degli ordini.";
           if (error.code === 'failed-precondition') {
-            loadingOrders.innerHTML += '<br>Potrebbe essere necessario creare un indice in Firestore. Controlla la console del browser per il link.';
+            loadingOrders.innerHTML += '<br>Potrebbe essere necessario creare un indice in Firestore. Controlla la console.';
           }
       });
     }
 
+    // *** RENDERORDERS MODIFICATO ***
     function renderOrders(orders) {
       ordersList.innerHTML = '';
       if (orders.length === 0) {
@@ -317,21 +277,82 @@
         const date = order.timestamp?.seconds ? new Date(order.timestamp.seconds * 1000).toLocaleString('it-IT') : '';
         const el = document.createElement('div');
         el.className = 'bg-white p-6 rounded-lg shadow-md';
-        // Aggiunto whitespace-pre-wrap per formattare correttamente il nuovo messaggio
+        
+        // Contenuto dell'ordine
         el.innerHTML = `
-          <div class="flex justify-between items-center mb-2">
-            <h3 class="text-lg font-semibold text-gray-900">Da: ${order.patient_name || 'Sconosciuto'}</h3>
-            <span class="text-sm text-gray-500">${date}</span>
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">Da: ${order.patient_name || 'Sconosciuto'}</h3>
+              <span class="text-sm text-gray-500">${date}</span>
+            </div>
+            <span class="mt-1 inline-block bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${order.status || ''}</span>
           </div>
-          <p class="text-gray-700 whitespace-pre-wrap">${order.message}</p> 
-          <span class="mt-2 inline-block bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${order.status || ''}</span>
+          <p class="text-gray-700 whitespace-pre-wrap mt-4">${order.message}</p>
+          
+          <div class="mt-4 pt-4 border-t border-gray-200 flex space-x-4">
+            <button class="print-button bg-blue-500 text-white py-1 px-3 rounded-md text-sm hover:bg-blue-600">Stampa</button>
+            <button class="delete-button bg-red-500 text-white py-1 px-3 rounded-md text-sm hover:bg-red-600">Cancella</button>
+          </div>
         `;
+        
         ordersList.appendChild(el);
+        
+        // Aggiungi event listener ai nuovi pulsanti
+        el.querySelector('.print-button').addEventListener('click', () => {
+          printOrder(order);
+        });
+        
+        el.querySelector('.delete-button').addEventListener('click', () => {
+          deleteOrder(order.id);
+        });
       }
     }
     
-    // *** NUOVA LOGICA: Gestione Modal Cliente ***
+    // *** NUOVE FUNZIONI: Stampa e Cancella ***
+    
+    /**
+     * Apre una finestra di stampa pulita per un singolo ordine
+     */
+    function printOrder(order) {
+      const printWindow = window.open('', '_blank', 'height=600,width=800');
+      const date = order.timestamp?.seconds ? new Date(order.timestamp.seconds * 1000).toLocaleString('it-IT') : 'N/D';
+      const message = order.message.replace(/\n/g, '<br>');
+      
+      printWindow.document.write('<html><head><title>Stampa Ordine</title>');
+      printWindow.document.write('<style>body { font-family: sans-serif; padding: 20px; } h1 { font-size: 24px; } p { font-size: 16px; white-space: pre-wrap; } .details { font-size: 14px; color: #555; }</style>');
+      printWindow.document.write('</head><body>');
+      printWindow.document.write(`<h1>Ordine Cliente: ${order.patient_name}</h1>`);
+      printWindow.document.write(`<p class="details">Ricevuto il: ${date}</p>`);
+      printWindow.document.write('<hr style="margin: 20px 0;">');
+      printWindow.document.write(`<p>${message}</p>`);
+      printWindow.document.write('</body></html>');
+      
+      printWindow.document.close();
+      printWindow.focus();
+      printWindow.print();
+    }
+    
+    /**
+     * Cancella un ordine da Firestore
+     */
+    async function deleteOrder(orderId) {
+      if (!confirm('Sei sicuro di voler eliminare questo ordine? L\'azione è irreversibile.')) {
+        return;
+      }
+      
+      try {
+        const docRef = doc(db, `artifacts/${appId}/public/data/orders`, orderId);
+        await deleteDoc(docRef);
+        // L'UI si aggiornerà automaticamente grazie a onSnapshot
+      } catch (e) {
+        console.error("Errore durante l'eliminazione dell'ordine: ", e);
+        alert("Impossibile eliminare l'ordine. Riprova.");
+      }
+    }
 
+    
+    // --- Logica Modal Cliente (invariata) ---
+    
     function clientPopulateManufacturers() {
       clientManufacturerSelect.innerHTML = '<option value="">-- Seleziona Produttore --</option>';
       Object.keys(lensData).forEach(m => clientManufacturerSelect.innerHTML += `<option value="${m}">${m}</option>`);
@@ -439,12 +460,12 @@
       }
 
       // Costruisci l'URL. Assumiamo che index.html sia alla radice.
-      const baseUrl = window.location.origin + '/';
+      const baseUrl = window.location.origin + '/'; // Usa la radice
       const params = new URLSearchParams();
       for (const [key, value] of Object.entries(data)) {
         if (value) { params.set(key, value); }
       }
-      const fullUrl = baseUrl + '?' + params.toString();
+      const fullUrl = baseUrl + '?' + params.toString(); // index.html è implicito
       
       qrCodeDisplay.innerHTML = ''; 
       new QRCode(qrCodeDisplay, {
