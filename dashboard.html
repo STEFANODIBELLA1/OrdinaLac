@@ -5,7 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Ottico</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>.hidden { display: none; }</style>
+  <style>
+    .hidden { display: none; }
+    /* Stili per il Modal */
+    .modal-overlay {
+      background-color: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+    }
+    .modal-content {
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    select:disabled { background-color: #f3f4f6; opacity: 0.7; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body class="bg-gray-100 font-sans">
 
@@ -22,12 +35,8 @@
           <input type="password" id="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
         </div>
         <p id="login-error" class="text-red-500 text-sm hidden"></p>
-        <button id="login-button" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-blue-700">
-          Accedi
-        </button>
-        <button id="register-button" class="w-full bg-gray-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-gray-700">
-          Registrati (primo accesso)
-        </button>
+        <button id="login-button" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-blue-700">Accedi</button>
+        <button id="register-button" class="w-full bg-gray-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-gray-700">Registrati (primo accesso)</button>
       </div>
     </div>
   </div>
@@ -35,12 +44,15 @@
   <div id="dashboard-view" class="hidden">
     <nav class="bg-white shadow-md">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-16 items-center">
-        <h1 class="text-xl font-bold text-blue-600">Ordini Clienti</h1>
+        <div class="flex items-center space-x-4">
+          <h1 class="text-xl font-bold text-blue-600">Ordini Clienti</h1>
+          <button id="add-client-button" class="bg-green-600 text-white py-2 px-4 rounded-md shadow-sm text-sm font-medium hover:bg-green-700">
+            + Inserisci Cliente
+          </button>
+        </div>
         <div class="flex items-center">
           <span id="user-email" class="text-sm text-gray-600 mr-4"></span>
-          <button id="logout-button" class="bg-red-500 text-white py-2 px-4 rounded-md shadow-sm text-sm font-medium hover:bg-red-600">
-            Esci
-          </button>
+          <button id="logout-button" class="bg-red-500 text-white py-2 px-4 rounded-md shadow-sm text-sm font-medium hover:bg-red-600">Esci</button>
         </div>
       </div>
     </nav>
@@ -48,10 +60,9 @@
     <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
       <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg mb-6">
         <p class="font-bold">Il tuo Codice Ottico</p>
-        <p>Comunica questo codice ai tuoi pazienti.</p>
+        <p>Comunica questo codice ai tuoi pazienti (per l'inserimento manuale).</p>
         <code id="optician-id-code" class="block bg-white text-gray-800 font-mono text-lg p-2 mt-2 rounded break-all">...</code>
       </div>
-
       <h2 class="text-2xl font-semibold text-gray-800 mb-4">Ordini in Arrivo</h2>
       <div id="orders-list" class="space-y-4">
         <p id="loading-orders" class="text-gray-500">Caricamento ordini...</p>
@@ -59,14 +70,87 @@
     </main>
   </div>
 
+  <div id="client-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-6 hidden z-50">
+    <div class="bg-white w-full max-w-lg rounded-lg shadow-xl modal-content relative">
+      
+      <div id="client-form-container" class="p-6 space-y-4">
+        <h1 class="text-2xl font-bold text-gray-800">Inserisci Nuovo Cliente</h1>
+        <p class="text-gray-600">Compila i dati del cliente per generare il suo link di installazione rapida.</p>
+        
+        <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 pt-2">Dati Paziente</h2>
+        <div>
+          <label for="client-name" class="block text-sm font-medium text-gray-700">Nome Cliente</label>
+          <input type="text" id="client-name" placeholder="Es: Mario Rossi" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+        </div>
+
+        <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 pt-4">Lente Cliente</h2>
+        <div>
+          <label for="client-lens-manufacturer" class="block text-sm font-medium text-gray-700">Produttore</label>
+          <select id="client-lens-manufacturer" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+            <option value="">-- Seleziona Produttore --</option>
+          </select>
+        </div>
+        <div>
+          <label for="client-lens-model" class="block text-sm font-medium text-gray-700">Modello Lente</label>
+          <select id="client-lens-model" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled>
+            <option value="">-- Prima seleziona produttore --</option>
+          </select>
+        </div>
+        
+        <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 pt-4">Occhio Destro (OD)</h2>
+        <div>
+          <label for="client-lens-type-od" class="block text-sm font-medium text-gray-700">Tipo Correzione (Destro)</label>
+          <select id="client-lens-type-od" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled>
+            <option value="">-- Seleziona Tipo --</option>
+          </select>
+        </div>
+        <div id="client-prescription-fields-od" class="space-y-2">
+          <p id="client-params-info-od" class="text-sm text-gray-500">Seleziona un tipo di correzione.</p>
+          <div id="client-params-pwr-od" class="hidden"><input type="text" id="client-param-pwr-od" placeholder="Potere (PWR)" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
+          <div id="client-params-cyl-od" class="hidden"><input type="text" id="client-param-cyl-od" placeholder="Cilindro (CYL)" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
+          <div id="client-params-axis-od" class="hidden"><input type="text" id="client-param-axis-od" placeholder="Asse (AXIS)" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
+          <div id="client-params-add-od" class="hidden"><input type="text" id="client-param-add-od" placeholder="Addizione (ADD)" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
+        </div>
+        
+        <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 pt-4">Occhio Sinistro (OS)</h2>
+        <div>
+          <label for="client-lens-type-os" class="block text-sm font-medium text-gray-700">Tipo Correzione (Sinistro)</label>
+          <select id="client-lens-type-os" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled>
+            <option value="">-- Seleziona Tipo --</option>
+          </select>
+        </div>
+        <div id="client-prescription-fields-os" class="space-y-2">
+          <p id="client-params-info-os" class="text-sm text-gray-500">Seleziona un tipo di correzione.</p>
+          <div id="client-params-pwr-os" class="hidden"><input type="text" id="client-param-pwr-os" placeholder="Potere (PWR)" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
+          <div id="client-params-cyl-os" class="hidden"><input type="text" id="client-param-cyl-os" placeholder="Cilindro (CYL)" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
+          <div id="client-params-axis-os" class="hidden"><input type="text" id="client-param-axis-os" placeholder="Asse (AXIS)" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
+          <div id="client-params-add-os" class="hidden"><input type="text" id="client-param-add-os" placeholder="Addizione (ADD)" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
+        </div>
+      </div>
+
+      <div id="client-qr-container" class="p-6 text-center hidden">
+        <h1 class="text-2xl font-bold text-gray-800">Link Cliente Generato</h1>
+        <p class="text-gray-600 mb-4">Fai scansionare questo QR code al tuo cliente per installare l'app pre-configurata.</p>
+        <div id="qr-code-display" class="flex justify-center p-4 bg-white border rounded-lg">
+          </div>
+        <button id="close-qr-button" class="mt-6 w-full bg-gray-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-gray-700">Fatto</button>
+      </div>
+      
+      <div id="client-form-actions" class="bg-gray-50 px-6 py-4 flex justify-end space-x-4 rounded-b-lg">
+        <button id="close-modal-button" class="bg-gray-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-gray-700">Annulla</button>
+        <button id="generate-qr-button" class="bg-green-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-green-700">Genera QR Code</button>
+      </div>
+
+    </div>
+  </div>
+
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    
-    // *** CORREZIONE 1: Aggiunto 'where' all'import ***
     import { getFirestore, collection, onSnapshot, query, setLogLevel, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const appId = "ordinalac-app"; // Questo ID è corretto
+    const appId = "ordinalac-app";
     const firebaseConfig = {
       apiKey: "AIzaSyDMRWXipp7VCMQiezOZSSZAhSQo8MWVgKs",
       authDomain: "ordinalac.firebaseapp.com",
@@ -76,18 +160,45 @@
       appId: "1:642877461161:web:6a4d979e7a7ddd56140fb8"
     };
 
-
+    // DATABASE LENTI
+    const lensData = {
+      "Johnson & Johnson": {
+        "Acuvue Oasys 1-Day": ["Standard", "Astigmatismo", "Multifocal"],
+        "1-Day Acuvue Moist": ["Standard", "Astigmatismo", "Multifocal"],
+        "Acuvue Oasys (Quindicinale)": ["Standard", "Astigmatismo", "Multifocal"],
+        "Acuvue Vita (Mensile)": ["Standard", "Astigmatismo", "Multifocal"]
+      },
+      "Alcon": {
+        "Dailies Total 1": ["Standard", "Astigmatismo", "Multifocal"],
+        "Dailies AquaComfort Plus": ["Standard", "Astigmatismo", "Multifocal"],
+        "Precision 1": ["Standard", "Astigmatismo", "Multifocal"],
+        "Air Optix plus HydraGlyde (Mensile)": ["Standard", "Astigmatismo", "Multifocal"],
+        "TOTAL30 (Mensile)": ["Standard", "Astigmatismo", "Multifocal"]
+      },
+      "CooperVision": {
+        "MyDay (Giornaliera)": ["Standard", "Toric", "Multifocal"],
+        "Clariti 1 Day (Giornaliera)": ["Standard", "Toric", "Multifocal"],
+        "Biofinity (Mensile)": ["Standard", "Toric", "Multifocal", "XR"]
+      },
+      "Bausch + Lomb": {
+        "Biotrue ONEday": ["Standard", "Astigmatismo", "Presbiopia"],
+        "ULTRA ONEday": ["Standard"],
+        "ULTRA (Mensile)": ["Standard", "Astigmatismo", "Presbiopia"],
+        "PureVision 2 HD (Mensile)": ["Standard", "Astigmatismo", "Presbiopia"]
+      }
+    };
+    
     let db, auth, unsubscribeOrders;
+    let currentOpticianUid = null; 
 
     try {
       const app = initializeApp(firebaseConfig);
       auth = getAuth(app);
       db = getFirestore(app);
       setLogLevel('debug');
-    } catch (e) {
-      console.error("Errore inizializzazione Firebase:", e);
-    }
+    } catch (e) { console.error("Errore inizializzazione Firebase:", e); }
 
+    // Variabili UI Dashboard
     const loginView = document.getElementById('login-view');
     const dashboardView = document.getElementById('dashboard-view');
     const emailInput = document.getElementById('email');
@@ -100,7 +211,43 @@
     const opticianIdCode = document.getElementById('optician-id-code');
     const ordersList = document.getElementById('orders-list');
     const loadingOrders = document.getElementById('loading-orders');
+    
+    // Variabili UI Modal Cliente
+    const clientModal = document.getElementById('client-modal');
+    const addClientButton = document.getElementById('add-client-button');
+    const closeModalButton = document.getElementById('close-modal-button');
+    const generateQrButton = document.getElementById('generate-qr-button');
+    const clientFormContainer = document.getElementById('client-form-container');
+    const clientFormActions = document.getElementById('client-form-actions');
+    const clientQrContainer = document.getElementById('client-qr-container');
+    const qrCodeDisplay = document.getElementById('qr-code-display');
+    const closeQrButton = document.getElementById('close-qr-button');
+    const clientNameInput = document.getElementById('client-name');
+    const clientManufacturerSelect = document.getElementById('client-lens-manufacturer');
+    const clientModelSelect = document.getElementById('client-lens-model');
+    const clientTypeSelect_OD = document.getElementById('client-lens-type-od');
+    const clientParamsInfo_OD = document.getElementById('client-params-info-od');
+    const clientPwrField_OD = document.getElementById('client-params-pwr-od');
+    const clientCylField_OD = document.getElementById('client-params-cyl-od');
+    const clientAxisField_OD = document.getElementById('client-params-axis-od');
+    const clientAddField_OD = document.getElementById('client-params-add-od');
+    const clientPwrInput_OD = document.getElementById('client-param-pwr-od');
+    const clientCylInput_OD = document.getElementById('client-param-cyl-od');
+    const clientAxisInput_OD = document.getElementById('client-param-axis-od');
+    const clientAddInput_OD = document.getElementById('client-param-add-od');
+    const clientTypeSelect_OS = document.getElementById('client-lens-type-os');
+    const clientParamsInfo_OS = document.getElementById('client-params-info-os');
+    const clientPwrField_OS = document.getElementById('client-params-pwr-os');
+    const clientCylField_OS = document.getElementById('client-params-cyl-os');
+    const clientAxisField_OS = document.getElementById('client-params-axis-os');
+    const clientAddField_OS = document.getElementById('client-params-add-os');
+    const clientPwrInput_OS = document.getElementById('client-param-pwr-os');
+    const clientCylInput_OS = document.getElementById('client-param-cyl-os');
+    const clientAxisInput_OS = document.getElementById('client-param-axis-os');
+    const clientAddInput_OS = document.getElementById('client-param-add-os');
 
+
+    // *** FUNZIONI ORIGINALI (LOGIN E ORDINI) RIPRISTINATE ***
     loginButton.addEventListener('click', async () => {
       try {
         loginError.classList.add('hidden');
@@ -126,22 +273,21 @@
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        currentOpticianUid = user.uid; // Salva L'UID
         loginView.classList.add('hidden');
         dashboardView.classList.remove('hidden');
         userEmailDisplay.innerText = user.email;
         opticianIdCode.innerText = user.uid;
         loadOrders(user.uid);
       } else {
+        currentOpticianUid = null;
         loginView.classList.remove('hidden');
         dashboardView.classList.add('hidden');
         if (unsubscribeOrders) unsubscribeOrders();
       }
     });
 
-    // *** CORREZIONE 2: Funzione 'loadOrders' modificata per efficienza e sicurezza ***
     function loadOrders(opticianUid) {
-      
-      // La query ora filtra per 'optician_id' direttamente sul server
       const q = query(
         collection(db, `artifacts/${appId}/public/data/orders`),
         where("optician_id", "==", opticianUid) 
@@ -149,17 +295,12 @@
 
       unsubscribeOrders = onSnapshot(q, (snapshot) => {
         loadingOrders.classList.add('hidden');
-        
-        // Non è più necessario scaricare 'all' e filtrare
         const myOrders = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        
         myOrders.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
         renderOrders(myOrders);
       }, (error) => {
-          // Gestione errori: molto importante per la query 'where'
           console.error("Errore durante l'ascolto degli ordini:", error);
           loadingOrders.innerText = "Errore nel caricamento degli ordini.";
-          // Controlla la console per un link per creare l'indice Firestore
           if (error.code === 'failed-precondition') {
             loadingOrders.innerHTML += '<br>Potrebbe essere necessario creare un indice in Firestore. Controlla la console del browser per il link.';
           }
@@ -176,17 +317,161 @@
         const date = order.timestamp?.seconds ? new Date(order.timestamp.seconds * 1000).toLocaleString('it-IT') : '';
         const el = document.createElement('div');
         el.className = 'bg-white p-6 rounded-lg shadow-md';
+        // Aggiunto whitespace-pre-wrap per formattare correttamente il nuovo messaggio
         el.innerHTML = `
           <div class="flex justify-between items-center mb-2">
             <h3 class="text-lg font-semibold text-gray-900">Da: ${order.patient_name || 'Sconosciuto'}</h3>
             <span class="text-sm text-gray-500">${date}</span>
           </div>
-          <p class="text-gray-700">${order.message}</p>
+          <p class="text-gray-700 whitespace-pre-wrap">${order.message}</p> 
           <span class="mt-2 inline-block bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${order.status || ''}</span>
         `;
         ordersList.appendChild(el);
       }
     }
+    
+    // *** NUOVA LOGICA: Gestione Modal Cliente ***
+
+    function clientPopulateManufacturers() {
+      clientManufacturerSelect.innerHTML = '<option value="">-- Seleziona Produttore --</option>';
+      Object.keys(lensData).forEach(m => clientManufacturerSelect.innerHTML += `<option value="${m}">${m}</option>`);
+    }
+
+    function clientPopulateModels() {
+      const manuf = clientManufacturerSelect.value;
+      clientModelSelect.innerHTML = '<option value="">-- Seleziona Modello --</option>';
+      clientModelSelect.disabled = true;
+      clientResetEyeSection('od');
+      clientResetEyeSection('os');
+      if (manuf && lensData[manuf]) {
+        Object.keys(lensData[manuf]).forEach(m => clientModelSelect.innerHTML += `<option value="${m}">${m}</option>`);
+        clientModelSelect.disabled = false;
+      }
+    }
+
+    function clientPopulateTypes() {
+      const manuf = clientManufacturerSelect.value;
+      const model = clientModelSelect.value;
+      clientResetEyeSection('od');
+      clientResetEyeSection('os');
+      if (manuf && model && lensData[manuf][model]) {
+        const types = lensData[manuf][model];
+        let optionsHTML = '<option value="">-- Seleziona Tipo --</option>';
+        types.forEach(t => optionsHTML += `<option value="${t}">${t}</option>`);
+        clientTypeSelect_OD.innerHTML = optionsHTML;
+        clientTypeSelect_OS.innerHTML = optionsHTML;
+        clientTypeSelect_OD.disabled = false;
+        clientTypeSelect_OS.disabled = false;
+      }
+    }
+    
+    function clientResetEyeSection(eyeSuffix) {
+      const typeSelect = (eyeSuffix === 'od') ? clientTypeSelect_OD : clientTypeSelect_OS;
+      typeSelect.innerHTML = '<option value="">-- Seleziona Tipo --</option>';
+      typeSelect.disabled = true;
+      clientUpdateParameterFields(eyeSuffix, true);
+    }
+
+    function clientUpdateParameterFields(eyeSuffix, forceHide = false) {
+      const typeSelect = (eyeSuffix === 'od') ? clientTypeSelect_OD : clientTypeSelect_OS;
+      const pwrField = (eyeSuffix === 'od') ? clientPwrField_OD : clientPwrField_OS;
+      const cylField = (eyeSuffix === 'od') ? clientCylField_OD : clientCylField_OS;
+      const axisField = (eyeSuffix === 'od') ? clientAxisField_OD : clientAxisField_OS;
+      const addField = (eyeSuffix === 'od') ? clientAddField_OD : clientAddField_OS;
+      const paramsInfo = (eyeSuffix === 'od') ? clientParamsInfo_OD : clientParamsInfo_OS;
+      const type = typeSelect.value.toLowerCase();
+      
+      pwrField.classList.add('hidden');
+      cylField.classList.add('hidden');
+      axisField.classList.add('hidden');
+      addField.classList.add('hidden');
+      paramsInfo.classList.remove('hidden');
+      if (forceHide || !type) return;
+      paramsInfo.classList.add('hidden');
+      if (type.includes('standard')) { pwrField.classList.remove('hidden'); }
+      else if (type.includes('astigmatismo') || type.includes('toric')) { pwrField.classList.remove('hidden'); cylField.classList.remove('hidden'); axisField.classList.remove('hidden'); }
+      else if (type.includes('multifocal') || type.includes('presbiopia')) { pwrField.classList.remove('hidden'); addField.classList.remove('hidden'); }
+      else if (type.includes('xr')) { pwrField.classList.remove('hidden'); cylField.classList.remove('hidden'); axisField.classList.remove('hidden'); }
+    }
+    
+    function showClientModal() {
+      clientPopulateManufacturers();
+      clientPopulateModels();
+      clientNameInput.value = '';
+      clientPwrInput_OD.value = ''; clientCylInput_OD.value = ''; clientAxisInput_OD.value = ''; clientAddInput_OD.value = '';
+      clientPwrInput_OS.value = ''; clientCylInput_OS.value = ''; clientAxisInput_OS.value = ''; clientAddInput_OS.value = '';
+      clientFormContainer.classList.remove('hidden');
+      clientFormActions.classList.remove('hidden');
+      clientQrContainer.classList.add('hidden');
+      clientModal.classList.remove('hidden');
+    }
+    
+    function hideClientModal() {
+      clientModal.classList.add('hidden');
+    }
+    
+    function generateQR() {
+      if (!currentOpticianUid) {
+        alert("Errore: Ottico non autenticato.");
+        return;
+      }
+      
+      const data = {
+        n: clientNameInput.value,
+        oid: currentOpticianUid,
+        m: clientManufacturerSelect.value,
+        md: clientModelSelect.value,
+        tod: clientTypeSelect_OD.value,
+        pod: clientPwrInput_OD.value,
+        cod: clientCylInput_OD.value,
+        aod: clientAxisInput_OD.value,
+        addod: clientAddInput_OD.value,
+        tos: clientTypeSelect_OS.value,
+        pos: clientPwrInput_OS.value,
+        cos: clientCylInput_OS.value,
+        aos: clientAxisInput_OS.value,
+        addos: clientAddInput_OS.value,
+      };
+
+      if (!data.n || !data.m || !data.md) {
+        alert("Compila almeno Nome, Produttore e Modello.");
+        return;
+      }
+
+      // Costruisci l'URL. Assumiamo che index.html sia alla radice.
+      const baseUrl = window.location.origin + '/';
+      const params = new URLSearchParams();
+      for (const [key, value] of Object.entries(data)) {
+        if (value) { params.set(key, value); }
+      }
+      const fullUrl = baseUrl + '?' + params.toString();
+      
+      qrCodeDisplay.innerHTML = ''; 
+      new QRCode(qrCodeDisplay, {
+        text: fullUrl,
+        width: 256,
+        height: 256,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+      });
+      
+      clientFormContainer.classList.add('hidden');
+      clientFormActions.classList.add('hidden');
+      clientQrContainer.classList.remove('hidden');
+    }
+    
+    // Listener per il modal
+    addClientButton.addEventListener('click', showClientModal);
+    closeModalButton.addEventListener('click', hideClientModal);
+    closeQrButton.addEventListener('click', hideClientModal);
+    generateQrButton.addEventListener('click', generateQR);
+    
+    clientManufacturerSelect.onchange = clientPopulateModels;
+    clientModelSelect.onchange = clientPopulateTypes;
+    clientTypeSelect_OD.onchange = () => clientUpdateParameterFields('od');
+    clientTypeSelect_OS.onchange = () => clientUpdateParameterFields('os');
+
   </script>
 </body>
 </html>
