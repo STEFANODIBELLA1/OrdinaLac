@@ -88,7 +88,10 @@
         <h1 class="text-2xl font-bold text-gray-800">Link Cliente Generato</h1>
         <p class="text-gray-600 mb-4">Fai scansionare questo QR code al tuo cliente per installare l'app pre-configurata.</p>
         <div id="qr-code-display" class="flex justify-center p-4 bg-white border rounded-lg"></div>
-        <button id="close-qr-button" class="mt-6 w-full bg-gray-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-gray-700">Fatto</button>
+        <div class="mt-6 flex space-x-4">
+            <button id="close-qr-button" class="w-1/2 bg-gray-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-gray-700">Fatto</button>
+            <button id="print-qr-button" class="w-1/2 bg-blue-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-blue-700">Stampa QR</button>
+        </div>
       </div>
       <div id="client-form-actions" class="bg-gray-50 px-6 py-4 flex justify-end space-x-4 rounded-b-lg">
         <button id="close-modal-button" class="bg-gray-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-gray-700">Annulla</button>
@@ -208,6 +211,7 @@
     const clientQrContainer = document.getElementById('client-qr-container');
     const qrCodeDisplay = document.getElementById('qr-code-display');
     const closeQrButton = document.getElementById('close-qr-button');
+    const printQrButton = document.getElementById('print-qr-button'); // *** NUOVO ***
     const clientNameInput = document.getElementById('client-name');
     const clientManufacturerSelect = document.getElementById('client-lens-manufacturer');
     const clientModelSelect = document.getElementById('client-lens-model');
@@ -275,13 +279,13 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        currentOpticianUid = user.uid; // *** SALVA L'ID DELL'OTTICO ***
+        currentOpticianUid = user.uid;
         loginView.classList.add('hidden');
         dashboardView.classList.remove('hidden');
         userEmailDisplay.innerText = user.email;
         opticianIdCode.innerText = user.uid;
         loadOrders(user.uid);
-        await loadLensData(); // *** CARICA LA LISTA LENTI SPECIFICA ***
+        await loadLensData();
       } else {
         currentOpticianUid = null;
         loginView.classList.remove('hidden');
@@ -365,7 +369,6 @@
     }
 
     // *** LOGICA GESTIONE LENTI (MODIFICATA PER PER-OTTICO) ***
-    
     async function loadLensData() {
       if (!currentOpticianUid) return;
       const docRef = doc(db, "optician_config", currentOpticianUid, "lenses", "main");
@@ -375,7 +378,7 @@
           globalLensData = docSnap.data().data;
         } else {
           console.warn("Documento lenti non trovato. Creazione con dati di default...");
-          globalLensData = defaultLensData; // Usa la lista completa
+          globalLensData = defaultLensData;
           await saveLensData();
         }
       } catch (e) {
@@ -644,10 +647,39 @@
       clientQrContainer.classList.remove('hidden');
     }
     
+    // *** NUOVA FUNZIONE: Stampa QR Code ***
+    function printQRCode() {
+      const clientName = clientNameInput.value || "Cliente";
+      const qrImage = qrCodeDisplay.querySelector('img');
+      
+      if (!qrImage) {
+        alert("Errore: Immagine QR non trovata.");
+        return;
+      }
+      
+      const qrImageSrc = qrImage.src; // Questo è il data URL
+      
+      const printWindow = window.open('', '_blank', 'height=600,width=800');
+      printWindow.document.write('<html><head><title>Stampa QR Code Cliente</title>');
+      printWindow.document.write('<style>body { font-family: sans-serif; padding: 20px; text-align: center; } h1 { font-size: 24px; } img { max-width: 80%; } </style>');
+      printWindow.document.write('</head><body>');
+      printWindow.document.write(`<h1>Accesso App per: ${clientName}</h1>`);
+      printWindow.document.write('<p>Scansiona questo QR code per configurare l\'app:</p>');
+      printWindow.document.write(`<img src="${qrImageSrc}" alt="QR Code">`);
+      printWindow.document.write('</body></html>');
+      
+      printWindow.document.close();
+      printWindow.focus();
+      
+      // La maggior parte dei browser moderni non ha bisogno di onload per le data-uri
+      printWindow.print();
+    }
+    
     // Listener per il modal CLIENTE
     addClientButton.addEventListener('click', showClientModal);
     closeModalButton.addEventListener('click', hideClientModal);
     closeQrButton.addEventListener('click', hideClientModal);
+    printQrButton.addEventListener('click', printQRCode); // *** NUOVO LISTENER ***
     generateQrButton.addEventListener('click', generateQR);
     clientManufacturerSelect.onchange = clientPopulateModels;
     clientModelSelect.onchange = clientPopulateTypes;

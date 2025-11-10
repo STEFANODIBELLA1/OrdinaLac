@@ -421,16 +421,13 @@
 
       // LOGICA DI AVVIO
       if (qrData) {
-        // 1. Dati da QR Code: vai dritto a impostazioni e auto-compila
         await showSettingsView(qrData);
       } else if (window.location.hash === '#invia-ordine') {
-        // 2. Shortcut: Invia subito o vai a impostazioni
         history.replaceState(null, document.title, window.location.pathname);
         const message = localStorage.getItem(KEY_MESSAGE); 
         if (!message) { await showSettingsView(); }
         else { showActionView(); runOrder(); }
       } else {
-        // 3. Avvio normale
         const message = localStorage.getItem(KEY_MESSAGE); 
         if (!message) { await showSettingsView(); }
         else { showActionView(); }
