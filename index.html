@@ -22,6 +22,7 @@
 
 <body class="bg-white font-sans">
 
+<!-- Questo è il popup di installazione -->
 <div id="install-prompt" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 hidden z-50 backdrop-blur-sm">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 relative text-center">
         <h1 class="text-2xl font-bold text-gray-800 mb-4">Installa l'App per Ordini Rapidi!</h1>
@@ -33,6 +34,7 @@
         <button id="close-install-prompt" class="mt-6 w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-blue-700">Ho capito</button>
     </div>
 </div>
+<!-- Fine popup installazione -->
 
 
 <div id="settings-view" class="max-w-md mx-auto min-h-screen bg-white shadow-lg p-6 hidden relative">
@@ -192,7 +194,7 @@
       const lensesLoadingMessage = document.getElementById('lenses-loading-message');
       const lensesErrorMessage = document.getElementById('lenses-error-message');
       
-      // *** CORREZIONE: Variabili Popup Installazione definite ***
+      // Variabili Popup Installazione
       const installPrompt = document.getElementById('install-prompt');
       const closeInstallPrompt = document.getElementById('close-install-prompt');
 
@@ -357,7 +359,7 @@
 
       function saveSettings() {
         if (!globalLensData) {
-          alert("Devi prima caricare le lenti del tuo ottico. Inserisci il Codice Ottico e clicca 'Carica Lenti'.");
+          alert("Devi prima caricare le lenti del tuo ottico. Inserisci il Codice Ottico.");
           return;
         }
         const data = {
@@ -422,16 +424,13 @@
       typeSelect_OD.onchange = () => updateParameterFields('od');
       typeSelect_OS.onchange = () => updateParameterFields('os');
       
-      // *** MODIFICATO: Caricamento lenti automatico al cambio ID ***
       opticianIdInput.addEventListener('blur', async () => {
         const opticianId = opticianIdInput.value.trim();
         if (!opticianId) return;
-
         const currentLoadedId = localStorage.getItem(KEY_OPTICIAN_ID);
         if (globalLensData && currentLoadedId === opticianId) {
           return;
         }
-        
         const success = await loadLensData(opticianId);
         if (success) {
           populateManufacturers();
@@ -443,30 +442,51 @@
         }
       });
       
-      // *** CORREZIONE: Listener per il popup di installazione ***
+      // Listener per il popup di installazione
       closeInstallPrompt.onclick = () => {
           installPrompt.classList.add('hidden');
+          // Imposta 'has_visited' solo quando l'utente chiude manualmente il popup
           localStorage.setItem(KEY_HAS_VISITED, 'true');
       };
 
-      // LOGICA DI AVVIO
+      // *** LOGICA DI AVVIO MODIFICATA ***
+      
+      // Controlla se l'app è in modalità "standalone" (cioè installata)
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
       if (qrData) {
+        // L'utente è arrivato da una scansione QR
         await showSettingsView(qrData);
+        
+        // *** LOGICA POPUP RICHIESTA ***
+        // Se l'utente ha scansionato un QR e l'app NON è installata (è nel browser),
+        // mostra il popup di installazione.
+        if (!isStandalone) {
+          installPrompt.classList.remove('hidden');
+        }
+
       } else if (window.location.hash === '#invia-ordine') {
+        // L'utente ha usato la "shortcut"
         history.replaceState(null, document.title, window.location.pathname);
         const message = localStorage.getItem(KEY_MESSAGE); 
         if (!message) { await showSettingsView(); }
         else { showActionView(); runOrder(); }
+
       } else {
+        // L'utente ha aperto l'app normalmente
         const message = localStorage.getItem(KEY_MESSAGE); 
         if (!message) { await showSettingsView(); }
         else { showActionView(); }
+
+        // *** LOGICA POPUP ESISTENTE per visite normali ***
+        // Mostra il popup solo la prima volta (se non ha visitato) e se non è installata.
+        if (!localStorage.getItem(KEY_HAS_VISITED) && !isStandalone) {
+            installPrompt.classList.remove('hidden');
+        }
       }
       
-      if (!localStorage.getItem(KEY_HAS_VISITED) && !qrData) {
-          installPrompt.classList.remove('hidden');
-      }
-
+      // La vecchia logica del popup è stata rimossa da qui e integrata sopra
+      
     })();
   </script>
 
