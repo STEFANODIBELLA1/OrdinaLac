@@ -211,7 +211,7 @@
     const clientQrContainer = document.getElementById('client-qr-container');
     const qrCodeDisplay = document.getElementById('qr-code-display');
     const closeQrButton = document.getElementById('close-qr-button');
-    const printQrButton = document.getElementById('print-qr-button'); // *** NUOVO ***
+    const printQrButton = document.getElementById('print-qr-button');
     const clientNameInput = document.getElementById('client-name');
     const clientManufacturerSelect = document.getElementById('client-lens-manufacturer');
     const clientModelSelect = document.getElementById('client-lens-model');
@@ -368,7 +368,7 @@
       }
     }
 
-    // *** LOGICA GESTIONE LENTI (MODIFICATA PER PER-OTTICO) ***
+    // *** LOGICA GESTIONE LENTI (COMPLETA E CORRETTA) ***
     async function loadLensData() {
       if (!currentOpticianUid) return;
       const docRef = doc(db, "optician_config", currentOpticianUid, "lenses", "main");
@@ -647,7 +647,7 @@
       clientQrContainer.classList.remove('hidden');
     }
     
-    // *** NUOVA FUNZIONE: Stampa QR Code ***
+    // *** FUNZIONE STAMPA QR (CORRETTA) ***
     function printQRCode() {
       const clientName = clientNameInput.value || "Cliente";
       const qrImage = qrCodeDisplay.querySelector('img');
@@ -660,26 +660,36 @@
       const qrImageSrc = qrImage.src; // Questo è il data URL
       
       const printWindow = window.open('', '_blank', 'height=600,width=800');
+      
       printWindow.document.write('<html><head><title>Stampa QR Code Cliente</title>');
-      printWindow.document.write('<style>body { font-family: sans-serif; padding: 20px; text-align: center; } h1 { font-size: 24px; } img { max-width: 80%; } </style>');
+      printWindow.document.write('<style>body { font-family: sans-serif; padding: 20px; text-align: center; } h1 { font-size: 24px; } img { max-width: 80%; } @media print { body { padding: 0; } } </style>');
       printWindow.document.write('</head><body>');
       printWindow.document.write(`<h1>Accesso App per: ${clientName}</h1>`);
       printWindow.document.write('<p>Scansiona questo QR code per configurare l\'app:</p>');
-      printWindow.document.write(`<img src="${qrImageSrc}" alt="QR Code">`);
+      
+      // Crea un elemento immagine nel DOM della nuova finestra
+      const img = printWindow.document.createElement('img');
+      img.src = qrImageSrc;
+      
+      // *** QUESTA È LA CORREZIONE ***
+      // Aggiunge un listener: chiama la stampa SOLO DOPO che l'immagine è stata caricata
+      img.onload = function() {
+        printWindow.focus();  // Porta la finestra in primo piano
+        printWindow.print();  // Apre il dialogo di stampa
+        printWindow.close();  // Chiude la finestra dopo la stampa
+      };
+      
+      // Aggiunge l'immagine al body della finestra di stampa
+      printWindow.document.body.appendChild(img);
       printWindow.document.write('</body></html>');
-      
       printWindow.document.close();
-      printWindow.focus();
-      
-      // La maggior parte dei browser moderni non ha bisogno di onload per le data-uri
-      printWindow.print();
     }
     
     // Listener per il modal CLIENTE
     addClientButton.addEventListener('click', showClientModal);
     closeModalButton.addEventListener('click', hideClientModal);
     closeQrButton.addEventListener('click', hideClientModal);
-    printQrButton.addEventListener('click', printQRCode); // *** NUOVO LISTENER ***
+    printQrButton.addEventListener('click', printQRCode); // Listener per la stampa
     generateQrButton.addEventListener('click', generateQR);
     clientManufacturerSelect.onchange = clientPopulateModels;
     clientModelSelect.onchange = clientPopulateTypes;

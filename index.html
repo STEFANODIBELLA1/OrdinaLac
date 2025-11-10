@@ -27,7 +27,7 @@
         <h1 class="text-2xl font-bold text-gray-800 mb-4">Installa l'App per Ordini Rapidi!</h1>
         <p class="text-gray-600 mb-4">Per un accesso più veloce, aggiungi questa app alla tua schermata Home.</p>
         <div class="text-left space-y-3">
-            <p><strong>Su iOS (iPhone/iPad):</strong> Clicca il tasto "Condividi" (l'icona ) e poi scorri fino a "Aggiungi a Home".</p>
+            <p><strong>Su iOS (iPhone/iPad):</strong> Clicca il tasto "Condividi" (l'icona del quadrato con la freccia in su) e poi scorri fino a "Aggiungi a Home".</p>
             <p><strong>Su Android (Chrome):</strong> Clicca i tre puntini (⋮) in alto a destra e poi "Installa app" o "Aggiungi a schermata Home".</p>
         </div>
         <button id="close-install-prompt" class="mt-6 w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-blue-700">Ho capito</button>
@@ -147,7 +147,7 @@
       const KEY_PARAM_CYL_OS = 'otticoApp_param_cyl_os';
       const KEY_PARAM_AXIS_OS = 'otticoApp_param_axis_os';
       const KEY_PARAM_ADD_OS = 'otticoApp_param_add_os';
-      const KEY_HAS_VISITED = 'otticoApp_has_visited'; // *** NUOVA CHIAVE ***
+      const KEY_HAS_VISITED = 'otticoApp_has_visited';
 
       // Viste e Elementi
       const actionView = document.getElementById('action-view');
@@ -192,7 +192,7 @@
       const lensesLoadingMessage = document.getElementById('lenses-loading-message');
       const lensesErrorMessage = document.getElementById('lenses-error-message');
       
-      // *** NUOVI: Elementi Popup Installazione ***
+      // *** CORREZIONE: Variabili Popup Installazione definite ***
       const installPrompt = document.getElementById('install-prompt');
       const closeInstallPrompt = document.getElementById('close-install-prompt');
 
@@ -422,24 +422,20 @@
       typeSelect_OD.onchange = () => updateParameterFields('od');
       typeSelect_OS.onchange = () => updateParameterFields('os');
       
-      // *** MODIFICATO: Sostituito il listener del pulsante con uno sull'input ***
+      // *** MODIFICATO: Caricamento lenti automatico al cambio ID ***
       opticianIdInput.addEventListener('blur', async () => {
         const opticianId = opticianIdInput.value.trim();
         if (!opticianId) return;
 
-        // Controlla se le lenti per questo ID sono GIA caricate
         const currentLoadedId = localStorage.getItem(KEY_OPTICIAN_ID);
         if (globalLensData && currentLoadedId === opticianId) {
-          return; // Già caricato
+          return;
         }
         
         const success = await loadLensData(opticianId);
         if (success) {
           populateManufacturers();
-          // Salva l'ID per dopo, così 'saveSettings' ha quello giusto
-          localStorage.setItem(KEY_OPTICIAN_ID, opticianId); 
         } else {
-          // 'loadLensData' mostra già il messaggio di errore
           manufacturerSelect.innerHTML = '<option value="">-- Codice non valido --</option>';
           modelSelect.innerHTML = '<option value="">--</option>';
           typeSelect_OD.innerHTML = '<option value="">--</option>';
@@ -447,7 +443,7 @@
         }
       });
       
-      // *** NUOVO: Logica Popup Installazione ***
+      // *** CORREZIONE: Listener per il popup di installazione ***
       closeInstallPrompt.onclick = () => {
           installPrompt.classList.add('hidden');
           localStorage.setItem(KEY_HAS_VISITED, 'true');
@@ -455,22 +451,18 @@
 
       // LOGICA DI AVVIO
       if (qrData) {
-        // 1. Dati da QR Code: vai dritto a impostazioni e auto-compila
         await showSettingsView(qrData);
       } else if (window.location.hash === '#invia-ordine') {
-        // 2. Shortcut: Invia subito o vai a impostazioni
         history.replaceState(null, document.title, window.location.pathname);
         const message = localStorage.getItem(KEY_MESSAGE); 
         if (!message) { await showSettingsView(); }
         else { showActionView(); runOrder(); }
       } else {
-        // 3. Avvio normale
         const message = localStorage.getItem(KEY_MESSAGE); 
         if (!message) { await showSettingsView(); }
         else { showActionView(); }
       }
       
-      // Mostra il prompt di installazione solo al primo avvio, se non arrivi da un QR
       if (!localStorage.getItem(KEY_HAS_VISITED) && !qrData) {
           installPrompt.classList.remove('hidden');
       }
