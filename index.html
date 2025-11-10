@@ -22,6 +22,19 @@
 
 <body class="bg-white font-sans">
 
+<div id="install-prompt" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 hidden z-50 backdrop-blur-sm">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 relative text-center">
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">Installa l'App per Ordini Rapidi!</h1>
+        <p class="text-gray-600 mb-4">Per un accesso più veloce, aggiungi questa app alla tua schermata Home.</p>
+        <div class="text-left space-y-3">
+            <p><strong>Su iOS (iPhone/iPad):</strong> Clicca il tasto "Condividi" (l'icona ) e poi scorri fino a "Aggiungi a Home".</p>
+            <p><strong>Su Android (Chrome):</strong> Clicca i tre puntini (⋮) in alto a destra e poi "Installa app" o "Aggiungi a schermata Home".</p>
+        </div>
+        <button id="close-install-prompt" class="mt-6 w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-blue-700">Ho capito</button>
+    </div>
+</div>
+
+
 <div id="settings-view" class="max-w-md mx-auto min-h-screen bg-white shadow-lg p-6 hidden relative">
     <h1 class="text-3xl font-bold text-gray-800 mb-4">Impostazioni Ordine</h1>
     <p class="text-gray-600 mb-6">Salva i dati per il tuo ordine rapido.</p>
@@ -34,7 +47,6 @@
         <label for="optician-id" class="block text-sm font-medium text-gray-700">Codice Ottico</label>
         <div class="flex space-x-2 mt-1">
           <input type="text" id="optician-id" placeholder="Chiedi questo codice al tuo ottico" class="flex-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
-          <button id="load-lenses-button" class="bg-indigo-600 text-white py-2 px-3 rounded-md shadow-sm text-sm font-medium hover:bg-indigo-700">Carica Lenti</button>
         </div>
         <p id="lenses-loading-message" class="text-sm text-indigo-600 mt-1 hidden">Caricamento lenti...</p>
         <p id="lenses-error-message" class="text-sm text-red-600 mt-1 hidden">Codice ottico non valido.</p>
@@ -97,7 +109,7 @@
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp, setLogLevel, getDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    let globalLensData = null; // Inizia vuoto
+    let globalLensData = null;
 
     (async () => {
       const appId = "ordinalac-app";
@@ -135,6 +147,7 @@
       const KEY_PARAM_CYL_OS = 'otticoApp_param_cyl_os';
       const KEY_PARAM_AXIS_OS = 'otticoApp_param_axis_os';
       const KEY_PARAM_ADD_OS = 'otticoApp_param_add_os';
+      const KEY_HAS_VISITED = 'otticoApp_has_visited'; // *** NUOVA CHIAVE ***
 
       // Viste e Elementi
       const actionView = document.getElementById('action-view');
@@ -176,9 +189,12 @@
       const summaryContainer = document.getElementById('summary-container');
       const sendButtonContainer = document.getElementById('send-button-container');
       const offerContainer = document.getElementById('offer-container');
-      const loadLensesButton = document.getElementById('load-lenses-button');
       const lensesLoadingMessage = document.getElementById('lenses-loading-message');
       const lensesErrorMessage = document.getElementById('lenses-error-message');
+      
+      // *** NUOVI: Elementi Popup Installazione ***
+      const installPrompt = document.getElementById('install-prompt');
+      const closeInstallPrompt = document.getElementById('close-install-prompt');
 
 
       // *** FUNZIONE: Carica lenti specifiche dell'ottico ***
@@ -194,18 +210,18 @@
           if (docSnap.exists()) {
             globalLensData = docSnap.data().data;
             lensesLoadingMessage.classList.add('hidden');
-            return true; // Successo!
+            return true;
           } else {
             console.error("ERRORE: Documento lenti non trovato per l'ottico:", opticianId);
             globalLensData = null;
             lensesErrorMessage.classList.remove('hidden');
-            return false; // Fallimento
+            return false;
           }
         } catch (e) {
           console.error("Errore caricamento lenti:", e);
           globalLensData = null;
           lensesErrorMessage.classList.remove('hidden');
-          return false; // Fallimento
+          return false;
         }
       }
 
@@ -406,31 +422,57 @@
       typeSelect_OD.onchange = () => updateParameterFields('od');
       typeSelect_OS.onchange = () => updateParameterFields('os');
       
-      loadLensesButton.onclick = async () => {
+      // *** MODIFICATO: Sostituito il listener del pulsante con uno sull'input ***
+      opticianIdInput.addEventListener('blur', async () => {
         const opticianId = opticianIdInput.value.trim();
-        if (!opticianId) {
-          lensesErrorMessage.innerText = "Inserisci un Codice Ottico.";
-          lensesErrorMessage.classList.remove('hidden');
-          return;
+        if (!opticianId) return;
+
+        // Controlla se le lenti per questo ID sono GIA caricate
+        const currentLoadedId = localStorage.getItem(KEY_OPTICIAN_ID);
+        if (globalLensData && currentLoadedId === opticianId) {
+          return; // Già caricato
         }
+        
         const success = await loadLensData(opticianId);
         if (success) {
           populateManufacturers();
+          // Salva l'ID per dopo, così 'saveSettings' ha quello giusto
+          localStorage.setItem(KEY_OPTICIAN_ID, opticianId); 
+        } else {
+          // 'loadLensData' mostra già il messaggio di errore
+          manufacturerSelect.innerHTML = '<option value="">-- Codice non valido --</option>';
+          modelSelect.innerHTML = '<option value="">--</option>';
+          typeSelect_OD.innerHTML = '<option value="">--</option>';
+          typeSelect_OS.innerHTML = '<option value="">--</option>';
         }
+      });
+      
+      // *** NUOVO: Logica Popup Installazione ***
+      closeInstallPrompt.onclick = () => {
+          installPrompt.classList.add('hidden');
+          localStorage.setItem(KEY_HAS_VISITED, 'true');
       };
 
       // LOGICA DI AVVIO
       if (qrData) {
+        // 1. Dati da QR Code: vai dritto a impostazioni e auto-compila
         await showSettingsView(qrData);
       } else if (window.location.hash === '#invia-ordine') {
+        // 2. Shortcut: Invia subito o vai a impostazioni
         history.replaceState(null, document.title, window.location.pathname);
         const message = localStorage.getItem(KEY_MESSAGE); 
         if (!message) { await showSettingsView(); }
         else { showActionView(); runOrder(); }
       } else {
+        // 3. Avvio normale
         const message = localStorage.getItem(KEY_MESSAGE); 
         if (!message) { await showSettingsView(); }
         else { showActionView(); }
+      }
+      
+      // Mostra il prompt di installazione solo al primo avvio, se non arrivi da un QR
+      if (!localStorage.getItem(KEY_HAS_VISITED) && !qrData) {
+          installPrompt.classList.remove('hidden');
       }
 
     })();
