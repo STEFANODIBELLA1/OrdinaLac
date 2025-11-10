@@ -22,7 +22,6 @@
 
 <body class="bg-white font-sans">
 
-<!-- Questo è il popup di installazione -->
 <div id="install-prompt" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 hidden z-50 backdrop-blur-sm">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 relative text-center">
         <h1 class="text-2xl font-bold text-gray-800 mb-4">Installa l'App per Ordini Rapidi!</h1>
@@ -34,9 +33,6 @@
         <button id="close-install-prompt" class="mt-6 w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-blue-700">Ho capito</button>
     </div>
 </div>
-<!-- Fine popup installazione -->
-
-
 <div id="settings-view" class="max-w-md mx-auto min-h-screen bg-white shadow-lg p-6 hidden relative">
     <h1 class="text-3xl font-bold text-gray-800 mb-4">Impostazioni Ordine</h1>
     <p class="text-gray-600 mb-6">Salva i dati per il tuo ordine rapido.</p>
@@ -272,10 +268,12 @@
       function populateManufacturers() {
         if (!globalLensData) {
           manufacturerSelect.innerHTML = '<option value="">-- Inserisci Codice Ottico --</option>';
+          manufacturerSelect.disabled = true; // Assicura che sia disabilitato se non ci sono dati
           return;
         }
         manufacturerSelect.innerHTML = '<option value="">-- Seleziona Produttore --</option>';
         Object.keys(globalLensData).forEach(m => manufacturerSelect.innerHTML += `<option value="${m}">${m}</option>`);
+        manufacturerSelect.disabled = false; // <-- CORREZIONE APPLICATA
       }
 
       function populateModels() {
@@ -435,10 +433,15 @@
         if (success) {
           populateManufacturers();
         } else {
+          // --- CORREZIONE APPLICATA ---
           manufacturerSelect.innerHTML = '<option value="">-- Codice non valido --</option>';
+          manufacturerSelect.disabled = true;
           modelSelect.innerHTML = '<option value="">--</option>';
+          modelSelect.disabled = true;
           typeSelect_OD.innerHTML = '<option value="">--</option>';
+          typeSelect_OD.disabled = true;
           typeSelect_OS.innerHTML = '<option value="">--</option>';
+          typeSelect_OS.disabled = true;
         }
       });
       
