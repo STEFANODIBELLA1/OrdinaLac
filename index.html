@@ -374,9 +374,11 @@
       function updateSwitchLabels() {
         const isDelivery = deliveryToggle.checked;
         if (isDelivery) {
-            activeDeliveryLabel.innerText = "Consegna a domicilio";
+            // *** MODIFICA ETICHETTA ***
+            activeDeliveryLabel.innerText = "Presso Domicilio";
         } else {
-            activeDeliveryLabel.innerText = "Ritiro in negozio";
+            // *** MODIFICA ETICHETTA ***
+            activeDeliveryLabel.innerText = "Presso Store";
         }
       }
 
@@ -406,10 +408,12 @@
         // --- 1. Costruisci il messaggio COMPLETO per l'invio ---
         let deliveryInfo = "";
         if (data.del === 'delivery') {
-          deliveryInfo = `MODALITÀ: **CONSEGNA A DOMICILIO**\n`;
+          // *** MODIFICA: Rimossa "MODALITÀ:" ***
+          deliveryInfo = `**CONSEGNA A DOMICILIO**\n`;
           deliveryInfo += `INDIRIZZO: ${data.adr || 'INDIRIZZO NON IMPOSTATO'}\n`;
         } else {
-          deliveryInfo = `MODALITÀ: **RITIRO IN NEGOZIO**\n`;
+          // *** MODIFICA: Rimossa "MODALITÀ:" ***
+          deliveryInfo = `**RITIRO IN NEGOZIO**\n`;
         }
 
         let constructedMessage = `--- INFO CLIENTE ---\n`; 
@@ -418,8 +422,7 @@
         constructedMessage += `--- ORDINE LENTI ---\n`;
         constructedMessage += `Ordine: ${data.m || 'N/D'} ${data.md || 'N/D'}\n\n`;
         
-        // *** MODIFICA ETICHETTA JS ***
-        constructedMessage += `OCCHIO DESTRO [${data.qod} pz.]\n`; // Aggiunge 'pz.'
+        constructedMessage += `OCCHIO DESTRO [${data.qod} pz.]\n`;
         constructedMessage += `Tipo: ${data.tod || 'N/D'}\n`;
         const paramsOD = [];
         if (data.pod) paramsOD.push(`Sf. ${data.pod}`);
@@ -429,8 +432,7 @@
         if (data.addod) constructedMessage += `ADD: ${data.addod}\n`;
         constructedMessage += '\n'; // Aggiungi spazio prima di OS
 
-        // *** MODIFICA ETICHETTA JS ***
-        constructedMessage += `OCCHIO SINISTRO [${data.qos} pz.]\n`; // Aggiunge 'pz.'
+        constructedMessage += `OCCHIO SINISTRO [${data.qos} pz.]\n`;
         constructedMessage += `Tipo: ${data.tos || 'N/D'}\n`;
         const paramsOS = [];
         if (data.pos) paramsOS.push(`Sf. ${data.pos}`);
