@@ -199,31 +199,26 @@
         </div>
         <p id="summary-message-os" class="text-gray-700 whitespace-pre-wrap"></p>
       </div>
+
       <div id="quick-summary-container" class="my-6 space-y-4 hidden"></div>
       
       <p id="action-message" class="text-lg text-gray-600 mt-6 mb-4 hidden"></p>
       <div id="offer-container" class="hidden my-6"><img src="https://placehold.co/400x300/0d6efd/ffffff?text=Offerta+Speciale" alt="Offerta" class="rounded-lg shadow-md mx-auto"></div>
       
-      <div id="delivery-switch-container" class="flex items-center justify-between my-6">
+      <div id="delivery-switch-container" class="flex items-center justify-between my-6 space-x-2">
         
-        <div class="flex items-center space-x-3">
-            <label class="toggle-switch">
-              <input type="checkbox" id="delivery-toggle">
+        <div class="flex items-center space-x-3 flex-1 min-w-0"> <label class="toggle-switch flex-shrink-0"> <input type="checkbox" id="delivery-toggle">
               <span class="slider"></span>
             </label>
-            <span id="active-delivery-label" class="text-gray-900 font-bold text-sm w-48 text-left">
-            </span>
+            <span id="active-delivery-label" class="text-gray-900 font-bold text-sm text-left truncate"> </span>
         </div>
         
-        <button id="edit-settings-button" class="p-2 rounded-full text-gray-400 hover:bg-gray-100 focus:outline-none">
-            <img src="three-dots.png" alt="Impostazioni" class="w-7 h-7">
+        <button id="edit-settings-button" class="p-2 rounded-full text-gray-400 hover:bg-gray-100 focus:outline-none flex-shrink-0"> <img src="three-dots.png" alt="Impostazioni" class="w-7 h-7">
         </button>
         
-        <button id="close-app-button" class="p-2 rounded-full text-gray-400 hover:bg-gray-100 focus:outline-none">
-            <img src="x-down.png" alt="Chiudi" class="w-7 h-7">
+        <button id="close-app-button" class="p-2 rounded-full text-gray-400 hover:bg-gray-100 focus:outline-none flex-shrink-0"> <img src="x-down.png" alt="Chiudi" class="w-7 h-7">
         </button>
       </div>
-
       <div id="send-button-container" class="mt-4">
         <button id="send-order-button" class="mx-auto focus:outline-none rounded-full focus:ring-4 focus:ring-red-300"><img src="buttonRed.png" alt="Invia Ordine Ora" class="w-40 h-40" /></button>
       </div>
@@ -548,8 +543,8 @@
           localStorage.setItem(KEY_DELIVERY_OPTION, 'pickup'); // Default
           deliveryToggle.checked = false;
           addressInput.value = ''; 
-          qtyInput_OD.value = '1'; // Default numero
-          qtyInput_OS.value = '1'; // Default numero
+          qtyInput_OD.value = '1';
+          qtyInput_OS.value = '1';
           
           const success = await loadLensData(fromQrData.oid);
           if (success) {
@@ -569,8 +564,8 @@
           deliveryToggle.checked = (savedDeliveryOption === 'delivery'); // Imposta il toggle
           addressInput.value = localStorage.getItem(KEY_ADDRESS) || '';
           opticianIdInput.value = localStorage.getItem(KEY_OPTICIAN_ID) || '';
-          qtyInput_OD.value = localStorage.getItem(KEY_QTY_OD) || '1'; // Default numero
-          qtyInput_OS.value = localStorage.getItem(KEY_QTY_OS) || '1'; // Default numero
+          qtyInput_OD.value = localStorage.getItem(KEY_QTY_OD) || '1';
+          qtyInput_OS.value = localStorage.getItem(KEY_QTY_OS) || '1';
           
           const savedOpticianId = localStorage.getItem(KEY_OPTICIAN_ID);
           if (savedOpticianId) {
@@ -633,8 +628,8 @@
         localStorage.setItem(KEY_OPTICIAN_ID, opticianIdInput.value.trim());
         localStorage.setItem(KEY_LENS_MANUFACTURER, manufacturerSelect.value);
         localStorage.setItem(KEY_LENS_MODEL, modelSelect.value);
-        localStorage.setItem(KEY_QTY_OD, qtyInput_OD.value.trim() || '1'); // Salva numero
-        localStorage.setItem(KEY_QTY_OS, qtyInput_OS.value.trim() || '1'); // Salva numero
+        localStorage.setItem(KEY_QTY_OD, qtyInput_OD.value.trim() || '1');
+        localStorage.setItem(KEY_QTY_OS, qtyInput_OS.value.trim() || '1');
         localStorage.setItem(KEY_LENS_TYPE_OD, typeSelect_OD.value);
         localStorage.setItem(KEY_PARAM_PWR_OD, pwrInput_OD.value.trim());
         localStorage.setItem(KEY_PARAM_CYL_OD, cylInput_OD.value.trim());
@@ -678,8 +673,8 @@
         updateSwitchLabels();
         
         // Popola i campi del quick summary
-        quickQtyInput_OD.value = localStorage.getItem(KEY_QTY_OD) || '1'; // Solo numero
-        quickQtyInput_OS.value = localStorage.getItem(KEY_QTY_OS) || '1'; // Solo numero
+        quickQtyInput_OD.value = localStorage.getItem(KEY_QTY_OD) || '1';
+        quickQtyInput_OS.value = localStorage.getItem(KEY_QTY_OS) || '1';
         
         // Ricostruisce il messaggio e lo mostra
         buildAndSaveMessage(); 
