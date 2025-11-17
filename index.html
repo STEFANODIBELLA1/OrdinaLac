@@ -133,7 +133,7 @@
       </div>
       <div><label for="lens-model" class="block text-sm font-medium text-gray-700">Modello Lente</label><select id="lens-model" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled><option value="">-- Prima seleziona produttore --</option></select></div>
       
-      <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 pt-4">Occhio Destro (OD)</h2>
+      <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 pt-4">OCCHIO DESTRO</h2>
       <div class="flex items-center space-x-2">
           <label for="qty-od" class="block text-sm font-medium text-gray-700">Quantità (Destro)</label>
           <input type="number" id="qty-od" value="1" class="mt-1 block w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-center">
@@ -149,7 +149,7 @@
         <div id="params-add-od" class="hidden"><label for="param-add-od" class="block text-sm font-medium text-gray-700">Addizione (ADD)</label><input type="text" id="param-add-od" placeholder="Es: LOW o +1.50" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></div>
       </div>
       
-      <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 pt-4">Occhio Sinistro (OS)</h2>
+      <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 pt-4">OCCHIO SINISTRO</h2>
       <div class="flex items-center space-x-2">
           <label for="qty-os" class="block text-sm font-medium text-gray-700">Quantità (Sinistro)</label>
           <input type="number" id="qty-os" value="1" class="mt-1 block w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-center">
@@ -182,7 +182,7 @@
         <p id="summary-message-top" class="text-gray-700 whitespace-pre-wrap mt-2"></p>
         
         <div class="flex justify-between items-center mt-2">
-          <span class="text-gray-700 font-medium">--- OCCHIO DESTRO (OD) ---</span>
+          <span class="text-gray-700 font-medium">OCCHIO DESTRO</span>
           <div class="flex items-center space-x-2">
             <input type="number" id="quick-qty-od" value="1" class="w-16 px-3 py-1 border border-gray-300 rounded-md shadow-sm text-center">
             <span class="text-sm text-gray-700">pz.</span>
@@ -191,7 +191,7 @@
         <p id="summary-message-od" class="text-gray-700 whitespace-pre-wrap"></p>
         
         <div class="flex justify-between items-center mt-2">
-          <span class="text-gray-700 font-medium">--- OCCHIO SINISTRO (OS) ---</span>
+          <span class="text-gray-700 font-medium">OCCHIO SINISTRO</span>
           <div class="flex items-center space-x-2">
             <input type="number" id="quick-qty-os" value="1" class="w-16 px-3 py-1 border border-gray-300 rounded-md shadow-sm text-center">
             <span class="text-sm text-gray-700">pz.</span>
@@ -207,18 +207,24 @@
       
       <div id="delivery-switch-container" class="flex items-center justify-between my-6 space-x-2">
         
-        <div class="flex items-center space-x-3 flex-1 min-w-0"> <label class="toggle-switch flex-shrink-0"> <input type="checkbox" id="delivery-toggle">
+        <div class="flex items-center space-x-3 flex-1 min-w-0">
+            <label class="toggle-switch flex-shrink-0">
+              <input type="checkbox" id="delivery-toggle">
               <span class="slider"></span>
             </label>
-            <span id="active-delivery-label" class="text-gray-900 font-bold text-sm text-left truncate"> </span>
+            <span id="active-delivery-label" class="text-gray-900 font-bold text-sm text-left truncate">
+            </span>
         </div>
         
-        <button id="edit-settings-button" class="p-2 rounded-full text-gray-400 hover:bg-gray-100 focus:outline-none flex-shrink-0"> <img src="three-dots.png" alt="Impostazioni" class="w-7 h-7">
+        <button id="edit-settings-button" class="p-2 rounded-full text-gray-400 hover:bg-gray-100 focus:outline-none flex-shrink-0">
+            <img src="three-dots.png" alt="Impostazioni" class="w-7 h-7">
         </button>
         
-        <button id="close-app-button" class="p-2 rounded-full text-gray-400 hover:bg-gray-100 focus:outline-none flex-shrink-0"> <img src="x-down.png" alt="Chiudi" class="w-7 h-7">
+        <button id="close-app-button" class="p-2 rounded-full text-gray-400 hover:bg-gray-100 focus:outline-none flex-shrink-0">
+            <img src="x-down.png" alt="Chiudi" class="w-7 h-7">
         </button>
       </div>
+
       <div id="send-button-container" class="mt-4">
         <button id="send-order-button" class="mx-auto focus:outline-none rounded-full focus:ring-4 focus:ring-red-300"><img src="buttonRed.png" alt="Invia Ordine Ora" class="w-40 h-40" /></button>
       </div>
@@ -412,7 +418,8 @@
         constructedMessage += `--- ORDINE LENTI ---\n`;
         constructedMessage += `Ordine: ${data.m || 'N/D'} ${data.md || 'N/D'}\n\n`;
         
-        constructedMessage += `--- OCCHIO DESTRO (OD) --- [${data.qod} pz.]\n`; // Aggiunge 'pz.'
+        // *** MODIFICA ETICHETTA JS ***
+        constructedMessage += `OCCHIO DESTRO [${data.qod} pz.]\n`; // Aggiunge 'pz.'
         constructedMessage += `Tipo: ${data.tod || 'N/D'}\n`;
         const paramsOD = [];
         if (data.pod) paramsOD.push(`Sf. ${data.pod}`);
@@ -422,7 +429,8 @@
         if (data.addod) constructedMessage += `ADD: ${data.addod}\n`;
         constructedMessage += '\n'; // Aggiungi spazio prima di OS
 
-        constructedMessage += `--- OCCHIO SINISTRO (OS) --- [${data.qos} pz.]\n`; // Aggiunge 'pz.'
+        // *** MODIFICA ETICHETTA JS ***
+        constructedMessage += `OCCHIO SINISTRO [${data.qos} pz.]\n`; // Aggiunge 'pz.'
         constructedMessage += `Tipo: ${data.tos || 'N/D'}\n`;
         const paramsOS = [];
         if (data.pos) paramsOS.push(`Sf. ${data.pos}`);
