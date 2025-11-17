@@ -17,6 +17,71 @@
     #send-order-button:active img { transform: scale(0.95); }
     #send-order-button img { transition: transform 0.1s ease-out; }
     select:disabled { background-color: #f3f4f6; opacity: 0.7; }
+
+    /* Stili per il toggle switch */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #2196F3; /* Blu per Consegna */
+    }
+    
+    input + .slider {
+        background-color: #888; /* Grigio per Ritiro */
+    }
+
+    input:focus + .slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    
+    /* Nasconde frecce input numero */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+    
   </style>
 </head>
 
@@ -33,6 +98,7 @@
         <button id="close-install-prompt" class="mt-6 w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-blue-700">Ho capito</button>
     </div>
 </div>
+
 <div id="settings-view" class="max-w-md mx-auto min-h-screen bg-white shadow-lg p-6 hidden relative">
     <h1 class="text-3xl font-bold text-gray-800 mb-4">Impostazioni Ordine</h1>
     <p class="text-gray-600 mb-6">Salva i dati per il tuo ordine rapido.</p>
@@ -41,6 +107,8 @@
       <h2 class="text-lg font-semibold text-gray-700 border-b pb-2">Dati Paziente</h2>
       <div><label for="patient-name" class="block text-sm font-medium text-gray-700">Il tuo Nome (per l'ottico)</label><input type="text" id="patient-name" placeholder="Es: Mario Rossi" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
       
+      <div><label for="patient-phone" class="block text-sm font-medium text-gray-700">Tuo Telefono</label><input type="tel" id="patient-phone" placeholder="Es: 333 1234567" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
+
       <div>
         <label for="optician-id" class="block text-sm font-medium text-gray-700">Codice Ottico</label>
         <div class="flex space-x-2 mt-1">
@@ -50,6 +118,12 @@
         <p id="lenses-error-message" class="text-sm text-red-600 mt-1 hidden">Codice ottico non valido.</p>
       </div>
       
+      <div id="address-container" class="hidden">
+        <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 pt-4">Indirizzo di Consegna</h2>
+        <label for="patient-address" class="block text-sm font-medium text-gray-700 sr-only">Indirizzo di Consegna</label>
+        <textarea id="patient-address" rows="3" placeholder="Via, Numero, Città, CAP" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></textarea>
+      </div>
+
       <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 pt-4">La tua Lente</h2>
       <div>
         <label for="lens-manufacturer" class="block text-sm font-medium text-gray-700">Produttore</label>
@@ -60,6 +134,12 @@
       <div><label for="lens-model" class="block text-sm font-medium text-gray-700">Modello Lente</label><select id="lens-model" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled><option value="">-- Prima seleziona produttore --</option></select></div>
       
       <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 pt-4">Occhio Destro (OD)</h2>
+      <div class="flex items-center space-x-2">
+          <label for="qty-od" class="block text-sm font-medium text-gray-700">Quantità (Destro)</label>
+          <input type="number" id="qty-od" value="1" class="mt-1 block w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-center">
+          <span class="text-sm text-gray-700 pt-1">pz.</span>
+      </div>
+      
       <div><label for="lens-type-od" class="block text-sm font-medium text-gray-700">Tipo Correzione (Destro)</label><select id="lens-type-od" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled><option value="">-- Seleziona Tipo --</option></select></div>
       <div id="prescription-fields-od" class="space-y-4">
         <p id="params-info-od" class="text-sm text-gray-500">Seleziona un tipo di correzione.</p>
@@ -70,6 +150,12 @@
       </div>
       
       <h2 class="text-lg font-semibold text-gray-700 border-b pb-2 pt-4">Occhio Sinistro (OS)</h2>
+      <div class="flex items-center space-x-2">
+          <label for="qty-os" class="block text-sm font-medium text-gray-700">Quantità (Sinistro)</label>
+          <input type="number" id="qty-os" value="1" class="mt-1 block w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-center">
+          <span class="text-sm text-gray-700 pt-1">pz.</span>
+      </div>
+      
       <div><label for="lens-type-os" class="block text-sm font-medium text-gray-700">Tipo Correzione (Sinistro)</label><select id="lens-type-os" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled><option value="">-- Seleziona Tipo --</option></select></div>
       <div id="prescription-fields-os" class="space-y-4">
         <p id="params-info-os" class="text-sm text-gray-500">Seleziona un tipo di correzione.</p>
@@ -86,19 +172,61 @@
 
 <div id="action-view" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 hidden backdrop-blur-sm">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 relative text-center">
-      <button id="close-app-button" class="absolute bottom-4 left-4 p-2 rounded-full text-gray-400 hover:bg-gray-100 focus:outline-none"><img src="x-down.png" alt="Chiudi" class="w-7 h-7"></button>
-      <button id="edit-settings-button" class="absolute bottom-4 right-4 p-2 rounded-full text-gray-400 hover:bg-gray-100 focus:outline-none"><img src="three-dots.png" alt="Impostazioni" class="w-7 h-7"></button>
+      
       <svg id="action-loader" class="animate-spin h-12 w-12 text-blue-500 mx-auto mt-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
       <h1 id="action-title" class="text-3xl font-bold text-gray-800">Pronto per l'Ordine</h1>
+      
       <div id="summary-container" class="text-left bg-gray-50 p-4 rounded-lg my-6 border">
-        <p class="text-sm text-gray-500">Paziente:</p>
         <p id="summary-patient" class="text-gray-800 font-medium"></p>
-        <p class="text-sm text-gray-500 mt-2">Messaggio:</p>
-        <p id="summary-message" class="text-gray-700 whitespace-pre-wrap"></p>
+        
+        <p id="summary-message-top" class="text-gray-700 whitespace-pre-wrap mt-2"></p>
+        
+        <div class="flex justify-between items-center mt-2">
+          <span class="text-gray-700 font-medium">--- OCCHIO DESTRO (OD) ---</span>
+          <div class="flex items-center space-x-2">
+            <input type="number" id="quick-qty-od" value="1" class="w-16 px-3 py-1 border border-gray-300 rounded-md shadow-sm text-center">
+            <span class="text-sm text-gray-700">pz.</span>
+          </div>
+        </div>
+        <p id="summary-message-od" class="text-gray-700 whitespace-pre-wrap"></p>
+        
+        <div class="flex justify-between items-center mt-2">
+          <span class="text-gray-700 font-medium">--- OCCHIO SINISTRO (OS) ---</span>
+          <div class="flex items-center space-x-2">
+            <input type="number" id="quick-qty-os" value="1" class="w-16 px-3 py-1 border border-gray-300 rounded-md shadow-sm text-center">
+            <span class="text-sm text-gray-700">pz.</span>
+          </div>
+        </div>
+        <p id="summary-message-os" class="text-gray-700 whitespace-pre-wrap"></p>
       </div>
+      <div id="quick-summary-container" class="my-6 space-y-4 hidden"></div>
+      
       <p id="action-message" class="text-lg text-gray-600 mt-6 mb-4 hidden"></p>
       <div id="offer-container" class="hidden my-6"><img src="https://placehold.co/400x300/0d6efd/ffffff?text=Offerta+Speciale" alt="Offerta" class="rounded-lg shadow-md mx-auto"></div>
-      <div id="send-button-container" class="mt-4"><button id="send-order-button" class="mx-auto focus:outline-none rounded-full focus:ring-4 focus:ring-red-300"><img src="buttonRed.png" alt="Invia Ordine Ora" class="w-40 h-40" /></button></div>
+      
+      <div id="delivery-switch-container" class="flex items-center justify-between my-6">
+        
+        <div class="flex items-center space-x-3">
+            <label class="toggle-switch">
+              <input type="checkbox" id="delivery-toggle">
+              <span class="slider"></span>
+            </label>
+            <span id="active-delivery-label" class="text-gray-900 font-bold text-sm w-48 text-left">
+            </span>
+        </div>
+        
+        <button id="edit-settings-button" class="p-2 rounded-full text-gray-400 hover:bg-gray-100 focus:outline-none">
+            <img src="three-dots.png" alt="Impostazioni" class="w-7 h-7">
+        </button>
+        
+        <button id="close-app-button" class="p-2 rounded-full text-gray-400 hover:bg-gray-100 focus:outline-none">
+            <img src="x-down.png" alt="Chiudi" class="w-7 h-7">
+        </button>
+      </div>
+
+      <div id="send-button-container" class="mt-4">
+        <button id="send-order-button" class="mx-auto focus:outline-none rounded-full focus:ring-4 focus:ring-red-300"><img src="buttonRed.png" alt="Invia Ordine Ora" class="w-40 h-40" /></button>
+      </div>
     </div>
 </div>
 
@@ -131,10 +259,15 @@
 
       // Chiavi LocalStorage
       const KEY_NAME = 'otticoApp_patient_name';
+      const KEY_PHONE = 'otticoApp_patient_phone';
+      const KEY_DELIVERY_OPTION = 'otticoApp_delivery_option'; // 'pickup' o 'delivery'
+      const KEY_ADDRESS = 'otticoApp_patient_address';
       const KEY_OPTICIAN_ID = 'otticoApp_optician_id';
       const KEY_MESSAGE = 'otticoApp_message';
       const KEY_LENS_MANUFACTURER = 'otticoApp_lens_manufacturer';
       const KEY_LENS_MODEL = 'otticoApp_lens_model';
+      const KEY_QTY_OD = 'otticoApp_qty_od';
+      const KEY_QTY_OS = 'otticoApp_qty_os';
       const KEY_LENS_TYPE_OD = 'otticoApp_lens_type_od';
       const KEY_PARAM_PWR_OD = 'otticoApp_param_pwr_od';
       const KEY_PARAM_CYL_OD = 'otticoApp_param_cyl_od';
@@ -152,10 +285,17 @@
       const settingsView = document.getElementById('settings-view');
       const saveButton = document.getElementById('save-button');
       const nameInput = document.getElementById('patient-name');
+      const phoneInput = document.getElementById('patient-phone');
+      const deliveryToggle = document.getElementById('delivery-toggle'); 
+      const activeDeliveryLabel = document.getElementById('active-delivery-label');
+      const addressContainer = document.getElementById('address-container');
+      const addressInput = document.getElementById('patient-address');
       const opticianIdInput = document.getElementById('optician-id');
       const saveSuccessMessage = document.getElementById('save-success');
       const manufacturerSelect = document.getElementById('lens-manufacturer');
       const modelSelect = document.getElementById('lens-model');
+      const qtyInput_OD = document.getElementById('qty-od'); // in settings
+      const qtyInput_OS = document.getElementById('qty-os'); // in settings
       const typeSelect_OD = document.getElementById('lens-type-od');
       const paramsInfo_OD = document.getElementById('params-info-od');
       const pwrField_OD = document.getElementById('params-pwr-od');
@@ -183,16 +323,22 @@
       const editSettingsButton = document.getElementById('edit-settings-button');
       const closeAppButton = document.getElementById('close-app-button');
       const summaryPatient = document.getElementById('summary-patient');
-      const summaryMessage = document.getElementById('summary-message');
       const summaryContainer = document.getElementById('summary-container');
       const sendButtonContainer = document.getElementById('send-button-container');
       const offerContainer = document.getElementById('offer-container');
       const lensesLoadingMessage = document.getElementById('lenses-loading-message');
       const lensesErrorMessage = document.getElementById('lenses-error-message');
       
-      // Variabili Popup Installazione
       const installPrompt = document.getElementById('install-prompt');
       const closeInstallPrompt = document.getElementById('close-install-prompt');
+      
+      // *** NUOVI ELEMENTI POPUP ***
+      const deliverySwitchContainer = document.getElementById('delivery-switch-container');
+      const summaryMessageTop = document.getElementById('summary-message-top');
+      const summaryMessageOd = document.getElementById('summary-message-od');
+      const summaryMessageOs = document.getElementById('summary-message-os');
+      const quickQtyInput_OD = document.getElementById('quick-qty-od'); // in popup
+      const quickQtyInput_OS = document.getElementById('quick-qty-os'); // in popup
 
 
       // *** FUNZIONE: Carica lenti specifiche dell'ottico ***
@@ -223,23 +369,98 @@
         }
       }
 
-      function buildAndSaveMessage(data) {
-        let constructedMessage = `Ordine: ${data.m || 'N/D'} ${data.md || 'N/D'}\n\n`;
-        constructedMessage += `--- OCCHIO DESTRO (OD) ---\n`;
-        constructedMessage += `Tipo: ${data.tod || 'N/D'}\n`;
-        if (data.pod) constructedMessage += `PWR: ${data.pod}\n`;
-        if (data.cod) constructedMessage += `CYL: ${data.cod}\n`;
-        if (data.aod) constructedMessage += `AXIS: ${data.aod}\n`;
-        if (data.addod) constructedMessage += `ADD: ${data.addod}\n\n`;
-        constructedMessage += `--- OCCHIO SINISTRO (OS) ---\n`;
-        constructedMessage += `Tipo: ${data.tos || 'N/D'}\n`;
-        if (data.pos) constructedMessage += `PWR: ${data.pos}\n`;
-        if (data.cos) constructedMessage += `CYL: ${data.cos}\n`;
-        if (data.aos) constructedMessage += `AXIS: ${data.aos}\n`;
-        if (data.addos) constructedMessage += `ADD: ${data.addos}\n\n`;
-        constructedMessage += "Grazie!";
-        localStorage.setItem(KEY_MESSAGE, constructedMessage);
+      // *** FUNZIONE MODIFICATA per aggiornare la SINGOLA etichetta dello switch ***
+      function updateSwitchLabels() {
+        const isDelivery = deliveryToggle.checked;
+        if (isDelivery) {
+            activeDeliveryLabel.innerText = "Consegna a domicilio";
+        } else {
+            activeDeliveryLabel.innerText = "Ritiro in negozio";
+        }
       }
+
+      // *** FUNZIONE MODIFICATA: Costruisce il messaggio per l'ottico (con display separato) ***
+      function buildAndSaveMessage() {
+        const data = {
+          n: localStorage.getItem(KEY_NAME) || '',
+          ph: localStorage.getItem(KEY_PHONE) || '',
+          del: localStorage.getItem(KEY_DELIVERY_OPTION) || 'pickup',
+          adr: localStorage.getItem(KEY_ADDRESS) || '',
+          m: localStorage.getItem(KEY_LENS_MANUFACTURER) || '',
+          md: localStorage.getItem(KEY_LENS_MODEL) || '',
+          qod: localStorage.getItem(KEY_QTY_OD) || '1', // <-- Solo numero
+          qos: localStorage.getItem(KEY_QTY_OS) || '1', // <-- Solo numero
+          tod: localStorage.getItem(KEY_LENS_TYPE_OD) || '',
+          pod: localStorage.getItem(KEY_PARAM_PWR_OD) || '',
+          cod: localStorage.getItem(KEY_PARAM_CYL_OD) || '',
+          aod: localStorage.getItem(KEY_PARAM_AXIS_OD) || '',
+          addod: localStorage.getItem(KEY_PARAM_ADD_OD) || '',
+          tos: localStorage.getItem(KEY_LENS_TYPE_OS) || '',
+          pos: localStorage.getItem(KEY_PARAM_PWR_OS) || '',
+          cos: localStorage.getItem(KEY_PARAM_CYL_OS) || '',
+          aos: localStorage.getItem(KEY_PARAM_AXIS_OS) || '',
+          addos: localStorage.getItem(KEY_PARAM_ADD_OS) || '',
+        };
+        
+        // --- 1. Costruisci il messaggio COMPLETO per l'invio ---
+        let deliveryInfo = "";
+        if (data.del === 'delivery') {
+          deliveryInfo = `MODALITÀ: **CONSEGNA A DOMICILIO**\n`;
+          deliveryInfo += `INDIRIZZO: ${data.adr || 'INDIRIZZO NON IMPOSTATO'}\n`;
+        } else {
+          deliveryInfo = `MODALITÀ: **RITIRO IN NEGOZIO**\n`;
+        }
+
+        let constructedMessage = `--- INFO CLIENTE ---\n`; 
+        constructedMessage += `TELEFONO: ${data.ph || 'N/D'}\n`; 
+        constructedMessage += deliveryInfo + '\n';
+        constructedMessage += `--- ORDINE LENTI ---\n`;
+        constructedMessage += `Ordine: ${data.m || 'N/D'} ${data.md || 'N/D'}\n\n`;
+        
+        constructedMessage += `--- OCCHIO DESTRO (OD) --- [${data.qod} pz.]\n`; // Aggiunge 'pz.'
+        constructedMessage += `Tipo: ${data.tod || 'N/D'}\n`;
+        const paramsOD = [];
+        if (data.pod) paramsOD.push(`Sf. ${data.pod}`);
+        if (data.cod) paramsOD.push(`Cil. ${data.cod}`);
+        if (data.aod) paramsOD.push(`Ax. ${data.aod}`);
+        if (paramsOD.length > 0) constructedMessage += paramsOD.join(' ') + '\n';
+        if (data.addod) constructedMessage += `ADD: ${data.addod}\n`;
+        constructedMessage += '\n'; // Aggiungi spazio prima di OS
+
+        constructedMessage += `--- OCCHIO SINISTRO (OS) --- [${data.qos} pz.]\n`; // Aggiunge 'pz.'
+        constructedMessage += `Tipo: ${data.tos || 'N/D'}\n`;
+        const paramsOS = [];
+        if (data.pos) paramsOS.push(`Sf. ${data.pos}`);
+        if (data.cos) paramsOS.push(`Cil. ${data.cos}`);
+        if (data.aos) paramsOS.push(`Ax. ${data.aos}`);
+        if (paramsOS.length > 0) constructedMessage += paramsOS.join(' ') + '\n';
+        if (data.addos) constructedMessage += `ADD: ${data.addos}\n`;
+        constructedMessage += '\n'; // Aggiungi spazio prima di Grazie
+        
+        constructedMessage += "Grazie!"; 
+        
+        // --- 2. Salva il messaggio COMPLETO per l'invio ---
+        localStorage.setItem(KEY_MESSAGE, constructedMessage);
+        
+        // --- 3. Popola i campi del riepilogo suddiviso ---
+        summaryPatient.innerText = data.n;
+        
+        let topMsg = `${data.ph || 'N/D'}\n`;
+        topMsg += deliveryInfo;
+        topMsg += `--- ORDINE LENTI ---\nOrdine: ${data.m || 'N/D'} ${data.md || 'N/D'}`;
+        summaryMessageTop.innerText = topMsg;
+
+        let odMsg = `Tipo: ${data.tod || 'N/D'}\n`;
+        if (paramsOD.length > 0) odMsg += paramsOD.join(' ') + '\n';
+        if (data.addod) odMsg += `ADD: ${data.addod}\n`;
+        summaryMessageOd.innerText = odMsg.trim();
+
+        let osMsg = `Tipo: ${data.tos || 'N/D'}\n`;
+        if (paramsOS.length > 0) osMsg += paramsOS.join(' ') + '\n';
+        if (data.addos) osMsg += `ADD: ${data.addos}\n`;
+        summaryMessageOs.innerText = osMsg.trim();
+      }
+      // *** FINE MODIFICA JS ***
 
       // Logica Lettura URL
       const urlParams = new URLSearchParams(window.location.search);
@@ -264,16 +485,16 @@
         history.replaceState(null, document.title, window.location.pathname);
       }
 
-      // Funzioni Popolamento Menu (usano globalLensData)
+      // Funzioni Popolamento Menu (Invariate)
       function populateManufacturers() {
         if (!globalLensData) {
           manufacturerSelect.innerHTML = '<option value="">-- Inserisci Codice Ottico --</option>';
-          manufacturerSelect.disabled = true; // Assicura che sia disabilitato se non ci sono dati
+          manufacturerSelect.disabled = true; 
           return;
         }
         manufacturerSelect.innerHTML = '<option value="">-- Seleziona Produttore --</option>';
         Object.keys(globalLensData).forEach(m => manufacturerSelect.innerHTML += `<option value="${m}">${m}</option>`);
-        manufacturerSelect.disabled = false; // <-- CORREZIONE APPLICATA
+        manufacturerSelect.disabled = false;
       }
 
       function populateModels() {
@@ -307,11 +528,29 @@
       function resetEyeSection(eyeSuffix) { const typeSelect = (eyeSuffix === 'od') ? typeSelect_OD : typeSelect_OS; typeSelect.innerHTML = '<option value="">-- Seleziona Tipo --</option>'; typeSelect.disabled = true; updateParameterFields(eyeSuffix, true); }
       function updateParameterFields(eyeSuffix, forceHide = false) { const typeSelect = (eyeSuffix === 'od') ? typeSelect_OD : typeSelect_OS; const pwrField = (eyeSuffix === 'od') ? pwrField_OD : pwrField_OS; const cylField = (eyeSuffix === 'od') ? cylField_OD : cylField_OS; const axisField = (eyeSuffix === 'od') ? axisField_OD : axisField_OS; const addField = (eyeSuffix === 'od') ? addField_OD : addField_OS; const paramsInfo = (eyeSuffix === 'od') ? paramsInfo_OD : paramsInfo_OS; const type = typeSelect.value.toLowerCase(); pwrField.classList.add('hidden'); cylField.classList.add('hidden'); axisField.classList.add('hidden'); addField.classList.add('hidden'); paramsInfo.classList.remove('hidden'); if (forceHide || !type) return; paramsInfo.classList.add('hidden'); if (type.includes('standard')) { pwrField.classList.remove('hidden'); } else if (type.includes('astigmatismo') || type.includes('toric')) { pwrField.classList.remove('hidden'); cylField.classList.remove('hidden'); axisField.classList.remove('hidden'); } else if (type.includes('multifocal') || type.includes('presbiopia')) { pwrField.classList.remove('hidden'); addField.classList.remove('hidden'); } else if (type.includes('xr')) { pwrField.classList.remove('hidden'); cylField.classList.remove('hidden'); axisField.classList.remove('hidden'); } }
 
+      // *** FUNZIONE MODIFICATA: Mostra/nasconde campo indirizzo ***
+      function toggleAddressField() {
+        const isDelivery = deliveryToggle.checked; // Legge dallo switch
+        if (isDelivery) {
+          addressContainer.classList.remove('hidden');
+        } else {
+          addressContainer.classList.add('hidden');
+        }
+      }
+
       // Funzioni Viste
       async function loadSettings(fromQrData = null) {
         if (fromQrData) {
+          // Carica da QR
           nameInput.value = fromQrData.n;
           opticianIdInput.value = fromQrData.oid;
+          phoneInput.value = ''; 
+          localStorage.setItem(KEY_DELIVERY_OPTION, 'pickup'); // Default
+          deliveryToggle.checked = false;
+          addressInput.value = ''; 
+          qtyInput_OD.value = '1'; // Default numero
+          qtyInput_OS.value = '1'; // Default numero
+          
           const success = await loadLensData(fromQrData.oid);
           if (success) {
             populateManufacturers();
@@ -323,8 +562,16 @@
             typeSelect_OS.value = fromQrData.tos; pwrInput_OS.value = fromQrData.pos; cylInput_OS.value = fromQrData.cos; axisInput_OS.value = fromQrData.aos; addInput_OS.value = fromQrData.addos; updateParameterFields('os');
           }
         } else {
+          // Carica da LocalStorage
           nameInput.value = localStorage.getItem(KEY_NAME) || '';
+          phoneInput.value = localStorage.getItem(KEY_PHONE) || '';
+          const savedDeliveryOption = localStorage.getItem(KEY_DELIVERY_OPTION) || 'pickup';
+          deliveryToggle.checked = (savedDeliveryOption === 'delivery'); // Imposta il toggle
+          addressInput.value = localStorage.getItem(KEY_ADDRESS) || '';
           opticianIdInput.value = localStorage.getItem(KEY_OPTICIAN_ID) || '';
+          qtyInput_OD.value = localStorage.getItem(KEY_QTY_OD) || '1'; // Default numero
+          qtyInput_OS.value = localStorage.getItem(KEY_QTY_OS) || '1'; // Default numero
+          
           const savedOpticianId = localStorage.getItem(KEY_OPTICIAN_ID);
           if (savedOpticianId) {
             const success = await loadLensData(savedOpticianId);
@@ -353,48 +600,58 @@
             populateManufacturers();
           }
         }
+        toggleAddressField(); // Assicura stato UI corretto al caricamento
+        updateSwitchLabels(); // Assicura che le etichette siano corrette
       }
 
+      // *** FUNZIONE MODIFICATA: Salva Impostazioni ***
       function saveSettings() {
         if (!globalLensData) {
           alert("Devi prima caricare le lenti del tuo ottico. Inserisci il Codice Ottico.");
           return;
         }
-        const data = {
-          n: nameInput.value.trim(),
-          oid: opticianIdInput.value.trim(),
-          m: manufacturerSelect.value,
-          md: modelSelect.value,
-          tod: typeSelect_OD.value,
-          pod: pwrInput_OD.value.trim(),
-          cod: cylInput_OD.value.trim(),
-          aod: axisInput_OD.value.trim(),
-          addod: addInput_OD.value.trim(),
-          tos: typeSelect_OS.value,
-          pos: pwrInput_OS.value.trim(),
-          cos: cylInput_OS.value.trim(),
-          aos: axisInput_OS.value.trim(),
-          addos: addInput_OS.value.trim(),
-        };
-        if (!data.n || !data.oid || !data.m || !data.md) {
-          alert("Compila almeno Nome, Codice Ottico, Produttore e Modello.");
+        
+        const deliveryOption = deliveryToggle.checked ? 'delivery' : 'pickup';
+        const addressValue = addressInput.value.trim();
+
+        // Validazione
+        if (!nameInput.value.trim() || !opticianIdInput.value.trim() || !manufacturerSelect.value || !modelSelect.value || !phoneInput.value.trim()) {
+          alert("Compila almeno Nome, Telefono, Codice Ottico, Produttore e Modello.");
           return;
         }
-        localStorage.setItem(KEY_NAME, data.n);
-        localStorage.setItem(KEY_OPTICIAN_ID, data.oid);
-        localStorage.setItem(KEY_LENS_MANUFACTURER, data.m);
-        localStorage.setItem(KEY_LENS_MODEL, data.md);
-        localStorage.setItem(KEY_LENS_TYPE_OD, data.tod);
-        localStorage.setItem(KEY_PARAM_PWR_OD, data.pod);
-        localStorage.setItem(KEY_PARAM_CYL_OD, data.cod);
-        localStorage.setItem(KEY_PARAM_AXIS_OD, data.aod);
-        localStorage.setItem(KEY_PARAM_ADD_OD, data.addod);
-        localStorage.setItem(KEY_LENS_TYPE_OS, data.tos);
-        localStorage.setItem(KEY_PARAM_PWR_OS, data.pos);
-        localStorage.setItem(KEY_PARAM_CYL_OS, data.cos);
-        localStorage.setItem(KEY_PARAM_AXIS_OS, data.aos);
-        localStorage.setItem(KEY_PARAM_ADD_OS, data.addos);
-        buildAndSaveMessage(data);
+        
+        if (deliveryOption === 'delivery' && !addressValue) {
+          alert("Per la consegna a domicilio, è obbligatorIO inserire un indirizzo.");
+          return;
+        }
+
+        // Salvataggio in LocalStorage
+        localStorage.setItem(KEY_NAME, nameInput.value.trim());
+        localStorage.setItem(KEY_PHONE, phoneInput.value.trim());
+        localStorage.setItem(KEY_DELIVERY_OPTION, deliveryOption);
+        localStorage.setItem(KEY_ADDRESS, addressValue);
+        localStorage.setItem(KEY_OPTICIAN_ID, opticianIdInput.value.trim());
+        localStorage.setItem(KEY_LENS_MANUFACTURER, manufacturerSelect.value);
+        localStorage.setItem(KEY_LENS_MODEL, modelSelect.value);
+        localStorage.setItem(KEY_QTY_OD, qtyInput_OD.value.trim() || '1'); // Salva numero
+        localStorage.setItem(KEY_QTY_OS, qtyInput_OS.value.trim() || '1'); // Salva numero
+        localStorage.setItem(KEY_LENS_TYPE_OD, typeSelect_OD.value);
+        localStorage.setItem(KEY_PARAM_PWR_OD, pwrInput_OD.value.trim());
+        localStorage.setItem(KEY_PARAM_CYL_OD, cylInput_OD.value.trim());
+        localStorage.setItem(KEY_PARAM_AXIS_OD, axisInput_OD.value.trim());
+        localStorage.setItem(KEY_PARAM_ADD_OD, addInput_OD.value.trim());
+        localStorage.setItem(KEY_LENS_TYPE_OS, typeSelect_OS.value);
+        localStorage.setItem(KEY_PARAM_PWR_OS, pwrInput_OS.value.trim());
+        localStorage.setItem(KEY_PARAM_CYL_OS, cylInput_OS.value.trim());
+        localStorage.setItem(KEY_PARAM_AXIS_OS, axisInput_OS.value.trim());
+        localStorage.setItem(KEY_PARAM_ADD_OS, addInput_OS.value.trim());
+        
+        // Sincronizza i quick input (nel popup) con i valori salvati
+        quickQtyInput_OD.value = localStorage.getItem(KEY_QTY_OD);
+        quickQtyInput_OS.value = localStorage.getItem(KEY_QTY_OS);
+        
+        buildAndSaveMessage(); // Costruisce il messaggio con i nuovi dati
+        
         saveSuccessMessage.classList.remove('hidden');
         setTimeout(() => {
           saveSuccessMessage.classList.add('hidden');
@@ -408,9 +665,102 @@
         await loadSettings(fromQrData);
       }
       
-      function showActionView() { settingsView.classList.add('hidden'); actionView.classList.remove('hidden'); const patientName = localStorage.getItem(KEY_NAME); const message = localStorage.getItem(KEY_MESSAGE); summaryPatient.innerText = patientName || 'Non impostato'; summaryMessage.innerText = message || 'Dati non impostati.'; actionTitle.innerText = "Pronto per l'Ordine"; actionTitle.classList.remove('hidden'); actionMessage.classList.add('hidden'); actionLoader.classList.add('hidden'); summaryContainer.classList.remove('hidden'); sendButtonContainer.classList.remove('hidden'); editSettingsButton.classList.remove('hidden'); closeAppButton.classList.remove('hidden'); offerContainer.classList.add('hidden'); }
+      // Funzione MODIFICATA: showActionView
+      function showActionView() { 
+        settingsView.classList.add('hidden'); 
+        actionView.classList.remove('hidden'); 
+        
+        // Imposta lo stato del toggle in base a ciò che è salvato
+        const savedDeliveryOption = localStorage.getItem(KEY_DELIVERY_OPTION) || 'pickup';
+        deliveryToggle.checked = (savedDeliveryOption === 'delivery');
+        
+        // Aggiorna lo stile delle etichette
+        updateSwitchLabels();
+        
+        // Popola i campi del quick summary
+        quickQtyInput_OD.value = localStorage.getItem(KEY_QTY_OD) || '1'; // Solo numero
+        quickQtyInput_OS.value = localStorage.getItem(KEY_QTY_OS) || '1'; // Solo numero
+        
+        // Ricostruisce il messaggio e lo mostra
+        buildAndSaveMessage(); 
+        
+        actionTitle.innerText = "Pronto per l'Ordine"; 
+        actionTitle.classList.remove('hidden'); 
+        actionMessage.classList.add('hidden'); 
+        actionLoader.classList.add('hidden'); 
+        summaryContainer.classList.remove('hidden'); // MOSTRA il riepilogo
+        sendButtonContainer.classList.remove('hidden'); 
+        editSettingsButton.classList.remove('hidden');
+        closeAppButton.classList.remove('hidden');
+        offerContainer.classList.add('hidden'); 
+        deliverySwitchContainer.classList.remove('hidden'); // *** MOSTRA lo switch
+      }
+      
       function closeApp() { window.close(); actionView.classList.add('hidden'); }
-      async function runOrder() { const patientName = localStorage.getItem(KEY_NAME); const opticianId = localStorage.getItem(KEY_OPTICIAN_ID); const message = localStorage.getItem(KEY_MESSAGE); actionTitle.innerText = "Invio in corso..."; actionLoader.classList.remove('hidden'); actionMessage.classList.add('hidden'); summaryContainer.classList.add('hidden'); sendButtonContainer.classList.add('hidden'); editSettingsButton.classList.add('hidden'); closeAppButton.classList.add('hidden'); offerContainer.classList.add('hidden'); try { const ordersCollectionPath = `artifacts/${appId}/public/data/orders`; await addDoc(collection(db, ordersCollectionPath), { patient_name: patientName, optician_id: opticianId, message: message, status: 'new', timestamp: serverTimestamp() }); actionTitle.innerText = 'Grazie!'; actionLoader.classList.add('hidden'); actionMessage.innerHTML = 'Il tuo ordine è stato inviato.<br>Ti aspettiamo per il ritiro!'; actionMessage.classList.remove('hidden'); setTimeout(() => { actionTitle.innerText = "Un'offerta per te!"; actionMessage.classList.add('hidden'); offerContainer.classList.remove('hidden'); setTimeout(closeApp, 3000); }, 4000); } catch (e) { actionTitle.innerText = 'Errore Invio'; actionLoader.classList.add('hidden'); actionMessage.innerText = `Errore: ${e.message}`; actionMessage.classList.remove('hidden'); sendButtonContainer.classList.remove('hidden'); editSettingsButton.classList.remove('hidden'); closeAppButton.classList.remove('hidden'); summaryContainer.classList.remove('hidden'); offerContainer.classList.add('hidden'); } }
+      
+      // Funzione MODIFICATA: runOrder (con validazione finale)
+      async function runOrder() { 
+        // Validazione finale prima dell'invio
+        const deliveryOption = deliveryToggle.checked ? 'delivery' : 'pickup';
+        const addressValue = localStorage.getItem(KEY_ADDRESS);
+        
+        if (deliveryOption === 'delivery' && (!addressValue || addressValue.trim() === '')) {
+           alert("Manca l'indirizzo per la consegna. Vai nelle impostazioni (i tre puntini) per aggiungerlo.");
+           return; // Blocca l'invio
+        }
+
+        const patientName = localStorage.getItem(KEY_NAME); 
+        const opticianId = localStorage.getItem(KEY_OPTICIAN_ID); 
+        const message = localStorage.getItem(KEY_MESSAGE); 
+        
+        actionTitle.innerText = "Invio in corso..."; 
+        actionLoader.classList.remove('hidden'); 
+        actionMessage.classList.add('hidden'); 
+        summaryContainer.classList.add('hidden'); // NASCONDI riepilogo
+        sendButtonContainer.classList.add('hidden'); 
+        editSettingsButton.classList.add('hidden'); 
+        closeAppButton.classList.add('hidden'); 
+        offerContainer.classList.add('hidden'); 
+        deliveryToggle.disabled = true; // Disabilita lo switch durante l'invio
+        deliverySwitchContainer.classList.add('hidden'); // *** NASCONDI lo switch
+        
+        try { 
+          const ordersCollectionPath = `artifacts/${appId}/public/data/orders`; 
+          await addDoc(collection(db, ordersCollectionPath), { patient_name: patientName, optician_id: opticianId, message: message, status: 'new', timestamp: serverTimestamp() }); 
+          
+          // *** RESET QUANTITÀ DOPO INVIO ***
+          localStorage.setItem(KEY_QTY_OD, '1');
+          localStorage.setItem(KEY_QTY_OS, '1');
+          qtyInput_OD.value = '1';
+          qtyInput_OS.value = '1';
+          quickQtyInput_OD.value = '1';
+          quickQtyInput_OS.value = '1';
+          // *** FINE RESET ***
+
+          actionTitle.innerText = 'Grazie!'; 
+          actionLoader.classList.add('hidden'); 
+          actionMessage.innerHTML = 'Il tuo ordine è stato inviato.<br>Ti aspettiamo!'; 
+          actionMessage.classList.remove('hidden'); 
+          setTimeout(() => { 
+            actionTitle.innerText = "Un'offerta per te!"; 
+            actionMessage.classList.add('hidden'); 
+            offerContainer.classList.remove('hidden'); 
+            setTimeout(closeApp, 3000); 
+          }, 4000); 
+        } catch (e) { 
+          actionTitle.innerText = 'Errore Invio'; 
+          actionLoader.classList.add('hidden'); 
+          actionMessage.innerText = `Errore: ${e.message}`; 
+          actionMessage.classList.remove('hidden'); 
+          sendButtonContainer.classList.remove('hidden'); 
+          editSettingsButton.classList.remove('hidden'); 
+          closeAppButton.classList.remove('hidden'); 
+          summaryContainer.classList.remove('hidden'); // MOSTRA di nuovo in caso di errore
+          offerContainer.classList.add('hidden'); 
+          deliveryToggle.disabled = false; // Riabilita lo switch in caso di errore
+          deliverySwitchContainer.classList.remove('hidden'); // *** MOSTRA di nuovo lo switch in caso di errore
+        } 
+      }
 
       // Inizializzazione
       saveButton.onclick = saveSettings; 
@@ -421,6 +771,35 @@
       modelSelect.onchange = populateTypes;
       typeSelect_OD.onchange = () => updateParameterFields('od');
       typeSelect_OS.onchange = () => updateParameterFields('os');
+      
+      // *** LISTENER per il TOGGLE ***
+      deliveryToggle.onchange = () => {
+        const newOption = deliveryToggle.checked ? 'delivery' : 'pickup';
+        localStorage.setItem(KEY_DELIVERY_OPTION, newOption);
+        updateSwitchLabels();
+        toggleAddressField(); 
+        buildAndSaveMessage(); 
+        
+        const addressValue = localStorage.getItem(KEY_ADDRESS);
+        if (newOption === 'delivery' && (!addressValue || addressValue.trim() === '')) {
+           alert("Hai scelto la consegna. Ricorda di inserire il tuo indirizzo nelle impostazioni (clicca i tre puntini).");
+        }
+      };
+      
+      // *** LISTENER PER I QUICK INPUT (POPUP) ***
+      quickQtyInput_OD.addEventListener('change', () => {
+        const newVal = quickQtyInput_OD.value.trim() || '1'; // Fallback a "1"
+        localStorage.setItem(KEY_QTY_OD, newVal); // Salva in LS
+        qtyInput_OD.value = newVal; // Sincronizza con l'input delle impostazioni
+        buildAndSaveMessage(); // Ricostruisci il messaggio
+      });
+
+      quickQtyInput_OS.addEventListener('change', () => {
+        const newVal = quickQtyInput_OS.value.trim() || '1'; // Fallback a "1"
+        localStorage.setItem(KEY_QTY_OS, newVal); // Salva in LS
+        qtyInput_OS.value = newVal; // Sincronizza con l'input delle impostazioni
+        buildAndSaveMessage(); // Ricostruisci il messaggio
+      });
       
       opticianIdInput.addEventListener('blur', async () => {
         const opticianId = opticianIdInput.value.trim();
@@ -433,7 +812,6 @@
         if (success) {
           populateManufacturers();
         } else {
-          // --- CORREZIONE APPLICATA ---
           manufacturerSelect.innerHTML = '<option value="">-- Codice non valido --</option>';
           manufacturerSelect.disabled = true;
           modelSelect.innerHTML = '<option value="">--</option>';
@@ -445,50 +823,32 @@
         }
       });
       
-      // Listener per il popup di installazione
       closeInstallPrompt.onclick = () => {
           installPrompt.classList.add('hidden');
-          // Imposta 'has_visited' solo quando l'utente chiude manualmente il popup
           localStorage.setItem(KEY_HAS_VISITED, 'true');
       };
 
-      // *** LOGICA DI AVVIO MODIFICATA ***
-      
-      // Controlla se l'app è in modalità "standalone" (cioè installata)
+      // *** LOGICA DI AVVIO ***
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
       if (qrData) {
-        // L'utente è arrivato da una scansione QR
         await showSettingsView(qrData);
-        
-        // *** LOGICA POPUP RICHIESTA ***
-        // Se l'utente ha scansionato un QR e l'app NON è installata (è nel browser),
-        // mostra il popup di installazione.
         if (!isStandalone) {
           installPrompt.classList.remove('hidden');
         }
-
       } else if (window.location.hash === '#invia-ordine') {
-        // L'utente ha usato la "shortcut"
         history.replaceState(null, document.title, window.location.pathname);
         const message = localStorage.getItem(KEY_MESSAGE); 
         if (!message) { await showSettingsView(); }
         else { showActionView(); runOrder(); }
-
       } else {
-        // L'utente ha aperto l'app normalmente
         const message = localStorage.getItem(KEY_MESSAGE); 
         if (!message) { await showSettingsView(); }
         else { showActionView(); }
-
-        // *** LOGICA POPUP ESISTENTE per visite normali ***
-        // Mostra il popup solo la prima volta (se non ha visitato) e se non è installata.
         if (!localStorage.getItem(KEY_HAS_VISITED) && !isStandalone) {
             installPrompt.classList.remove('hidden');
         }
       }
-      
-      // La vecchia logica del popup è stata rimossa da qui e integrata sopra
       
     })();
   </script>
