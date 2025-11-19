@@ -9,7 +9,8 @@
   <style>
     .hidden { display: none; }
     .chart-container { position: relative; height: 250px; width: 100%; }
-    /* Stile scrollbar sottile per tabella */
+    /* Modal styles */
+    .modal-open { overflow: hidden; }
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #f1f1f1; }
     ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
@@ -18,7 +19,7 @@
 </head>
 <body class="bg-gray-100 font-sans text-gray-800">
 
-  <!-- LOGIN (Necessario per accedere a Firestore) -->
+  <!-- LOGIN -->
   <div id="login-view" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 to-blue-600">
     <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm">
       <div class="text-center mb-6">
@@ -26,6 +27,15 @@
         <p class="text-sm text-gray-500 mt-2">Accesso Gestione Globale</p>
       </div>
       <div class="space-y-4">
+        
+        <div id="anon-warning" class="hidden bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+            <p class="text-xs text-yellow-700">
+                Sei loggato come <strong>Utente Anonimo</strong>. 
+                Devi uscire e accedere con email/password per vedere tutti i dati.
+            </p>
+            <button id="force-logout-btn" class="mt-2 text-xs font-bold text-yellow-800 underline">Esci ora</button>
+        </div>
+
         <div>
             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wide">Email Amministratore</label>
             <input type="email" id="email" class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm">
@@ -40,10 +50,9 @@
     </div>
   </div>
 
-  <!-- DASHBOARD FORNITORE -->
+  <!-- DASHBOARD -->
   <div id="dashboard-view" class="hidden min-h-screen flex flex-col">
     
-    <!-- Topbar -->
     <nav class="bg-white shadow-md z-10">
       <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
         <div class="flex items-center gap-3">
@@ -52,7 +61,6 @@
              </div>
              <div>
                 <span class="font-bold text-xl text-gray-900 tracking-tight">Portale<span class="text-indigo-600">Fornitore</span></span>
-                <p class="text-xs text-gray-500">Visione Globale Ordini</p>
              </div>
         </div>
         <div class="flex items-center gap-4">
@@ -64,28 +72,27 @@
 
     <main class="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-50">
       
+      <div id="fetch-error-banner" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm" role="alert">
+        <p class="font-bold">Errore di accesso al Database</p>
+        <p class="text-sm mt-1">Messaggio tecnico: <span id="fetch-error-msg" class="font-mono bg-red-50 px-1"></span></p>
+      </div>
+
       <!-- KPI Section -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <!-- KPI 1 -->
         <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-indigo-500 flex flex-col justify-between">
-          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Totale Ordini Globali</p>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Totale Ordini</p>
           <p id="kpi-total-orders" class="text-3xl font-extrabold text-gray-900 mt-1">-</p>
         </div>
-        <!-- KPI 2 -->
         <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-blue-400 flex flex-col justify-between">
           <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Ottici Attivi</p>
           <p id="kpi-active-opticians" class="text-3xl font-extrabold text-blue-600 mt-1">-</p>
-          <p class="text-xs text-gray-400 mt-1">Negozi unici che hanno ordinato</p>
         </div>
-        <!-- KPI 3 -->
         <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-green-400 flex flex-col justify-between">
           <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Consegne Domicilio</p>
           <div class="flex items-end gap-2">
              <p id="kpi-delivery-perc" class="text-3xl font-extrabold text-green-600 mt-1">-%</p>
-             <p class="text-sm text-gray-500 mb-1">sul totale</p>
           </div>
         </div>
-        <!-- KPI 4 -->
         <div class="bg-white p-5 rounded-xl shadow-sm border-l-4 border-purple-400 flex flex-col justify-between">
             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Brand Top</p>
             <p id="kpi-top-brand" class="text-xl font-bold text-purple-600 mt-1 truncate">-</p>
@@ -94,19 +101,12 @@
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        <!-- Tabella Ordini (Principale) -->
+        <!-- Main Table -->
         <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
             <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50 rounded-t-xl">
-                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                    Tutti gli Ordini
-                </h3>
-                
+                <h3 class="text-lg font-bold text-gray-800">Tutti gli Ordini</h3>
                 <div class="relative w-full sm:w-64">
-                    <input type="text" id="search-input" placeholder="Cerca Ottico, Paziente..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </div>
+                    <input type="text" id="search-input" placeholder="Cerca..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
             </div>
             
@@ -115,46 +115,105 @@
                     <thead class="bg-gray-50 sticky top-0 z-10">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Data</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider text-indigo-600">Codice Ottico</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider text-indigo-600">Ottico</th>
                             <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Paziente</th>
                             <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Brand</th>
-                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Info</th>
+                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Azioni</th>
                         </tr>
                     </thead>
-                    <tbody id="orders-table-body" class="bg-white divide-y divide-gray-200">
-                        <!-- Rows JS -->
-                    </tbody>
+                    <tbody id="orders-table-body" class="bg-white divide-y divide-gray-200"></tbody>
                 </table>
-                <div id="no-results" class="hidden p-8 text-center text-gray-500">Nessun ordine trovato con questo filtro.</div>
+                <div id="no-results" class="hidden p-8 text-center text-gray-500">Nessun dato.</div>
             </div>
             <div class="p-4 border-t border-gray-200 bg-gray-50 text-right">
-                <button id="refresh-btn" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Aggiorna Dati ↻</button>
+                <button id="refresh-btn" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">Aggiorna ↻</button>
             </div>
         </div>
 
-        <!-- Sidebar Statistiche -->
+        <!-- Stats Sidebar -->
         <div class="flex flex-col gap-6">
-            
-            <!-- Grafico Brand -->
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <h3 class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wide">Distribuzione Brand</h3>
                 <div class="chart-container">
                     <canvas id="chart-brands"></canvas>
                 </div>
             </div>
-
-            <!-- Lista Top Ottici -->
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex-1">
-                <h3 class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wide">Top Ottici (per volume)</h3>
-                <ul id="top-opticians-list" class="space-y-3">
-                    <!-- JS Injected -->
-                </ul>
+                <h3 class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wide">Top Ottici</h3>
+                <ul id="top-opticians-list" class="space-y-3"></ul>
             </div>
-
         </div>
 
       </div>
     </main>
+  </div>
+
+  <!-- MODAL DETTAGLI ORDINE -->
+  <div id="order-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <!-- Overlay -->
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal()"></div>
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+      
+      <!-- Modal Panel -->
+      <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+              <h3 class="text-2xl leading-6 font-bold text-gray-900" id="modal-title">Dettaglio Ordine</h3>
+              <p class="text-sm text-gray-500 mt-1">ID Ottico: <span id="modal-opt-id" class="font-mono text-indigo-600"></span></p>
+              
+              <div class="mt-6 space-y-6">
+                  <!-- Sezione Paziente -->
+                  <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                      <h4 class="text-sm font-bold text-blue-800 uppercase mb-2">Dati Paziente</h4>
+                      <div class="grid grid-cols-2 gap-4 text-sm">
+                          <div><span class="text-gray-500 block">Nome:</span> <span id="modal-pat-name" class="font-semibold"></span></div>
+                          <div><span class="text-gray-500 block">Telefono:</span> <span id="modal-pat-phone"></span></div>
+                          <div><span class="text-gray-500 block">Email:</span> <span id="modal-pat-email"></span></div>
+                          <div><span class="text-gray-500 block">Cod. Fiscale:</span> <span id="modal-pat-cf" class="uppercase font-mono"></span></div>
+                      </div>
+                  </div>
+
+                  <!-- Sezione Spedizione -->
+                  <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                      <h4 class="text-sm font-bold text-green-800 uppercase mb-2">Spedizione</h4>
+                      <p id="modal-delivery-mode" class="text-sm font-bold mb-2"></p>
+                      <div id="modal-address-box" class="text-sm text-gray-700 bg-white p-2 rounded border border-green-200 hidden">
+                          <!-- Address details inserted here -->
+                      </div>
+                  </div>
+
+                  <!-- Sezione Lenti -->
+                  <div class="border-t border-gray-200 pt-4">
+                      <h4 class="text-lg font-bold text-gray-800 mb-2">Specifiche Lenti</h4>
+                      <p class="text-sm text-gray-600 mb-4"><span id="modal-lens-manuf" class="font-bold"></span> - <span id="modal-lens-model"></span></p>
+                      
+                      <div class="grid grid-cols-2 gap-4">
+                          <!-- OD -->
+                          <div class="border rounded-md p-3 bg-gray-50">
+                              <div class="text-center font-bold text-gray-700 border-b pb-1 mb-2">Occhio Destro (OD)</div>
+                              <div class="text-sm space-y-1" id="modal-lens-od"></div>
+                              <div class="mt-2 text-center font-bold text-blue-600 text-lg" id="modal-qty-od"></div>
+                          </div>
+                          <!-- OS -->
+                          <div class="border rounded-md p-3 bg-gray-50">
+                              <div class="text-center font-bold text-gray-700 border-b pb-1 mb-2">Occhio Sinistro (OS)</div>
+                              <div class="text-sm space-y-1" id="modal-lens-os"></div>
+                              <div class="mt-2 text-center font-bold text-blue-600 text-lg" id="modal-qty-os"></div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm" onclick="closeModal()">Chiudi</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script type="module">
@@ -176,7 +235,6 @@
     const db = getFirestore(app);
     const appId = "ordinalac-app";
 
-    // DOM
     const loginView = document.getElementById('login-view');
     const dashboardView = document.getElementById('dashboard-view');
     const emailInput = document.getElementById('email');
@@ -186,6 +244,10 @@
     const loginError = document.getElementById('login-error');
     const userEmailDisplay = document.getElementById('user-email-display');
     const searchInput = document.getElementById('search-input');
+    const anonWarning = document.getElementById('anon-warning');
+    const forceLogoutBtn = document.getElementById('force-logout-btn');
+    const fetchErrorBanner = document.getElementById('fetch-error-banner');
+    const fetchErrorMsg = document.getElementById('fetch-error-msg');
     
     const kpiTotal = document.getElementById('kpi-total-orders');
     const kpiActiveOpt = document.getElementById('kpi-active-opticians');
@@ -195,22 +257,37 @@
     const noResultsMsg = document.getElementById('no-results');
     const topOpticiansList = document.getElementById('top-opticians-list');
 
+    // Modal Elements
+    const orderModal = document.getElementById('order-modal');
+    window.closeModal = () => orderModal.classList.add('hidden');
+
     let globalOrders = [];
     let charts = {};
 
-    // AUTH
     loginButton.addEventListener('click', async () => {
       try {
+        loginError.classList.add('hidden');
         await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
       } catch (e) {
         loginError.innerText = "Accesso negato: " + e.message;
         loginError.classList.remove('hidden');
       }
     });
-    logoutButton.addEventListener('click', () => signOut(auth));
+    
+    const doLogout = () => { signOut(auth); window.location.reload(); };
+    logoutButton.addEventListener('click', doLogout);
+    forceLogoutBtn.addEventListener('click', doLogout);
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        if (user.isAnonymous) {
+            anonWarning.classList.remove('hidden');
+            loginView.classList.remove('hidden');
+            dashboardView.classList.add('hidden');
+            return;
+        }
+        
+        anonWarning.classList.add('hidden');
         loginView.classList.add('hidden');
         dashboardView.classList.remove('hidden');
         userEmailDisplay.innerText = user.email;
@@ -223,28 +300,23 @@
 
     document.getElementById('refresh-btn').onclick = fetchAllData;
 
-    // DATA FETCHING (NO FILTER = GLOBAL VIEW)
     async function fetchAllData() {
-      // Nota: qui scarichiamo TUTTA la collezione 'orders'. 
-      // In produzione, con migliaia di record, servirebbe la paginazione.
+      fetchErrorBanner.classList.add('hidden');
       const q = query(collection(db, `artifacts/${appId}/public/data/orders`));
 
       try {
         const snapshot = await getDocs(q);
         globalOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
-        // Sort client-side (Newest first)
         globalOrders.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-        
         processAndRender(globalOrders);
-        
       } catch (e) {
         console.error("Errore fetch:", e);
-        alert("Errore recupero dati globali.");
+        fetchErrorMsg.innerText = e.message; 
+        fetchErrorBanner.classList.remove('hidden');
+        ordersTableBody.innerHTML = '';
       }
     }
 
-    // LOGICA DI FILTRO
     searchInput.addEventListener('input', (e) => {
         const term = e.target.value.toLowerCase();
         const filtered = globalOrders.filter(o => {
@@ -256,45 +328,39 @@
     });
 
     function processAndRender(orders) {
-        // 1. Calcoli Statistici Globali
-        const totalOrders = orders.length;
-        const uniqueOpticians = new Set(orders.map(o => o.optician_id)).size;
-        const deliveryCount = orders.filter(o => {
-            // Logica ibrida: cerca nel campo strutturato O nel messaggio
-            if(o.delivery?.mode === 'delivery') return true;
-            if(o.message && o.message.toLowerCase().includes('domicilio')) return true;
-            return false;
-        }).length;
-        const deliveryPerc = totalOrders > 0 ? Math.round((deliveryCount / totalOrders) * 100) : 0;
+        try {
+            const totalOrders = orders.length;
+            const uniqueOpticians = new Set(orders.map(o => o.optician_id)).size;
+            const deliveryCount = orders.filter(o => {
+                if(o.delivery?.mode === 'delivery') return true;
+                if(o.message && o.message.toLowerCase().includes('domicilio')) return true;
+                return false;
+            }).length;
+            const deliveryPerc = totalOrders > 0 ? Math.round((deliveryCount / totalOrders) * 100) : 0;
 
-        // Brand Stats
-        const brandCounts = {};
-        orders.forEach(o => {
-            const b = o.lens_order?.manufacturer || 'N/D';
-            brandCounts[b] = (brandCounts[b] || 0) + 1;
-        });
-        
-        // Ottico Stats (Volume)
-        const opticianCounts = {};
-        orders.forEach(o => {
-            const id = o.optician_id || 'Sconosciuto';
-            opticianCounts[id] = (opticianCounts[id] || 0) + 1;
-        });
+            const brandCounts = {};
+            const opticianCounts = {};
+            orders.forEach(o => {
+                const b = o.lens_order?.manufacturer || 'N/D';
+                brandCounts[b] = (brandCounts[b] || 0) + 1;
+                const id = o.optician_id || 'Sconosciuto';
+                opticianCounts[id] = (opticianCounts[id] || 0) + 1;
+            });
 
-        // Top Brand
-        const sortedBrands = Object.entries(brandCounts).sort((a,b) => b[1] - a[1]);
-        const topBrand = sortedBrands.length > 0 ? sortedBrands[0][0] : '-';
+            const sortedBrands = Object.entries(brandCounts).sort((a,b) => b[1] - a[1]);
+            const topBrand = sortedBrands.length > 0 ? sortedBrands[0][0] : '-';
 
-        // Update KPIs
-        kpiTotal.innerText = totalOrders;
-        kpiActiveOpt.innerText = uniqueOpticians;
-        kpiDelPerc.innerText = deliveryPerc + "%";
-        kpiTopBrand.innerText = topBrand;
+            kpiTotal.innerText = totalOrders;
+            kpiActiveOpt.innerText = uniqueOpticians;
+            kpiDelPerc.innerText = deliveryPerc + "%";
+            kpiTopBrand.innerText = topBrand;
 
-        // Render Charts & Lists
-        renderBrandChart(brandCounts);
-        renderTopOpticians(opticianCounts);
-        renderTable(orders);
+            renderBrandChart(brandCounts);
+            renderTopOpticians(opticianCounts);
+            renderTable(orders);
+        } catch (err) {
+            console.error("Errore rendering:", err);
+        }
     }
 
     function renderTable(orders) {
@@ -305,48 +371,110 @@
         }
         noResultsMsg.classList.add('hidden');
 
-        // Limitiamo visualizzazione a 100 righe per performance DOM
         const displayOrders = orders.slice(0, 100); 
 
-        displayOrders.forEach(o => {
+        displayOrders.forEach((o, index) => {
             const date = o.timestamp ? new Date(o.timestamp.seconds * 1000).toLocaleDateString('it-IT') : '-';
-            const optId = o.optician_id || '<span class="text-red-400">Mancante</span>';
-            const brand = o.lens_order?.manufacturer || '<span class="text-gray-400 text-xs">Legacy</span>';
+            const optId = o.optician_id || 'N/D';
+            const brand = o.lens_order?.manufacturer || 'Legacy';
+            const patName = o.patient_name || 'Sconosciuto';
             
-            // Check mode
-            let isDelivery = false;
-            if(o.delivery?.mode === 'delivery' || (o.message && o.message.toLowerCase().includes('domicilio'))) isDelivery = true;
-            
-            const iconMode = isDelivery 
-                ? `<span title="Domicilio" class="bg-green-100 text-green-700 p-1 rounded text-xs">🏠</span>` 
-                : `<span title="Store" class="bg-gray-100 text-gray-600 p-1 rounded text-xs">🏪</span>`;
-
             const row = document.createElement('tr');
             row.className = "hover:bg-gray-50 transition-colors";
             row.innerHTML = `
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">${date}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-700 font-mono">${optId}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${o.patient_name}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${patName}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${brand}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-center">${iconMode}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                   <button class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 p-2 rounded-full hover:bg-indigo-100 transition detail-btn" data-id="${o.id}">
+                      👁️
+                   </button>
+                </td>
             `;
             ordersTableBody.appendChild(row);
         });
+
+        // Attach event listeners to buttons
+        document.querySelectorAll('.detail-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // Find button element even if clicked on icon
+                const target = e.target.closest('button');
+                const orderId = target.getAttribute('data-id');
+                const order = orders.find(o => o.id === orderId);
+                if(order) showOrderDetails(order);
+            });
+        });
     }
+
+    // --- MODAL LOGIC ---
+    window.showOrderDetails = function(order) {
+        // Headers
+        document.getElementById('modal-opt-id').innerText = order.optician_id || 'N/D';
+        
+        // Client Info
+        const info = order.client_info || {};
+        document.getElementById('modal-pat-name').innerText = order.patient_name || 'N/D';
+        document.getElementById('modal-pat-phone').innerText = info.phone || '-';
+        document.getElementById('modal-pat-email').innerText = info.email || '-';
+        document.getElementById('modal-pat-cf').innerText = info.cf || '-';
+
+        // Delivery
+        const del = order.delivery || {};
+        const isDel = del.mode === 'delivery';
+        const delLabel = isDel ? 'Consegna a Domicilio' : 'Ritiro in Negozio';
+        const delClass = isDel ? 'text-blue-600' : 'text-green-600';
+        
+        const delModeEl = document.getElementById('modal-delivery-mode');
+        delModeEl.innerText = delLabel;
+        delModeEl.className = `text-sm font-bold mb-2 ${delClass}`;
+
+        const addrBox = document.getElementById('modal-address-box');
+        if (isDel && del.address_details) {
+            const a = del.address_details;
+            addrBox.innerHTML = `<p>${a.street || ''} ${a.number || ''}</p><p>${a.cap || ''} ${a.city || ''} (${a.province || ''})</p>`;
+            addrBox.classList.remove('hidden');
+        } else if (isDel && del.address_full) {
+            addrBox.innerHTML = `<p>${del.address_full}</p>`;
+            addrBox.classList.remove('hidden');
+        } else {
+            addrBox.classList.add('hidden');
+        }
+
+        // Lenses
+        const l = order.lens_order || {};
+        document.getElementById('modal-lens-manuf').innerText = l.manufacturer || '-';
+        document.getElementById('modal-lens-model').innerText = l.model || '-';
+
+        // Helper for params
+        const renderParams = (eye) => {
+            if (!eye) return '<span class="text-gray-400">Nessun dato</span>';
+            let html = `<div><span class="font-semibold">Tipo:</span> ${eye.type || '-'}</div>`;
+            if(eye.pwr) html += `<div><span class="font-semibold">SF:</span> ${eye.pwr}</div>`;
+            if(eye.cyl) html += `<div><span class="font-semibold">CIL:</span> ${eye.cyl}</div>`;
+            if(eye.axis) html += `<div><span class="font-semibold">ASSE:</span> ${eye.axis}</div>`;
+            if(eye.add) html += `<div><span class="font-semibold">ADD:</span> ${eye.add}</div>`;
+            return html;
+        };
+
+        document.getElementById('modal-lens-od').innerHTML = renderParams(l.od);
+        document.getElementById('modal-qty-od').innerText = (l.od?.qty || '1') + ' pz.';
+        
+        document.getElementById('modal-lens-os').innerHTML = renderParams(l.os);
+        document.getElementById('modal-qty-os').innerText = (l.os?.qty || '1') + ' pz.';
+
+        orderModal.classList.remove('hidden');
+    };
 
     function renderBrandChart(counts) {
         const ctx = document.getElementById('chart-brands').getContext('2d');
         if (charts.brands) charts.brands.destroy();
-
-        // Sort and take top 5 + others
         const entries = Object.entries(counts).sort((a,b) => b[1] - a[1]);
         const top5 = entries.slice(0, 5);
         const others = entries.slice(5).reduce((acc, curr) => acc + curr[1], 0);
-        
         const labels = top5.map(e => e[0]);
         const data = top5.map(e => e[1]);
         if(others > 0) { labels.push('Altri'); data.push(others); }
-
         charts.brands = new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -357,39 +485,21 @@
                     borderWidth: 0
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } }
-                }
-            }
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } } } }
         });
     }
 
     function renderTopOpticians(counts) {
         topOpticiansList.innerHTML = '';
-        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 5); // Top 5
-        
-        if(sorted.length === 0) {
-            topOpticiansList.innerHTML = '<li class="text-sm text-gray-400">Nessun dato</li>';
-            return;
-        }
-
+        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 5); 
+        if(sorted.length === 0) { topOpticiansList.innerHTML = '<li class="text-sm text-gray-400">Nessun dato</li>'; return; }
         sorted.forEach(([id, count], index) => {
             const li = document.createElement('li');
             li.className = "flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-100";
-            li.innerHTML = `
-                <div class="flex items-center gap-3 overflow-hidden">
-                    <span class="bg-white text-indigo-600 font-bold w-6 h-6 flex items-center justify-center rounded-full text-xs shadow-sm">${index + 1}</span>
-                    <span class="text-sm font-medium text-gray-700 truncate font-mono" title="${id}">${id}</span>
-                </div>
-                <span class="text-xs font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">${count} ordini</span>
-            `;
+            li.innerHTML = `<div class="flex items-center gap-3 overflow-hidden"><span class="bg-white text-indigo-600 font-bold w-6 h-6 flex items-center justify-center rounded-full text-xs shadow-sm">${index + 1}</span><span class="text-sm font-medium text-gray-700 truncate font-mono" title="${id}">${id}</span></div><span class="text-xs font-bold bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">${count} ordini</span>`;
             topOpticiansList.appendChild(li);
         });
     }
-
   </script>
 </body>
 </html>
