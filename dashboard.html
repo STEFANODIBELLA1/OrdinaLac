@@ -515,7 +515,7 @@
                </div>
            </div>
 
-           ${order.client_info?.phone ? `<div class="text-xs text-gray-600">📱 ${order.client_info.phone}</div>` : ''}
+           ${order.client_info?.phone ? `<div class="text-xs text-gray-600">📞 ${order.client_info.phone}</div>` : ''}
            ${order.message && !order.lens_order ? `<div class="text-xs bg-yellow-50 p-2 rounded text-gray-700 italic border border-yellow-100">${order.message}</div>` : ''}
 
            <div class="flex justify-between items-center pt-2 mt-1 border-t border-gray-100">
@@ -568,7 +568,8 @@
     // 1. Fetch Master Catalog (from Supplier)
     async function loadMasterCatalog() {
         try {
-            const docRef = doc(db, `artifacts/${appId}/public/data/master_catalog`);
+            // CORREZIONE QUI: Percorso aggiornato a 6 segmenti per matchare il fornitore
+            const docRef = doc(db, `artifacts/${appId}/public/data/catalogs/master`);
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
                 masterCatalog = docSnap.data().data || {};

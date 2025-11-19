@@ -596,7 +596,8 @@
 
     // --- MASTER CATALOG LOGIC ---
     async function loadMasterCatalog() {
-        const docRef = doc(db, `artifacts/${appId}/public/data/master_catalog`);
+        // CORREZIONE: Percorso modificato per avere un numero pari di segmenti (6)
+        const docRef = doc(db, `artifacts/${appId}/public/data/catalogs/master`);
         try {
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
@@ -617,7 +618,8 @@
         if(!silent) { btn.innerText = "Salvataggio..."; btn.disabled = true; }
         
         try {
-            await setDoc(doc(db, `artifacts/${appId}/public/data/master_catalog`), { data: globalCatalogData });
+            // CORREZIONE: Percorso modificato per avere un numero pari di segmenti (6)
+            await setDoc(doc(db, `artifacts/${appId}/public/data/catalogs/master`), { data: globalCatalogData });
             if(!silent) alert("Catalogo Globale aggiornato con successo!");
         } catch(e) {
             alert("Errore salvataggio: " + e.message);
@@ -683,9 +685,7 @@
             if(!confirm(`Eliminare produttore ${manuf}?`)) return;
             delete globalCatalogData[manuf];
         }
-        renderCatalogUI(); // Optimistic update
-        // Note: user must click "Save" to persist, or we can auto-save. Let's allow manual save for safety, or call save logic here.
-        // For better UX, let's just rerender and wait for save.
+        renderCatalogUI(); 
     };
 
     document.getElementById('add-manufacturer-button').onclick = () => {
