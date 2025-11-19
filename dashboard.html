@@ -19,6 +19,15 @@
     .nav-tab { cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
     .nav-tab.active { border-bottom-color: #2563eb; color: #2563eb; font-weight: 600; }
     .nav-tab:hover:not(.active) { color: #4b5563; border-bottom-color: #d1d5db; }
+
+    /* Toggle Switch */
+    .toggle-checkbox:checked {
+      right: 0;
+      border-color: #68D391;
+    }
+    .toggle-checkbox:checked + .toggle-label {
+      background-color: #68D391;
+    }
   </style>
 </head>
 <body class="bg-gray-100 font-sans text-gray-800">
@@ -64,7 +73,7 @@
             </h1>
             <div class="hidden md:flex space-x-8 h-full items-center">
                 <span id="tab-orders" class="nav-tab active text-sm px-1 py-5">Gestione Ordini</span>
-                <span id="tab-config" class="nav-tab text-sm px-1 py-5">Configurazione Lenti</span>
+                <span id="tab-config" class="nav-tab text-sm px-1 py-5">Listino & Prezzi</span>
             </div>
           </div>
           
@@ -122,51 +131,22 @@
 
         <div id="orders-list-container" class="flex-1 overflow-y-auto pr-2 pb-10 space-y-4">
             <p id="loading-orders" class="text-center text-gray-500 py-10">Caricamento ordini...</p>
-            </div>
+        </div>
       </div>
 
       <div id="view-config" class="hidden max-w-7xl mx-auto h-full flex flex-col">
          <div class="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col h-full">
             <div class="p-6 border-b border-gray-200 bg-gray-50 rounded-t-lg flex justify-between items-center">
                 <div>
-                    <h2 class="text-xl font-bold text-gray-800">Catalogo Lenti</h2>
-                    <p class="text-sm text-gray-500">Gestisci le marche e i modelli disponibili per i tuoi clienti.</p>
+                    <h2 class="text-xl font-bold text-gray-800">Listino Lenti</h2>
+                    <p class="text-sm text-gray-500">Seleziona le lenti del catalogo Master da rendere disponibili ai tuoi clienti e imposta i tuoi prezzi.</p>
                 </div>
+                <button id="save-catalog-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow font-bold transition">Salva Listino</button>
             </div>
             
-            <div class="flex-1 overflow-y-auto p-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="bg-gray-50 p-4 rounded border space-y-3">
-                        <h4 class="font-bold text-sm text-gray-700">1. Nuovo Produttore</h4>
-                        <div class="flex gap-2">
-                            <input type="text" id="new-manufacturer-name" placeholder="Es. Alcon" class="flex-1 text-sm border-gray-300 rounded shadow-sm">
-                            <button id="add-manufacturer-button" class="bg-blue-600 text-white px-3 rounded hover:bg-blue-700 text-sm">+</button>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 p-4 rounded border space-y-3">
-                        <h4 class="font-bold text-sm text-gray-700">2. Nuovo Modello</h4>
-                        <select id="manufacturer-select-for-model" class="w-full text-sm border-gray-300 rounded shadow-sm mb-2"></select>
-                        <div class="flex gap-2">
-                            <input type="text" id="new-model-name" placeholder="Es. Dailies Total 1" class="flex-1 text-sm border-gray-300 rounded shadow-sm">
-                            <button id="add-model-button" class="bg-blue-600 text-white px-3 rounded hover:bg-blue-700 text-sm">+</button>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 p-4 rounded border space-y-3">
-                        <h4 class="font-bold text-sm text-gray-700">3. Nuovo Tipo</h4>
-                        <div class="flex gap-2 mb-2">
-                            <select id="manufacturer-select-for-type" class="w-1/2 text-sm border-gray-300 rounded shadow-sm"></select>
-                            <select id="model-select-for-type" class="w-1/2 text-sm border-gray-300 rounded shadow-sm" disabled></select>
-                        </div>
-                        <div class="flex gap-2">
-                            <input type="text" id="new-type-name" placeholder="Es. Toric" class="flex-1 text-sm border-gray-300 rounded shadow-sm">
-                            <button id="add-type-button" class="bg-blue-600 text-white px-3 rounded hover:bg-blue-700 text-sm">+</button>
-                        </div>
-                    </div>
-                </div>
-
-                <h3 class="text-lg font-bold text-gray-800 mb-4">Listino Attuale</h3>
-                <div id="lens-manager-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <p class="text-gray-500 italic">Caricamento listino...</p>
+            <div class="flex-1 overflow-y-auto p-6 bg-gray-50">
+                <div id="catalog-container" class="space-y-6">
+                    <p class="text-gray-500 text-center py-10">Caricamento catalogo master...</p>
                 </div>
             </div>
          </div>
@@ -278,15 +258,14 @@
       appId: "1:642877461161:web:6a4d979e7a7ddd56140fb8"
     };
 
-    // Default Data
-    const defaultLensData = {
-      "Alcon": { "Dailies Total 1": ["Standard", "Multifocal"], "Precision 1": ["Standard", "Astigmatismo"] },
-      "Johnson & Johnson": { "Acuvue Oasys": ["Standard", "Astigmatismo"] }
-    };
-    
     let db, auth, unsubscribeOrders;
     let currentOpticianUid = null; 
-    let globalLensData = null; 
+    
+    // Global Vars for Data
+    let masterCatalog = {}; // Read only
+    let myPricingConfig = {}; // { "Manuf_Model_Type": { enabled: true, price: 20 } }
+    let myLensData = {}; // The simple structure for the Client App
+
     let allOrdersCache = [];
 
     try {
@@ -328,6 +307,10 @@
     const dateEndInput = document.getElementById('date-end');
     const refreshOrdersBtn = document.getElementById('refresh-orders');
 
+    // Config View Elements
+    const catalogContainer = document.getElementById('catalog-container');
+    const saveCatalogBtn = document.getElementById('save-catalog-btn');
+
     // --- AUTHENTICATION ---
     loginButton.addEventListener('click', async () => {
       try {
@@ -361,7 +344,9 @@
         dateStartInput.valueAsDate = start;
 
         loadOrders(user.uid);
-        await loadLensData();
+        // Load data for config tab (and for modal)
+        await Promise.all([loadMasterCatalog(), loadMyConfig()]);
+        
       } else {
         currentOpticianUid = null;
         loginView.classList.remove('hidden');
@@ -380,7 +365,7 @@
         } else {
             tabConfig.classList.add('active'); tabOrders.classList.remove('active');
             viewConfig.classList.remove('hidden'); viewOrders.classList.add('hidden');
-            populateLensManagerList(); // Refresh UI on tab switch
+            renderCatalogUI(); // Render UI when tab opens
         }
     }
     tabOrders.onclick = () => switchTab('orders');
@@ -434,7 +419,6 @@
       loadingOrders.classList.remove('hidden');
       ordersContainer.innerHTML = '';
       
-      // Dates
       const startDate = new Date(dateStartInput.value);
       const endDate = new Date(dateEndInput.value);
       startDate.setHours(0,0,0,0);
@@ -452,15 +436,11 @@
       unsubscribeOrders = onSnapshot(q, (snapshot) => {
         loadingOrders.classList.add('hidden');
         allOrdersCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        // Sort client side
         allOrdersCache.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
         renderOrders(allOrdersCache);
       }, (error) => {
           console.error("Error orders:", error);
-          loadingOrders.innerText = "Errore caricamento. Verifica la console (potrebbe mancare un indice).";
-          if(error.message.includes("index")) {
-              alert("Manca un indice Firestore per filtrare per data. Contatta l'amministratore.");
-          }
+          loadingOrders.innerText = "Errore caricamento. Verifica la console.";
       });
     }
 
@@ -493,7 +473,6 @@
         
         const l = order.lens_order || {};
         
-        // Safe params access
         const getP = (eye) => {
             if(!eye) return '';
             let s = `<b>${eye.type || '-'}</b>`;
@@ -536,7 +515,7 @@
                </div>
            </div>
 
-           ${order.client_info?.phone ? `<div class="text-xs text-gray-600">📞 ${order.client_info.phone}</div>` : ''}
+           ${order.client_info?.phone ? `<div class="text-xs text-gray-600">📱 ${order.client_info.phone}</div>` : ''}
            ${order.message && !order.lens_order ? `<div class="text-xs bg-yellow-50 p-2 rounded text-gray-700 italic border border-yellow-100">${order.message}</div>` : ''}
 
            <div class="flex justify-between items-center pt-2 mt-1 border-t border-gray-100">
@@ -574,7 +553,6 @@
     
     function printOrder(order) {
         const w = window.open('', '_blank', 'height=600,width=800');
-        // Semplice template di stampa
         w.document.write(`<html><head><title>Ordine</title><style>body{font-family:sans-serif;padding:20px;}</style></head><body><h2>Ordine: ${order.patient_name}</h2><p>${JSON.stringify(order.lens_order || order.message, null, 2)}</p><script>window.print();window.close();<\/script></body></html>`);
         w.document.close();
     }
@@ -585,112 +563,157 @@
         }
     }
 
-    // --- LENS CONFIG LOGIC ---
-    async function loadLensData() {
-      if (!currentOpticianUid) return;
-      const docRef = doc(db, "optician_config", currentOpticianUid, "lenses", "main");
-      try {
-        const docSnap = await getDoc(docRef);
-        globalLensData = docSnap.exists() ? docSnap.data().data : defaultLensData;
-        if(!docSnap.exists()) await saveLensData();
-      } catch (e) { globalLensData = defaultLensData; }
-      populateLensManagerList();
-      clientPopulateManufacturers();
-    }
+    // --- NEW CONFIG LOGIC (MASTER + PRICING) ---
     
-    async function saveLensData() {
-      if (!globalLensData || !currentOpticianUid) return;
-      await setDoc(doc(db, "optician_config", currentOpticianUid, "lenses", "main"), { data: globalLensData });
-      populateLensManagerList(); 
-      clientPopulateManufacturers();
+    // 1. Fetch Master Catalog (from Supplier)
+    async function loadMasterCatalog() {
+        try {
+            const docRef = doc(db, `artifacts/${appId}/public/data/master_catalog`);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                masterCatalog = docSnap.data().data || {};
+            }
+        } catch (e) { console.error("Err loading master:", e); }
     }
 
-    // Render the Config Tab
-    function populateLensManagerList() {
-      const listDiv = document.getElementById('lens-manager-list');
-      listDiv.innerHTML = '';
-      if (!globalLensData) return;
-      
-      // Update dropdowns for adding new items
-      const manufSelect = document.getElementById('manufacturer-select-for-model');
-      const manufSelectType = document.getElementById('manufacturer-select-for-type');
-      let ops = '<option value="">Seleziona...</option>';
-      Object.keys(globalLensData).forEach(m => ops += `<option value="${m}">${m}</option>`);
-      manufSelect.innerHTML = ops; 
-      manufSelectType.innerHTML = ops;
+    // 2. Fetch My Config (Prices & Enabled items)
+    async function loadMyConfig() {
+        if (!currentOpticianUid) return;
+        try {
+            const docRef = doc(db, "optician_config", currentOpticianUid, "lenses", "main");
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const d = docSnap.data();
+                myPricingConfig = d.pricing_config || {};
+                myLensData = d.data || {}; // This is the simplified object for the client app
+            }
+        } catch(e) { console.error("Err loading config:", e); }
+    }
 
-      // Render Cards
-      for (const manufacturer in globalLensData) {
-        let modelsHtml = '';
-        for (const model in globalLensData[manufacturer]) {
-            const types = globalLensData[manufacturer][model];
-            modelsHtml += `
-                <div class="ml-2 mt-2 border-l-2 border-gray-200 pl-2">
-                    <div class="flex justify-between text-sm font-medium text-gray-700">
-                        <span>${model}</span>
-                        <button class="text-red-400 hover:text-red-600 text-xs" onclick="deleteItem('${manufacturer}', '${model}')">&times; Modello</button>
-                    </div>
-                    <div class="flex flex-wrap gap-1 mt-1">
-                        ${types.map(t => `<span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded border border-blue-100 flex items-center gap-1">${t} <span class="cursor-pointer font-bold hover:text-red-500" onclick="deleteItem('${manufacturer}', '${model}', '${t}')">&times;</span></span>`).join('')}
-                    </div>
-                </div>
-            `;
+    // 3. Render UI combining Master + My Config
+    function renderCatalogUI() {
+        catalogContainer.innerHTML = '';
+        if (Object.keys(masterCatalog).length === 0) {
+            catalogContainer.innerHTML = '<p class="text-gray-500">Nessun dato nel catalogo Master.</p>';
+            return;
         }
+
+        // Iterate Manufacturers
+        Object.keys(masterCatalog).sort().forEach(manuf => {
+            const manufDiv = document.createElement('div');
+            manufDiv.className = "bg-white border border-gray-200 rounded-lg p-4 shadow-sm";
+            
+            manufDiv.innerHTML = `<h3 class="text-lg font-bold text-indigo-800 mb-4 pb-2 border-b border-gray-100">${manuf}</h3>`;
+            
+            // Iterate Models
+            const models = masterCatalog[manuf];
+            Object.keys(models).forEach(model => {
+                const types = models[model];
+                
+                const modelDiv = document.createElement('div');
+                modelDiv.className = "mb-4 pl-2 border-l-2 border-indigo-100";
+                modelDiv.innerHTML = `<h4 class="text-md font-bold text-gray-700 mb-2">${model}</h4>`;
+                
+                const typesContainer = document.createElement('div');
+                typesContainer.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3";
+
+                types.forEach(type => {
+                    // Create a unique key for this item
+                    const key = `${manuf}::${model}::${type}`;
+                    const config = myPricingConfig[key] || { enabled: false, price: '' };
+
+                    const typeCard = document.createElement('div');
+                    typeCard.className = "bg-gray-50 p-2 rounded border border-gray-200 flex items-center justify-between";
+                    
+                    typeCard.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                <input type="checkbox" name="toggle" id="toggle-${key}" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300" ${config.enabled ? 'checked' : ''}/>
+                                <label for="toggle-${key}" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">${type}</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <span class="text-xs text-gray-400">€</span>
+                            <input type="number" step="0.01" id="price-${key}" value="${config.price || ''}" placeholder="0.00" class="w-20 text-sm border-gray-300 rounded px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500" ${!config.enabled ? 'disabled' : ''}>
+                        </div>
+                    `;
+
+                    // Bind toggle event to enable/disable price input
+                    const toggle = typeCard.querySelector(`#toggle-${key.replace(/::/g, '\\:\\:')}`); // Escape for querySelector
+                    const priceInput = typeCard.querySelector(`#price-${key.replace(/::/g, '\\:\\:')}`);
+                    
+                    toggle.addEventListener('change', (e) => {
+                        priceInput.disabled = !e.target.checked;
+                        if(e.target.checked) {
+                           typeCard.classList.remove('opacity-50');
+                        } else {
+                           // typeCard.classList.add('opacity-50');
+                        }
+                    });
+
+                    typesContainer.appendChild(typeCard);
+                });
+                
+                modelDiv.appendChild(typesContainer);
+                manufDiv.appendChild(modelDiv);
+            });
+            
+            catalogContainer.appendChild(manufDiv);
+        });
+    }
+
+    // 4. Save Logic
+    saveCatalogBtn.onclick = async () => {
+        saveCatalogBtn.innerText = "Salvataggio...";
+        saveCatalogBtn.disabled = true;
         
-        const card = document.createElement('div');
-        card.className = "bg-white border border-gray-200 rounded-lg p-4 shadow-sm";
-        card.innerHTML = `
-            <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
-                <h4 class="font-bold text-indigo-700">${manufacturer}</h4>
-                <button class="text-red-400 hover:text-red-600 text-xs" onclick="deleteItem('${manufacturer}')">Elimina</button>
-            </div>
-            ${modelsHtml}
-        `;
-        listDiv.appendChild(card);
-      }
-    }
-    
-    // Global scope for delete function in HTML onclick
-    window.deleteItem = async (manuf, model, type) => {
-        if(type) {
-            if(!confirm(`Eliminare tipo ${type}?`)) return;
-            const idx = globalLensData[manuf][model].indexOf(type);
-            if(idx > -1) globalLensData[manuf][model].splice(idx, 1);
-        } else if (model) {
-            if(!confirm(`Eliminare modello ${model}?`)) return;
-            delete globalLensData[manuf][model];
-        } else {
-            if(!confirm(`Eliminare produttore ${manuf}?`)) return;
-            delete globalLensData[manuf];
-        }
-        await saveLensData();
-    };
+        const newPricingConfig = {};
+        const newLensData = {}; // The simplified structure for the app
 
-    // Handlers for Add Inputs (Simplified)
-    document.getElementById('add-manufacturer-button').onclick = async () => {
-        const val = document.getElementById('new-manufacturer-name').value.trim();
-        if(val && !globalLensData[val]) { globalLensData[val] = {}; document.getElementById('new-manufacturer-name').value=''; await saveLensData(); }
-    };
-    document.getElementById('add-model-button').onclick = async () => {
-        const m = document.getElementById('manufacturer-select-for-model').value;
-        const val = document.getElementById('new-model-name').value.trim();
-        if(m && val && !globalLensData[m][val]) { globalLensData[m][val] = []; document.getElementById('new-model-name').value=''; await saveLensData(); }
-    };
-    document.getElementById('manufacturer-select-for-type').onchange = (e) => {
-        const m = e.target.value;
-        const modSel = document.getElementById('model-select-for-type');
-        modSel.innerHTML = '<option value="">Seleziona...</option>';
-        modSel.disabled = true;
-        if(m && globalLensData[m]) {
-            Object.keys(globalLensData[m]).forEach(k => modSel.innerHTML += `<option value="${k}">${k}</option>`);
-            modSel.disabled = false;
+        // Reconstruct data from UI logic + Master Catalog structure
+        Object.keys(masterCatalog).forEach(manuf => {
+            Object.keys(masterCatalog[manuf]).forEach(model => {
+                masterCatalog[manuf][model].forEach(type => {
+                    const key = `${manuf}::${model}::${type}`;
+                    // Escape key for selector
+                    const safeKey = key.replace(/::/g, '\\:\\:');
+                    const toggle = document.querySelector(`#toggle-${safeKey}`);
+                    const priceIn = document.querySelector(`#price-${safeKey}`);
+                    
+                    if (toggle && toggle.checked) {
+                        // 1. Save to Pricing Config
+                        newPricingConfig[key] = {
+                            enabled: true,
+                            price: priceIn.value
+                        };
+
+                        // 2. Build simplified structure for App
+                        if (!newLensData[manuf]) newLensData[manuf] = {};
+                        if (!newLensData[manuf][model]) newLensData[manuf][model] = [];
+                        newLensData[manuf][model].push(type);
+                    }
+                });
+            });
+        });
+
+        try {
+            await setDoc(doc(db, "optician_config", currentOpticianUid, "lenses", "main"), {
+                pricing_config: newPricingConfig,
+                data: newLensData // IMPORTANT: This overwrites 'data' with only enabled items
+            });
+            
+            // Update local vars
+            myPricingConfig = newPricingConfig;
+            myLensData = newLensData;
+            
+            alert("Listino salvato! I tuoi clienti vedranno solo i prodotti selezionati.");
+        } catch(e) {
+            alert("Errore salvataggio: " + e.message);
+        } finally {
+            saveCatalogBtn.innerText = "Salva Listino";
+            saveCatalogBtn.disabled = false;
         }
-    };
-    document.getElementById('add-type-button').onclick = async () => {
-        const m = document.getElementById('manufacturer-select-for-type').value;
-        const mo = document.getElementById('model-select-for-type').value;
-        const val = document.getElementById('new-type-name').value.trim();
-        if(m && mo && val && !globalLensData[m][mo].includes(val)) { globalLensData[m][mo].push(val); document.getElementById('new-type-name').value=''; await saveLensData(); }
     };
 
 
@@ -704,29 +727,32 @@
     document.getElementById('close-modal-button').onclick = () => clientModal.classList.add('hidden');
     closeQrButton.onclick = () => clientModal.classList.add('hidden');
 
-    // Dropdowns for Client Modal
+    // Dropdowns for Client Modal (Populated from MY CONFIG, not Master)
     const cManuf = document.getElementById('client-lens-manufacturer');
     const cModel = document.getElementById('client-lens-model');
     const cTypeOD = document.getElementById('client-lens-type-od');
     const cTypeOS = document.getElementById('client-lens-type-os');
     
     function clientPopulateManufacturers() {
-        if(!globalLensData) return;
+        // Use myLensData to ensure we only show what the optician sells
+        if(!myLensData) return;
         cManuf.innerHTML = '<option value="">-- Seleziona --</option>';
-        Object.keys(globalLensData).forEach(m => cManuf.innerHTML += `<option value="${m}">${m}</option>`);
+        Object.keys(myLensData).forEach(m => cManuf.innerHTML += `<option value="${m}">${m}</option>`);
     }
     cManuf.onchange = () => {
         cModel.innerHTML = '<option value="">-- --</option>'; cModel.disabled = true;
-        if(cManuf.value) {
-            Object.keys(globalLensData[cManuf.value]).forEach(m => cModel.innerHTML += `<option value="${m}">${m}</option>`);
+        if(cManuf.value && myLensData[cManuf.value]) {
+            Object.keys(myLensData[cManuf.value]).forEach(m => cModel.innerHTML += `<option value="${m}">${m}</option>`);
             cModel.disabled = false;
         }
     };
     cModel.onchange = () => {
-        const types = globalLensData[cManuf.value][cModel.value];
-        const ops = '<option value="">-- --</option>' + types.map(t => `<option value="${t}">${t}</option>`).join('');
-        cTypeOD.innerHTML = ops; cTypeOD.disabled = false;
-        cTypeOS.innerHTML = ops; cTypeOS.disabled = false;
+        if(cManuf.value && cModel.value && myLensData[cManuf.value][cModel.value]) {
+            const types = myLensData[cManuf.value][cModel.value];
+            const ops = '<option value="">-- --</option>' + types.map(t => `<option value="${t}">${t}</option>`).join('');
+            cTypeOD.innerHTML = ops; cTypeOD.disabled = false;
+            cTypeOS.innerHTML = ops; cTypeOS.disabled = false;
+        }
     };
     
     // Show/Hide Params
@@ -761,7 +787,7 @@
             tos: cTypeOS.value, pos: document.getElementById('client-pwr-os').value, cos: document.getElementById('client-cyl-os').value, aos: document.getElementById('client-axis-os').value, addos: document.getElementById('client-add-os').value
         };
         
-        const baseUrl = window.location.origin + '/'; // Assumes index.html is root
+        const baseUrl = window.location.origin + '/'; 
         const params = new URLSearchParams();
         Object.entries(data).forEach(([k,v]) => { if(v) params.set(k,v); });
         const fullUrl = baseUrl + '?' + params.toString();

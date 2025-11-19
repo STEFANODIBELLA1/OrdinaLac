@@ -19,6 +19,11 @@
     ::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
     
+    /* Tab Nav */
+    .nav-item { cursor: pointer; border-bottom: 3px solid transparent; padding-bottom: 10px; transition: all 0.3s; }
+    .nav-item.active { border-bottom-color: #4f46e5; color: #4f46e5; font-weight: 700; }
+    .nav-item:hover:not(.active) { color: #374151; border-bottom-color: #d1d5db; }
+
     /* Loader */
     .loader {
       border: 3px solid #f3f3f3;
@@ -72,36 +77,28 @@
              </div>
              <div><span class="font-bold text-xl text-gray-900 tracking-tight">Portale<span class="text-indigo-600">Fornitore</span></span></div>
              
-             <button onclick="openRegisterModal()" class="ml-4 bg-green-600 hover:bg-green-700 text-white py-1.5 px-3 rounded-md shadow flex items-center gap-2 text-xs font-bold transition uppercase tracking-wide">
+             <div class="hidden md:flex ml-10 space-x-8 h-full items-end">
+                 <div id="nav-monitor" class="nav-item active text-sm" onclick="switchTab('monitor')">Monitoraggio Ordini</div>
+                 <div id="nav-catalog" class="nav-item text-sm" onclick="switchTab('catalog')">Catalogo Master</div>
+             </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <button onclick="openRegisterModal()" class="bg-green-600 hover:bg-green-700 text-white py-1.5 px-3 rounded-md shadow flex items-center gap-2 text-xs font-bold transition uppercase tracking-wide">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                 </svg>
                 Nuovo Ottico
              </button>
-        </div>
-
-        <div class="hidden md:flex items-center bg-gray-100 rounded-lg p-1 border border-gray-200">
-            <span class="text-xs font-bold text-gray-500 px-2">Periodo:</span>
-            <input type="date" id="date-start" class="bg-white border-none text-xs rounded-md focus:ring-0 text-gray-700 h-8">
-            <span class="text-gray-400 px-1">-</span>
-            <input type="date" id="date-end" class="bg-white border-none text-xs rounded-md focus:ring-0 text-gray-700 h-8">
-            <button id="refresh-btn" class="ml-2 bg-indigo-600 hover:bg-indigo-700 text-white p-1.5 rounded-md transition" title="Applica Filtro">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-            </button>
-        </div>
-
-        <div class="flex items-center gap-4">
             <span id="user-email-display" class="text-xs text-gray-500 font-mono hidden lg:inline-block bg-gray-100 px-2 py-1 rounded"></span>
             <button id="logout-button" class="text-gray-500 hover:text-red-600 font-medium text-sm transition">Esci</button>
         </div>
       </div>
     </nav>
 
-    <main class="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-50">
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-50 relative">
       
-      <div id="loading-overlay" class="hidden fixed inset-0 bg-white bg-opacity-80 z-50 flex flex-col items-center justify-center">
+      <div id="loading-overlay" class="hidden absolute inset-0 bg-white bg-opacity-80 z-50 flex flex-col items-center justify-center h-full">
         <div class="loader mb-2"></div>
         <p class="text-sm text-gray-500 font-medium">Elaborazione dati in corso...</p>
       </div>
@@ -111,107 +108,170 @@
         <p class="text-sm mt-1">Dettaglio: <span id="fetch-error-msg" class="font-mono bg-red-50 px-1"></span></p>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition">
-          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Ordini (Periodo)</p>
-          <p id="kpi-total-orders" class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-1">-</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition">
-          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Ottici Attivi</p>
-          <p id="kpi-active-opticians" class="text-2xl sm:text-3xl font-extrabold text-blue-600 mt-1">-</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition">
-          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">% Domicilio</p>
-          <div class="flex items-end gap-2">
-             <p id="kpi-delivery-perc" class="text-2xl sm:text-3xl font-extrabold text-green-600 mt-1">-%</p>
-          </div>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Top Brand</p>
-            <p id="kpi-top-brand" class="text-lg sm:text-xl font-bold text-purple-600 mt-1 truncate" title="-">-</p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-[600px]">
-            <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50 rounded-t-xl">
-                <div>
-                    <h3 class="text-lg font-bold text-gray-800">Elenco Ordini</h3>
-                    <p class="text-xs text-gray-500" id="table-subtitle">Visualizzazione dati periodo selezionato</p>
-                </div>
-                <div class="relative w-full sm:w-64">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </span>
-                    <input type="text" id="search-input" placeholder="Filtra risultati caricati..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white">
-                </div>
-            </div>
-            
-            <div class="overflow-auto flex-1">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50 sticky top-0 z-10 shadow-sm">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Data</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider text-indigo-600">Ottico</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Paziente</th>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Stato</th> <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Azioni</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orders-table-body" class="bg-white divide-y divide-gray-200 text-sm"></tbody>
-                </table>
-                <div id="no-results" class="hidden p-10 text-center flex flex-col items-center justify-center text-gray-400">
-                    <svg class="w-12 h-12 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    <p>Nessun ordine trovato in questo periodo.</p>
-                </div>
-            </div>
-            <div class="p-2 border-t border-gray-200 bg-gray-50 text-right text-xs text-gray-400">
-                Mostrati max 100 risultati recenti per il periodo.
-            </div>
-        </div>
-
-        <div class="flex flex-col gap-6">
-            
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wide flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" />
+      <div id="view-monitor">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-lg font-bold text-gray-800">Panoramica Attività</h2>
+            <div class="flex items-center bg-white rounded-lg p-1 border border-gray-200 shadow-sm">
+                <span class="text-xs font-bold text-gray-500 px-2">Filtra Periodo:</span>
+                <input type="date" id="date-start" class="bg-white border-none text-xs rounded-md focus:ring-0 text-gray-700 h-8">
+                <span class="text-gray-400 px-1">-</span>
+                <input type="date" id="date-end" class="bg-white border-none text-xs rounded-md focus:ring-0 text-gray-700 h-8">
+                <button id="refresh-btn" class="ml-2 bg-indigo-600 hover:bg-indigo-700 text-white p-1.5 rounded-md transition" title="Applica Filtro">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
-                    Reportistica PDF
-                </h3>
-                <div class="space-y-3">
-                    <label class="block text-xs text-gray-500 font-bold">1. Seleziona Ottico (dal periodo)</label>
-                    <select id="optician-export-select" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md border">
-                        <option value="">Caricamento...</option>
-                    </select>
+                </button>
+            </div>
+          </div>
 
-                    <div id="export-filters" class="hidden space-y-2 pt-2 border-t border-gray-100">
-                        <label class="block text-xs text-gray-500 font-bold">2. Filtra Dati (Opzionale)</label>
-                        <select id="filter-manufacturer" class="block w-full text-xs border-gray-300 rounded-md border p-2"><option value="">Tutti i Produttori</option></select>
-                        <select id="filter-model" class="block w-full text-xs border-gray-300 rounded-md border p-2"><option value="">Tutti i Modelli</option></select>
-                        <select id="filter-type" class="block w-full text-xs border-gray-300 rounded-md border p-2"><option value="">Tutti i Tipi</option></select>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition">
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Ordini (Periodo)</p>
+              <p id="kpi-total-orders" class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-1">-</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition">
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Ottici Attivi</p>
+              <p id="kpi-active-opticians" class="text-2xl sm:text-3xl font-extrabold text-blue-600 mt-1">-</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition">
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">% Domicilio</p>
+              <div class="flex items-end gap-2">
+                 <p id="kpi-delivery-perc" class="text-2xl sm:text-3xl font-extrabold text-green-600 mt-1">-%</p>
+              </div>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Top Brand</p>
+                <p id="kpi-top-brand" class="text-lg sm:text-xl font-bold text-purple-600 mt-1 truncate" title="-">-</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-[600px]">
+                <div class="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50 rounded-t-xl">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Elenco Ordini</h3>
+                        <p class="text-xs text-gray-500" id="table-subtitle">Visualizzazione dati periodo selezionato</p>
                     </div>
-
-                    <button id="btn-export-pdf" class="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-800 hover:bg-gray-900 focus:outline-none mt-4 transition">
-                        Scarica Elenco Clienti
-                    </button>
+                    <div class="relative w-full sm:w-64">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </span>
+                        <input type="text" id="search-input" placeholder="Filtra risultati caricati..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                    </div>
+                </div>
+                
+                <div class="overflow-auto flex-1">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50 sticky top-0 z-10 shadow-sm">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Data</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider text-indigo-600">Ottico</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Paziente</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Stato</th> <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body" class="bg-white divide-y divide-gray-200 text-sm"></tbody>
+                    </table>
+                    <div id="no-results" class="hidden p-10 text-center flex flex-col items-center justify-center text-gray-400">
+                        <svg class="w-12 h-12 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <p>Nessun ordine trovato in questo periodo.</p>
+                    </div>
+                </div>
+                <div class="p-2 border-t border-gray-200 bg-gray-50 text-right text-xs text-gray-400">
+                    Mostrati max 100 risultati recenti per il periodo.
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <h3 class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wide">Mix Produttori</h3>
-                <div class="chart-container">
-                    <canvas id="chart-brands"></canvas>
+            <div class="flex flex-col gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wide flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" />
+                        </svg>
+                        Reportistica PDF
+                    </h3>
+                    <div class="space-y-3">
+                        <label class="block text-xs text-gray-500 font-bold">1. Seleziona Ottico (dal periodo)</label>
+                        <select id="optician-export-select" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md border">
+                            <option value="">Caricamento...</option>
+                        </select>
+
+                        <div id="export-filters" class="hidden space-y-2 pt-2 border-t border-gray-100">
+                            <label class="block text-xs text-gray-500 font-bold">2. Filtra Dati (Opzionale)</label>
+                            <select id="filter-manufacturer" class="block w-full text-xs border-gray-300 rounded-md border p-2"><option value="">Tutti i Produttori</option></select>
+                            <select id="filter-model" class="block w-full text-xs border-gray-300 rounded-md border p-2"><option value="">Tutti i Modelli</option></select>
+                            <select id="filter-type" class="block w-full text-xs border-gray-300 rounded-md border p-2"><option value="">Tutti i Tipi</option></select>
+                        </div>
+
+                        <button id="btn-export-pdf" class="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-800 hover:bg-gray-900 focus:outline-none mt-4 transition">
+                            Scarica Elenco Clienti
+                        </button>
+                    </div>
                 </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wide">Mix Produttori</h3>
+                    <div class="chart-container">
+                        <canvas id="chart-brands"></canvas>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex-1">
+                    <h3 class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wide">Top Performance</h3>
+                    <ul id="top-opticians-list" class="space-y-3"></ul>
+                </div>
+            </div>
+          </div>
+      </div>
+
+      <div id="view-catalog" class="hidden">
+         <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col min-h-[600px]">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Catalogo Master Lenti</h2>
+                    <p class="text-sm text-gray-500">Definisci le marche, i modelli e i parametri disponibili per TUTTI gli ottici.</p>
+                </div>
+                <button onclick="saveMasterCatalog()" id="btn-save-catalog" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow text-sm font-bold transition">Salva Modifiche Globali</button>
             </div>
             
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex-1">
-                <h3 class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wide">Top Performance</h3>
-                <ul id="top-opticians-list" class="space-y-3"></ul>
-            </div>
-        </div>
+            <div class="flex-1 p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-indigo-50 p-4 rounded border border-indigo-100 space-y-3">
+                        <h4 class="font-bold text-sm text-indigo-800">1. Nuovo Produttore</h4>
+                        <div class="flex gap-2">
+                            <input type="text" id="new-manufacturer-name" placeholder="Es. Alcon" class="flex-1 text-sm border-gray-300 rounded shadow-sm p-2 border">
+                            <button id="add-manufacturer-button" class="bg-indigo-600 text-white px-3 rounded hover:bg-indigo-700 text-sm font-bold">+</button>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded border border-gray-200 space-y-3 shadow-sm">
+                        <h4 class="font-bold text-sm text-gray-700">2. Nuovo Modello</h4>
+                        <select id="manufacturer-select-for-model" class="w-full text-sm border-gray-300 rounded shadow-sm mb-2 p-2 border"></select>
+                        <div class="flex gap-2">
+                            <input type="text" id="new-model-name" placeholder="Es. Dailies Total 1" class="flex-1 text-sm border-gray-300 rounded shadow-sm p-2 border">
+                            <button id="add-model-button" class="bg-indigo-600 text-white px-3 rounded hover:bg-indigo-700 text-sm font-bold">+</button>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded border border-gray-200 space-y-3 shadow-sm">
+                        <h4 class="font-bold text-sm text-gray-700">3. Nuovo Tipo</h4>
+                        <div class="flex gap-2 mb-2">
+                            <select id="manufacturer-select-for-type" class="w-1/2 text-sm border-gray-300 rounded shadow-sm p-2 border"></select>
+                            <select id="model-select-for-type" class="w-1/2 text-sm border-gray-300 rounded shadow-sm p-2 border" disabled></select>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="new-type-name" placeholder="Es. Toric" class="flex-1 text-sm border-gray-300 rounded shadow-sm p-2 border">
+                            <button id="add-type-button" class="bg-indigo-600 text-white px-3 rounded hover:bg-indigo-700 text-sm font-bold">+</button>
+                        </div>
+                    </div>
+                </div>
 
+                <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">Listino Globale Attuale</h3>
+                <div id="catalog-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <p class="text-gray-500 italic">Caricamento listino...</p>
+                </div>
+            </div>
+         </div>
       </div>
+
     </main>
   </div>
 
@@ -318,7 +378,7 @@
   <script type="module">
     import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, getDocs, query, doc, setDoc, where, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, doc, setDoc, getDoc, where, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDMRWXipp7VCMQiezOZSSZAhSQo8MWVgKs",
@@ -331,8 +391,15 @@
 
     let app, auth, db;
     const appId = "ordinalac-app";
+    
+    // Dati di default se catalogo vuoto
+    const defaultLensData = {
+      "Alcon": { "Dailies Total 1": ["Standard", "Multifocal"], "Precision 1": ["Standard", "Astigmatismo"] },
+      "Johnson & Johnson": { "Acuvue Oasys": ["Standard", "Astigmatismo"] }
+    };
+    let globalCatalogData = {};
 
-    // UI Elements
+    // UI Elements Login/Nav
     const loginView = document.getElementById('login-view');
     const dashboardView = document.getElementById('dashboard-view');
     const loadingOverlay = document.getElementById('loading-overlay');
@@ -342,18 +409,22 @@
     const logoutButton = document.getElementById('logout-button');
     const loginError = document.getElementById('login-error');
     const userEmailDisplay = document.getElementById('user-email-display');
-    const searchInput = document.getElementById('search-input');
     const anonWarning = document.getElementById('anon-warning');
     const forceLogoutBtn = document.getElementById('force-logout-btn');
+    
+    // Nav Items
+    const viewMonitor = document.getElementById('view-monitor');
+    const viewCatalog = document.getElementById('view-catalog');
+    const navMonitor = document.getElementById('nav-monitor');
+    const navCatalog = document.getElementById('nav-catalog');
+
+    // Monitor Data Elements
+    const searchInput = document.getElementById('search-input');
     const fetchErrorBanner = document.getElementById('fetch-error-banner');
     const fetchErrorMsg = document.getElementById('fetch-error-msg');
-    
-    // Date Filters
     const dateStartInput = document.getElementById('date-start');
     const dateEndInput = document.getElementById('date-end');
     const refreshBtn = document.getElementById('refresh-btn');
-
-    // KPI & Tables
     const kpiTotal = document.getElementById('kpi-total-orders');
     const kpiActiveOpt = document.getElementById('kpi-active-opticians');
     const kpiDelPerc = document.getElementById('kpi-delivery-perc');
@@ -361,8 +432,6 @@
     const ordersTableBody = document.getElementById('orders-table-body');
     const noResultsMsg = document.getElementById('no-results');
     const topOpticiansList = document.getElementById('top-opticians-list');
-    
-    // Export & Filters
     const opticianExportSelect = document.getElementById('optician-export-select');
     const exportFiltersDiv = document.getElementById('export-filters');
     const filterManufacturer = document.getElementById('filter-manufacturer');
@@ -385,7 +454,6 @@
         db = getFirestore(app);
     } catch(e) { console.error("Firebase init error:", e); }
 
-    // Set default dates (Last 30 days)
     const setDefaultDates = () => {
         const end = new Date();
         const start = new Date();
@@ -398,6 +466,23 @@
     const showLoading = (show) => {
         if(show) loadingOverlay.classList.remove('hidden');
         else loadingOverlay.classList.add('hidden');
+    };
+    
+    // Tabs Logic
+    window.switchTab = (tabName) => {
+        if(tabName === 'monitor') {
+            viewMonitor.classList.remove('hidden');
+            viewCatalog.classList.add('hidden');
+            navMonitor.classList.add('active');
+            navCatalog.classList.remove('active');
+        } else {
+            viewMonitor.classList.add('hidden');
+            viewCatalog.classList.remove('hidden');
+            navMonitor.classList.remove('active');
+            navCatalog.classList.add('active');
+            // Load catalog when switching if empty
+            if(Object.keys(globalCatalogData).length === 0) loadMasterCatalog();
+        }
     };
 
     window.closeModal = () => orderModal.classList.add('hidden');
@@ -449,7 +534,8 @@
         loginView.classList.add('hidden');
         dashboardView.classList.remove('hidden');
         userEmailDisplay.innerText = user.email;
-        fetchAllData();
+        fetchAllData(); // Load Monitor Data
+        loadMasterCatalog(); // Load Catalog Data
       } else {
         loginView.classList.remove('hidden');
         dashboardView.classList.add('hidden');
@@ -460,7 +546,7 @@
 
     refreshBtn.onclick = fetchAllData;
 
-    // --- DATA FETCHING ---
+    // --- MONITOR DATA FETCHING ---
     async function fetchOpticianRegistry() {
         try {
             const q = query(collection(db, 'opticians_registry'));
@@ -470,9 +556,7 @@
                 const data = doc.data();
                 opticiansMap[data.uid] = data.store_name;
             });
-        } catch (e) {
-            console.warn("Registry fetch warning:", e);
-        }
+        } catch (e) { console.warn("Registry fetch warning:", e); }
     }
 
     async function fetchAllData() {
@@ -481,13 +565,11 @@
       
       const startDate = new Date(dateStartInput.value);
       const endDate = new Date(dateEndInput.value);
-      // Adjust for full day coverage
       startDate.setHours(0,0,0,0);
       endDate.setHours(23,59,59,999);
 
       await fetchOpticianRegistry();
 
-      // Firestore Query with Date Range
       const q = query(
           collection(db, `artifacts/${appId}/public/data/orders`),
           where('timestamp', '>=', startDate),
@@ -497,7 +579,6 @@
       try {
         const snapshot = await getDocs(q);
         globalOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        // Sort client-side to avoid complex index requirement immediately
         globalOrders.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
         
         processAndRender(globalOrders);
@@ -505,9 +586,7 @@
       } catch (e) {
         console.error("Fetch error:", e);
         fetchErrorMsg.innerText = e.message;
-        if(e.message.includes("index")) {
-            fetchErrorMsg.innerText += " (Manca indice Firestore: crea indice composito per timestamp)";
-        }
+        if(e.message.includes("index")) fetchErrorMsg.innerText += " (Manca indice Firestore)";
         fetchErrorBanner.classList.remove('hidden');
         ordersTableBody.innerHTML = '';
       } finally {
@@ -515,11 +594,143 @@
       }
     }
 
+    // --- MASTER CATALOG LOGIC ---
+    async function loadMasterCatalog() {
+        const docRef = doc(db, `artifacts/${appId}/public/data/master_catalog`);
+        try {
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                globalCatalogData = docSnap.data().data || {};
+            } else {
+                globalCatalogData = defaultLensData; // Init default
+                saveMasterCatalog(true); // Create initial
+            }
+        } catch (e) {
+            console.error("Catalog Load Error:", e);
+            globalCatalogData = defaultLensData;
+        }
+        renderCatalogUI();
+    }
+
+    window.saveMasterCatalog = async (silent = false) => {
+        const btn = document.getElementById('btn-save-catalog');
+        if(!silent) { btn.innerText = "Salvataggio..."; btn.disabled = true; }
+        
+        try {
+            await setDoc(doc(db, `artifacts/${appId}/public/data/master_catalog`), { data: globalCatalogData });
+            if(!silent) alert("Catalogo Globale aggiornato con successo!");
+        } catch(e) {
+            alert("Errore salvataggio: " + e.message);
+        } finally {
+            if(!silent) { btn.innerText = "Salva Modifiche Globali"; btn.disabled = false; }
+            renderCatalogUI();
+        }
+    };
+
+    function renderCatalogUI() {
+        const listDiv = document.getElementById('catalog-list-container');
+        listDiv.innerHTML = '';
+        
+        // Populate Dropdowns
+        const manufSelectModel = document.getElementById('manufacturer-select-for-model');
+        const manufSelectType = document.getElementById('manufacturer-select-for-type');
+        let ops = '<option value="">Seleziona...</option>';
+        Object.keys(globalCatalogData).sort().forEach(m => ops += `<option value="${m}">${m}</option>`);
+        manufSelectModel.innerHTML = ops; 
+        manufSelectType.innerHTML = ops;
+
+        // Render List
+        for (const manufacturer in globalCatalogData) {
+            let modelsHtml = '';
+            for (const model in globalCatalogData[manufacturer]) {
+                const types = globalCatalogData[manufacturer][model];
+                modelsHtml += `
+                    <div class="ml-2 mt-2 border-l-2 border-gray-200 pl-2">
+                        <div class="flex justify-between text-sm font-medium text-gray-700">
+                            <span>${model}</span>
+                            <button class="text-red-400 hover:text-red-600 text-xs" onclick="deleteItem('${manufacturer}', '${model}')">&times; Modello</button>
+                        </div>
+                        <div class="flex flex-wrap gap-1 mt-1">
+                            ${types.map(t => `<span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded border border-blue-100 flex items-center gap-1">${t} <span class="cursor-pointer font-bold hover:text-red-500" onclick="deleteItem('${manufacturer}', '${model}', '${t}')">&times;</span></span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            const card = document.createElement('div');
+            card.className = "bg-white border border-gray-200 rounded-lg p-4 shadow-sm";
+            card.innerHTML = `
+                <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
+                    <h4 class="font-bold text-indigo-700">${manufacturer}</h4>
+                    <button class="text-red-400 hover:text-red-600 text-xs" onclick="deleteItem('${manufacturer}')">Elimina</button>
+                </div>
+                ${modelsHtml}
+            `;
+            listDiv.appendChild(card);
+        }
+    }
+
+    // Catalog Event Handlers
+    window.deleteItem = async (manuf, model, type) => {
+        if(type) {
+            if(!confirm(`Eliminare tipo ${type}?`)) return;
+            const idx = globalCatalogData[manuf][model].indexOf(type);
+            if(idx > -1) globalCatalogData[manuf][model].splice(idx, 1);
+        } else if (model) {
+            if(!confirm(`Eliminare modello ${model}?`)) return;
+            delete globalCatalogData[manuf][model];
+        } else {
+            if(!confirm(`Eliminare produttore ${manuf}?`)) return;
+            delete globalCatalogData[manuf];
+        }
+        renderCatalogUI(); // Optimistic update
+        // Note: user must click "Save" to persist, or we can auto-save. Let's allow manual save for safety, or call save logic here.
+        // For better UX, let's just rerender and wait for save.
+    };
+
+    document.getElementById('add-manufacturer-button').onclick = () => {
+        const val = document.getElementById('new-manufacturer-name').value.trim();
+        if(val && !globalCatalogData[val]) { 
+            globalCatalogData[val] = {}; 
+            document.getElementById('new-manufacturer-name').value=''; 
+            renderCatalogUI(); 
+        }
+    };
+    document.getElementById('add-model-button').onclick = () => {
+        const m = document.getElementById('manufacturer-select-for-model').value;
+        const val = document.getElementById('new-model-name').value.trim();
+        if(m && val && !globalCatalogData[m][val]) { 
+            globalCatalogData[m][val] = []; 
+            document.getElementById('new-model-name').value=''; 
+            renderCatalogUI(); 
+        }
+    };
+    document.getElementById('manufacturer-select-for-type').onchange = (e) => {
+        const m = e.target.value;
+        const modSel = document.getElementById('model-select-for-type');
+        modSel.innerHTML = '<option value="">Seleziona...</option>';
+        modSel.disabled = true;
+        if(m && globalCatalogData[m]) {
+            Object.keys(globalCatalogData[m]).forEach(k => modSel.innerHTML += `<option value="${k}">${k}</option>`);
+            modSel.disabled = false;
+        }
+    };
+    document.getElementById('add-type-button').onclick = () => {
+        const m = document.getElementById('manufacturer-select-for-type').value;
+        const mo = document.getElementById('model-select-for-type').value;
+        const val = document.getElementById('new-type-name').value.trim();
+        if(m && mo && val && !globalCatalogData[m][mo].includes(val)) { 
+            globalCatalogData[m][mo].push(val); 
+            document.getElementById('new-type-name').value=''; 
+            renderCatalogUI(); 
+        }
+    };
+
+
     // --- SEARCH & UI LOGIC ---
     searchInput.addEventListener('input', (e) => {
         const term = e.target.value.toLowerCase();
         if(!term) { renderTable(globalOrders); return; }
-        
         const filtered = globalOrders.filter(o => {
             const optId = (o.optician_id || '').toLowerCase();
             const optName = (opticiansMap[o.optician_id] || '').toLowerCase();
@@ -543,13 +754,11 @@
 
         if(!email || !pass || !storeName) {
             errBox.innerText = "Compila almeno Email, Password e Nome Negozio.";
-            errBox.classList.remove('hidden');
-            return;
+            errBox.classList.remove('hidden'); return;
         }
         if(pass.length < 6) {
             errBox.innerText = "La password deve essere di almeno 6 caratteri.";
-            errBox.classList.remove('hidden');
-            return;
+            errBox.classList.remove('hidden'); return;
         }
 
         errBox.classList.add('hidden');
@@ -558,27 +767,19 @@
 
         let secondaryApp = null;
         try {
-            // Create secondary app to create user without logging out admin
             secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
             const secondaryAuth = getAuth(secondaryApp);
             const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
             const newUid = userCred.user.uid;
 
             await setDoc(doc(db, 'opticians_registry', newUid), {
-                uid: newUid,
-                email: email,
-                store_name: storeName,
-                piva: piva,
-                address: address,
-                phone: phone,
-                created_at: new Date()
+                uid: newUid, email: email, store_name: storeName, piva: piva, address: address, phone: phone, created_at: new Date()
             });
 
             document.getElementById('generated-uid').innerText = newUid;
             successBox.classList.remove('hidden');
             confirmBtn.classList.add('hidden');
-            
-            opticiansMap[newUid] = storeName; // Local update
+            opticiansMap[newUid] = storeName; 
 
         } catch (error) {
             console.error("Creation error:", error);
@@ -615,14 +816,9 @@
 
     opticianExportSelect.addEventListener('change', () => {
         const optId = opticianExportSelect.value;
-        if(!optId) {
-            exportFiltersDiv.classList.add('hidden');
-            return;
-        }
+        if(!optId) { exportFiltersDiv.classList.add('hidden'); return; }
         const optOrders = globalOrders.filter(o => o.optician_id === optId);
-        const manufs = new Set();
-        const models = new Set();
-        const types = new Set();
+        const manufs = new Set(); const models = new Set(); const types = new Set();
 
         optOrders.forEach(o => {
             if(o.lens_order?.manufacturer) manufs.add(o.lens_order.manufacturer);
@@ -645,7 +841,7 @@
         const optId = opticianExportSelect.value;
         if(!optId) { alert("Seleziona prima un ottico dal menu."); return; }
         showLoading(true);
-        setTimeout(() => { // Timeout per renderizzare loader
+        setTimeout(() => { 
             generatePdfForOptician(optId);
             showLoading(false);
         }, 100);
@@ -660,45 +856,28 @@
         const selType = filterType.value;
 
         let optOrders = globalOrders.filter(o => o.optician_id === opticianId);
-
         if (selManuf) optOrders = optOrders.filter(o => o.lens_order?.manufacturer === selManuf);
         if (selModel) optOrders = optOrders.filter(o => o.lens_order?.model === selModel);
         if (selType) optOrders = optOrders.filter(o => (o.lens_order?.od?.type === selType || o.lens_order?.os?.type === selType));
 
-        if(optOrders.length === 0) {
-            alert("Nessun cliente trovato con questi filtri.");
-            return;
-        }
+        if(optOrders.length === 0) { alert("Nessun cliente trovato con questi filtri."); return; }
 
-        // Deduping clients
         const clientsMap = new Map();
         optOrders.forEach(o => {
             const key = (o.patient_name || 'Sconosciuto').trim() + '_' + (o.client_info?.phone || '').trim();
-            // Aggiorniamo se troviamo dati più recenti o completi, ma qui teniamo semplice
             if (!clientsMap.has(key)) {
                 const info = o.client_info || {};
                 const del = o.delivery || {};
                 const l = o.lens_order || {};
                 let address = 'N/D';
-                if(del.address_details && del.address_details.city) {
-                    address = `${del.address_details.city} (${del.address_details.province})`;
-                } else if (del.address_full) {
-                    // Try extraction or just truncate
-                    address = 'Vedi Dettaglio';
-                }
+                if(del.address_details && del.address_details.city) address = `${del.address_details.city} (${del.address_details.province})`;
+                else if (del.address_full) address = 'Vedi Dettaglio';
                 
-                // Format lens info compactly
                 const odInfo = l.od ? `OD: ${l.od.pwr || '-'} ${l.od.cyl ? '/ '+l.od.cyl : ''}` : '';
                 const osInfo = l.os ? `OS: ${l.os.pwr || '-'} ${l.os.cyl ? '/ '+l.os.cyl : ''}` : '';
 
                 clientsMap.set(key, [
-                    o.patient_name || 'N/D', 
-                    info.phone || '-', 
-                    info.email || '-', 
-                    address, 
-                    l.manufacturer || '-', 
-                    l.model || '-', 
-                    `${odInfo}\n${osInfo}`
+                    o.patient_name || 'N/D', info.phone || '-', info.email || '-', address, l.manufacturer || '-', l.model || '-', `${odInfo}\n${osInfo}`
                 ]);
             }
         });
@@ -706,14 +885,9 @@
         const tableBody = Array.from(clientsMap.values());
         const optName = opticiansMap[opticianId] || opticianId;
 
-        doc.setFontSize(16);
-        doc.setTextColor(40);
-        doc.text(`Report Clienti: ${optName}`, 14, 15);
-        
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        const rangeText = `Periodo: ${dateStartInput.value} - ${dateEndInput.value}`;
-        let filterText = rangeText;
+        doc.setFontSize(16); doc.setTextColor(40); doc.text(`Report Clienti: ${optName}`, 14, 15);
+        doc.setFontSize(10); doc.setTextColor(100);
+        let filterText = `Periodo: ${dateStartInput.value} - ${dateEndInput.value}`;
         if(selManuf) filterText += ` | Prod: ${selManuf}`;
         doc.text(filterText, 14, 22);
 
@@ -724,14 +898,9 @@
             theme: 'grid',
             styles: { fontSize: 9, cellPadding: 3 },
             headStyles: { fillColor: [79, 70, 229], textColor: 255, fontStyle: 'bold' },
-            columnStyles: { 
-                0: { cellWidth: 35, fontStyle: 'bold' }, 
-                6: { cellWidth: 50, fontSize: 8 } 
-            }
+            columnStyles: { 0: { cellWidth: 35, fontStyle: 'bold' }, 6: { cellWidth: 50, fontSize: 8 } }
         });
-
-        const filename = `Clienti_${optName.replace(/\s+/g, '_')}_${dateEndInput.value}.pdf`;
-        doc.save(filename);
+        doc.save(`Clienti_${optName.replace(/\s+/g, '_')}_${dateEndInput.value}.pdf`);
     }
 
     // --- RENDER FUNCTIONS ---
@@ -756,8 +925,7 @@
         kpiTotal.innerText = totalOrders;
         kpiActiveOpt.innerText = uniqueOpticians;
         kpiDelPerc.innerText = deliveryPerc + "%";
-        kpiTopBrand.innerText = topBrand;
-        kpiTopBrand.title = topBrand;
+        kpiTopBrand.innerText = topBrand; kpiTopBrand.title = topBrand;
 
         renderBrandChart(brandCounts);
         renderTopOpticians(opticianCounts);
@@ -769,24 +937,15 @@
         if (orders.length === 0) { noResultsMsg.classList.remove('hidden'); return; }
         noResultsMsg.classList.add('hidden');
         
-        const displayOrders = orders.slice(0, 100); // Limit render for performance
-        
-        const statusColors = {
-            'new': 'bg-blue-100 text-blue-800',
-            'processing': 'bg-yellow-100 text-yellow-800',
-            'ready': 'bg-green-100 text-green-800',
-            'completed': 'bg-gray-100 text-gray-600',
-            'cancelled': 'bg-red-100 text-red-800'
-        };
+        const displayOrders = orders.slice(0, 100); 
+        const statusColors = { 'new': 'bg-blue-100 text-blue-800', 'processing': 'bg-yellow-100 text-yellow-800', 'ready': 'bg-green-100 text-green-800', 'completed': 'bg-gray-100 text-gray-600', 'cancelled': 'bg-red-100 text-red-800' };
         const statusLabels = { 'new': 'Nuovo', 'processing': 'In Lav.', 'ready': 'Pronto', 'completed': 'Chiuso', 'cancelled': 'Annullato' };
 
         displayOrders.forEach((o) => {
             const date = o.timestamp ? new Date(o.timestamp.seconds * 1000).toLocaleDateString('it-IT') : '-';
             const optId = o.optician_id || '';
             const optName = opticiansMap[optId] || optId || '<span class="text-red-400">ID Mancante</span>';
-            const brand = o.lens_order?.manufacturer || '-';
             const patName = o.patient_name || 'Sconosciuto';
-            
             const status = o.status || 'new';
             const badgeClass = statusColors[status] || 'bg-gray-100 text-gray-800';
             const statusText = statusLabels[status] || status;
@@ -827,13 +986,7 @@
         const optName = opticiansMap[order.optician_id] || order.optician_id;
         document.getElementById('modal-opt-id').innerText = optName;
         
-        const statusColors = {
-            'new': 'bg-blue-100 text-blue-800',
-            'processing': 'bg-yellow-100 text-yellow-800',
-            'ready': 'bg-green-100 text-green-800',
-            'completed': 'bg-gray-100 text-gray-600',
-            'cancelled': 'bg-red-100 text-red-800'
-        };
+        const statusColors = { 'new': 'bg-blue-100 text-blue-800', 'processing': 'bg-yellow-100 text-yellow-800', 'ready': 'bg-green-100 text-green-800', 'completed': 'bg-gray-100 text-gray-600', 'cancelled': 'bg-red-100 text-red-800' };
         const statusBadge = document.getElementById('modal-status-badge');
         statusBadge.className = `px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wide ${statusColors[order.status || 'new']}`;
         statusBadge.innerText = order.status || 'Nuovo';
@@ -849,11 +1002,9 @@
         
         const del = order.delivery || {};
         const isDel = del.mode === 'delivery';
-        const delLabel = isDel ? 'Consegna a Domicilio' : 'Ritiro in Negozio';
-        const delClass = isDel ? 'text-blue-600' : 'text-green-600';
         const delModeEl = document.getElementById('modal-delivery-mode');
-        delModeEl.innerText = delLabel;
-        delModeEl.className = `text-sm font-bold mb-2 ${delClass}`;
+        delModeEl.innerText = isDel ? 'Consegna a Domicilio' : 'Ritiro in Negozio';
+        delModeEl.className = `text-sm font-bold mb-2 ${isDel ? 'text-blue-600' : 'text-green-600'}`;
         
         const addrBox = document.getElementById('modal-address-box');
         if (isDel && del.address_details) {
@@ -884,7 +1035,6 @@
         document.getElementById('modal-qty-od').innerText = (l.od?.qty || '1') + ' pz.';
         document.getElementById('modal-lens-os').innerHTML = renderParams(l.os);
         document.getElementById('modal-qty-os').innerText = (l.os?.qty || '1') + ' pz.';
-        
         orderModal.classList.remove('hidden');
     };
 
@@ -892,10 +1042,8 @@
         if(!opticianId) return;
         const select = document.getElementById('optician-export-select');
         select.value = opticianId;
-        const event = new Event('change');
-        select.dispatchEvent(event);
+        select.dispatchEvent(new Event('change'));
         select.scrollIntoView({behavior: "smooth", block: "center"});
-        // Visual flash to indicate selection
         select.classList.add('ring-2', 'ring-indigo-500');
         setTimeout(() => select.classList.remove('ring-2', 'ring-indigo-500'), 1000);
     };
@@ -903,11 +1051,9 @@
     function renderBrandChart(counts) {
         const ctx = document.getElementById('chart-brands').getContext('2d');
         if (charts.brands) charts.brands.destroy();
-        
         const entries = Object.entries(counts).sort((a,b) => b[1] - a[1]);
         const top5 = entries.slice(0, 5);
         const others = entries.slice(5).reduce((acc, curr) => acc + curr[1], 0);
-        
         const labels = top5.map(e => e[0]);
         const data = top5.map(e => e[1]);
         if(others > 0) { labels.push('Altri'); data.push(others); }
@@ -919,17 +1065,12 @@
                 datasets: [{ 
                     data: data, 
                     backgroundColor: ['#4F46E5', '#10B981', '#F59E0B', '#EC4899', '#6366F1', '#9CA3AF'], 
-                    borderWidth: 0,
-                    hoverOffset: 4
+                    borderWidth: 0, hoverOffset: 4
                 }] 
             },
             options: { 
-                responsive: true, 
-                maintainAspectRatio: false, 
-                plugins: { 
-                    legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 }, color: '#4b5563' } },
-                    tooltip: { backgroundColor: '#1f2937', padding: 10 }
-                } 
+                responsive: true, maintainAspectRatio: false, 
+                plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } } } 
             }
         });
     }
@@ -938,13 +1079,10 @@
         topOpticiansList.innerHTML = '';
         const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 5); 
         if(sorted.length === 0) { topOpticiansList.innerHTML = '<li class="text-sm text-gray-400 italic text-center p-4">Nessun dato nel periodo</li>'; return; }
-        
         const maxVal = sorted[0][1];
-
         sorted.forEach(([id, count], index) => {
             const name = opticiansMap[id] || id;
             const percent = (count / maxVal) * 100;
-            
             const li = document.createElement('li');
             li.className = "flex flex-col p-2 rounded-lg hover:bg-gray-50 transition";
             li.innerHTML = `
