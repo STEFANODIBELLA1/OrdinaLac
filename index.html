@@ -124,30 +124,79 @@
         <button id="tab-btn-payment" class="flex-1 py-2 px-1 text-center text-sm tab-inactive">Pagamento</button>
     </div>
     
-    <div id="tab-content-patient" class="space-y-4 flex-1">
+    <div id="tab-content-patient" class="space-y-4 flex-1 pb-10">
       <h2 class="text-lg font-semibold text-gray-700 pb-2">Informazioni Personali</h2>
-      <div><label for="patient-name" class="block text-sm font-medium text-gray-700">Il tuo Nome (per l'ottico)</label><input type="text" id="patient-name" placeholder="Es: Mario Rossi" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
       
-      <div><label for="patient-phone" class="block text-sm font-medium text-gray-700">Tuo Telefono</label><input type="tel" id="patient-phone" placeholder="Es: 333 1234567" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></div>
+      <div>
+          <label for="patient-name" class="block text-sm font-medium text-gray-700">Nome e Cognome</label>
+          <input type="text" id="patient-name" placeholder="Es: Mario Rossi" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+      </div>
+      
+      <div class="grid grid-cols-2 gap-4">
+          <div>
+              <label for="patient-phone" class="block text-sm font-medium text-gray-700">Telefono</label>
+              <input type="tel" id="patient-phone" placeholder="Es: 333 1234567" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+              <label for="patient-email" class="block text-sm font-medium text-gray-700">Email</label>
+              <input type="email" id="patient-email" placeholder="mario@email.it" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          </div>
+      </div>
+
+      <div>
+          <label for="patient-cf" class="block text-sm font-medium text-gray-700">Codice Fiscale (per detrazione)</label>
+          <input type="text" id="patient-cf" placeholder="RSSMRA80A01H501U" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm uppercase focus:ring-blue-500 focus:border-blue-500">
+      </div>
 
       <div>
         <label for="optician-id" class="block text-sm font-medium text-gray-700">Codice Ottico</label>
-        <div class="flex space-x-2 mt-1">
-          <input type="text" id="optician-id" placeholder="Chiedi questo codice al tuo ottico" class="flex-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
-        </div>
+        <input type="text" id="optician-id" placeholder="Chiedi questo codice al tuo ottico" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
         <p id="lenses-loading-message" class="text-sm text-indigo-600 mt-1 hidden">Caricamento lenti...</p>
         <p id="lenses-error-message" class="text-sm text-red-600 mt-1 hidden">Codice ottico non valido.</p>
       </div>
       
-      <div id="address-container" class="hidden bg-gray-50 p-3 rounded-md border border-gray-200">
-        <h2 class="text-sm font-semibold text-gray-700 pb-2">Indirizzo di Consegna</h2>
-        <label for="patient-address" class="block text-sm font-medium text-gray-700 sr-only">Indirizzo di Consegna</label>
-        <textarea id="patient-address" rows="3" placeholder="Via, Numero, Città, CAP" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></textarea>
-        <p class="text-xs text-gray-500 mt-1">Compila solo se richiedi spesso la consegna a domicilio.</p>
+      <div id="address-container" class="hidden bg-gray-50 p-4 rounded-md border border-gray-200 space-y-3">
+        <h2 class="text-sm font-semibold text-gray-700 border-b pb-1">Indirizzo di Consegna</h2>
+        
+        <div class="flex space-x-2">
+            <div class="flex-1">
+                <label for="addr-street" class="block text-xs font-medium text-gray-500">Via / Piazza</label>
+                <input type="text" id="addr-street" placeholder="Via Roma" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm">
+            </div>
+            <div class="w-20">
+                <label for="addr-num" class="block text-xs font-medium text-gray-500">N.</label>
+                <input type="text" id="addr-num" placeholder="10" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm">
+            </div>
+        </div>
+        
+        <div class="flex space-x-2">
+            <div class="w-24">
+                <label for="addr-cap" class="block text-xs font-medium text-gray-500">CAP</label>
+                <input type="text" id="addr-cap" placeholder="00100" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm">
+            </div>
+            <div class="flex-1">
+                <label for="addr-city" class="block text-xs font-medium text-gray-500">Città</label>
+                <input type="text" id="addr-city" placeholder="Roma" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm">
+            </div>
+            <div class="w-16">
+                <label for="addr-prov" class="block text-xs font-medium text-gray-500">Prov.</label>
+                <input type="text" id="addr-prov" placeholder="RM" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm uppercase" maxlength="2">
+            </div>
+        </div>
+      </div>
+
+      <div class="flex items-start mt-4 p-2 bg-blue-50 rounded border border-blue-100">
+        <div class="flex items-center h-5">
+          <input id="privacy-check" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+        </div>
+        <div class="ml-3 text-sm">
+          <label for="privacy-check" class="font-medium text-gray-700">Autorizzo il trattamento dati</label>
+          <p class="text-gray-500 text-xs">Dichiaro di aver letto la Privacy Policy e acconsento all'invio dei dati per la gestione dell'ordine.</p>
+        </div>
       </div>
     </div>
 
-    <div id="tab-content-lenses" class="space-y-4 hidden flex-1">
+    <div id="tab-content-lenses" class="space-y-4 hidden flex-1 pb-10">
       <h2 class="text-lg font-semibold text-gray-700 pb-2">Configurazione Lenti</h2>
       <div>
         <label for="lens-manufacturer" class="block text-sm font-medium text-gray-700">Produttore</label>
@@ -217,7 +266,7 @@
       <div id="summary-container" class="text-left bg-gray-50 p-4 rounded-lg my-6 border">
         <p id="summary-patient" class="text-gray-800 font-medium"></p>
         
-        <p id="summary-message-top" class="text-gray-700 whitespace-pre-wrap mt-2"></p>
+        <p id="summary-message-top" class="text-gray-700 whitespace-pre-wrap mt-2 text-sm"></p>
         
         <div class="flex justify-between items-center mt-2">
           <span class="text-gray-700 font-medium">OCCHIO DESTRO</span>
@@ -299,8 +348,20 @@
       // Chiavi LocalStorage
       const KEY_NAME = 'otticoApp_patient_name';
       const KEY_PHONE = 'otticoApp_patient_phone';
-      const KEY_DELIVERY_OPTION = 'otticoApp_delivery_option'; // 'pickup' o 'delivery'
-      const KEY_ADDRESS = 'otticoApp_patient_address';
+      const KEY_EMAIL = 'otticoApp_patient_email';
+      const KEY_CF = 'otticoApp_patient_cf';
+      
+      const KEY_DELIVERY_OPTION = 'otticoApp_delivery_option'; 
+      const KEY_ADDRESS = 'otticoApp_patient_address'; // Salva stringa completa per compatibilità
+      // Nuove chiavi indirizzo
+      const KEY_ADDR_STREET = 'otticoApp_addr_street';
+      const KEY_ADDR_NUM = 'otticoApp_addr_num';
+      const KEY_ADDR_CAP = 'otticoApp_addr_cap';
+      const KEY_ADDR_CITY = 'otticoApp_addr_city';
+      const KEY_ADDR_PROV = 'otticoApp_addr_prov';
+      
+      const KEY_PRIVACY = 'otticoApp_privacy_accepted';
+
       const KEY_OPTICIAN_ID = 'otticoApp_optician_id';
       const KEY_MESSAGE = 'otticoApp_message';
       const KEY_LENS_MANUFACTURER = 'otticoApp_lens_manufacturer';
@@ -323,18 +384,31 @@
       const actionView = document.getElementById('action-view');
       const settingsView = document.getElementById('settings-view');
       const saveButton = document.getElementById('save-button');
+      
       const nameInput = document.getElementById('patient-name');
       const phoneInput = document.getElementById('patient-phone');
+      const emailInput = document.getElementById('patient-email');
+      const cfInput = document.getElementById('patient-cf');
+      
       const deliveryToggle = document.getElementById('delivery-toggle'); 
       const activeDeliveryLabel = document.getElementById('active-delivery-label');
       const addressContainer = document.getElementById('address-container');
-      const addressInput = document.getElementById('patient-address');
+      
+      // Nuovi input Indirizzo
+      const addrStreetInput = document.getElementById('addr-street');
+      const addrNumInput = document.getElementById('addr-num');
+      const addrCapInput = document.getElementById('addr-cap');
+      const addrCityInput = document.getElementById('addr-city');
+      const addrProvInput = document.getElementById('addr-prov');
+      
+      const privacyCheck = document.getElementById('privacy-check');
+
       const opticianIdInput = document.getElementById('optician-id');
       const saveSuccessMessage = document.getElementById('save-success');
       const manufacturerSelect = document.getElementById('lens-manufacturer');
       const modelSelect = document.getElementById('lens-model');
-      const qtyInput_OD = document.getElementById('qty-od'); // in settings
-      const qtyInput_OS = document.getElementById('qty-os'); // in settings
+      const qtyInput_OD = document.getElementById('qty-od'); 
+      const qtyInput_OS = document.getElementById('qty-os'); 
       const typeSelect_OD = document.getElementById('lens-type-od');
       const paramsInfo_OD = document.getElementById('params-info-od');
       const pwrField_OD = document.getElementById('params-pwr-od');
@@ -375,8 +449,8 @@
       const summaryMessageTop = document.getElementById('summary-message-top');
       const summaryMessageOd = document.getElementById('summary-message-od');
       const summaryMessageOs = document.getElementById('summary-message-os');
-      const quickQtyInput_OD = document.getElementById('quick-qty-od'); // in popup
-      const quickQtyInput_OS = document.getElementById('quick-qty-os'); // in popup
+      const quickQtyInput_OD = document.getElementById('quick-qty-od'); 
+      const quickQtyInput_OS = document.getElementById('quick-qty-os'); 
 
       // *** ELEMENTI TABS ***
       const tabBtnPatient = document.getElementById('tab-btn-patient');
@@ -388,18 +462,14 @@
 
       // *** FUNZIONE GESTIONE TABS ***
       function switchSettingsTab(tabName) {
-        // Reset stile bottoni
         [tabBtnPatient, tabBtnLenses, tabBtnPayment].forEach(btn => {
             btn.classList.remove('tab-active');
             btn.classList.add('tab-inactive');
         });
-        
-        // Nascondi contenuti
         [tabContentPatient, tabContentLenses, tabContentPayment].forEach(content => {
             content.classList.add('hidden');
         });
 
-        // Attiva tab specifico
         if (tabName === 'patient') {
             tabBtnPatient.classList.add('tab-active');
             tabBtnPatient.classList.remove('tab-inactive');
@@ -415,7 +485,6 @@
         }
       }
 
-      // Listeners Tabs
       tabBtnPatient.onclick = () => switchSettingsTab('patient');
       tabBtnLenses.onclick = () => switchSettingsTab('lenses');
       tabBtnPayment.onclick = () => switchSettingsTab('payment');
@@ -449,14 +518,11 @@
         }
       }
 
-      // *** FUNZIONE MODIFICATA per aggiornare la SINGOLA etichetta dello switch ***
       function updateSwitchLabels() {
         const isDelivery = deliveryToggle.checked;
         if (isDelivery) {
-            // *** MODIFICA ETICHETTA ***
             activeDeliveryLabel.innerText = "c/o Domicilio";
         } else {
-            // *** MODIFICA ETICHETTA ***
             activeDeliveryLabel.innerText = "c/o Store";
         }
       }
@@ -466,6 +532,8 @@
         const data = {
           n: localStorage.getItem(KEY_NAME) || '',
           ph: localStorage.getItem(KEY_PHONE) || '',
+          email: localStorage.getItem(KEY_EMAIL) || '',
+          cf: localStorage.getItem(KEY_CF) || '',
           del: localStorage.getItem(KEY_DELIVERY_OPTION) || 'pickup',
           adr: localStorage.getItem(KEY_ADDRESS) || '',
           m: localStorage.getItem(KEY_LENS_MANUFACTURER) || '',
@@ -487,13 +555,16 @@
         let deliveryInfo = "";
         if (data.del === 'delivery') {
           deliveryInfo = `**CONSEGNA A DOMICILIO**\n`;
-          deliveryInfo += `INDIRIZZO: ${data.adr || 'INDIRIZZO NON IMPOSTATO'}\n`;
+          deliveryInfo += `${data.adr || 'INDIRIZZO NON COMPLETO'}\n`;
         } else {
           deliveryInfo = `**RITIRO IN NEGOZIO**\n`;
         }
 
         let constructedMessage = `--- INFO CLIENTE ---\n`; 
-        constructedMessage += `TELEFONO: ${data.ph || 'N/D'}\n`; 
+        constructedMessage += `TEL: ${data.ph || 'N/D'}\n`; 
+        if(data.email) constructedMessage += `EMAIL: ${data.email}\n`;
+        if(data.cf) constructedMessage += `C.F.: ${data.cf}\n`;
+        
         constructedMessage += deliveryInfo + '\n';
         constructedMessage += `--- ORDINE LENTI ---\n`;
         constructedMessage += `Ordine: ${data.m || 'N/D'} ${data.md || 'N/D'}\n\n`;
@@ -524,8 +595,9 @@
         
         summaryPatient.innerText = data.n;
         
-        let topMsg = `${data.ph || 'N/D'}\n`;
-        topMsg += deliveryInfo;
+        let topMsg = `${data.ph || 'N/D'}`;
+        if(data.email) topMsg += ` | ${data.email}`;
+        topMsg += `\n${deliveryInfo}`;
         topMsg += `--- ORDINE LENTI ---\nOrdine: ${data.m || 'N/D'} ${data.md || 'N/D'}`;
         summaryMessageTop.innerText = topMsg;
 
@@ -608,7 +680,7 @@
 
       // *** FUNZIONE MODIFICATA: Mostra/nasconde campo indirizzo ***
       function toggleAddressField() {
-        const isDelivery = deliveryToggle.checked; // Legge dallo switch
+        const isDelivery = deliveryToggle.checked; 
         if (isDelivery) {
           addressContainer.classList.remove('hidden');
         } else {
@@ -623,9 +695,15 @@
           nameInput.value = fromQrData.n;
           opticianIdInput.value = fromQrData.oid;
           phoneInput.value = ''; 
-          localStorage.setItem(KEY_DELIVERY_OPTION, 'pickup'); // Default
+          emailInput.value = ''; // QR non ha email
+          cfInput.value = ''; // QR non ha CF
+          localStorage.setItem(KEY_DELIVERY_OPTION, 'pickup'); 
           deliveryToggle.checked = false;
-          addressInput.value = ''; 
+          
+          // Reset indirizzo
+          addrStreetInput.value = ''; addrNumInput.value = ''; addrCapInput.value = ''; addrCityInput.value = ''; addrProvInput.value = '';
+          privacyCheck.checked = false;
+
           qtyInput_OD.value = '1';
           qtyInput_OS.value = '1';
           
@@ -643,9 +721,21 @@
           // Carica da LocalStorage
           nameInput.value = localStorage.getItem(KEY_NAME) || '';
           phoneInput.value = localStorage.getItem(KEY_PHONE) || '';
+          emailInput.value = localStorage.getItem(KEY_EMAIL) || '';
+          cfInput.value = localStorage.getItem(KEY_CF) || '';
+          
           const savedDeliveryOption = localStorage.getItem(KEY_DELIVERY_OPTION) || 'pickup';
-          deliveryToggle.checked = (savedDeliveryOption === 'delivery'); // Imposta il toggle
-          addressInput.value = localStorage.getItem(KEY_ADDRESS) || '';
+          deliveryToggle.checked = (savedDeliveryOption === 'delivery'); 
+          
+          // Carica campi indirizzo
+          addrStreetInput.value = localStorage.getItem(KEY_ADDR_STREET) || '';
+          addrNumInput.value = localStorage.getItem(KEY_ADDR_NUM) || '';
+          addrCapInput.value = localStorage.getItem(KEY_ADDR_CAP) || '';
+          addrCityInput.value = localStorage.getItem(KEY_ADDR_CITY) || '';
+          addrProvInput.value = localStorage.getItem(KEY_ADDR_PROV) || '';
+          
+          privacyCheck.checked = (localStorage.getItem(KEY_PRIVACY) === 'true');
+
           opticianIdInput.value = localStorage.getItem(KEY_OPTICIAN_ID) || '';
           qtyInput_OD.value = localStorage.getItem(KEY_QTY_OD) || '1';
           qtyInput_OS.value = localStorage.getItem(KEY_QTY_OS) || '1';
@@ -680,19 +770,35 @@
         }
         toggleAddressField(); 
         updateSwitchLabels(); 
-        switchSettingsTab('patient'); // Default tab
+        switchSettingsTab('patient'); 
       }
 
       // *** FUNZIONE MODIFICATA: Salva Impostazioni ***
       function saveSettings() {
         if (!globalLensData) {
           alert("Devi prima caricare le lenti del tuo ottico. Inserisci il Codice Ottico nella scheda 'Dati Paziente'.");
-          switchSettingsTab('patient'); // Porta l'utente alla tab giusta
+          switchSettingsTab('patient'); 
           return;
         }
         
+        // Privacy Check
+        if (!privacyCheck.checked) {
+            alert("Devi accettare la Privacy Policy per continuare.");
+            switchSettingsTab('patient');
+            return;
+        }
+        
         const deliveryOption = deliveryToggle.checked ? 'delivery' : 'pickup';
-        const addressValue = addressInput.value.trim();
+        
+        // Validazione Indirizzo
+        const street = addrStreetInput.value.trim();
+        const num = addrNumInput.value.trim();
+        const cap = addrCapInput.value.trim();
+        const city = addrCityInput.value.trim();
+        const prov = addrProvInput.value.trim();
+        
+        // Costruisci stringa indirizzo
+        const fullAddress = `${street} ${num}, ${cap} ${city} (${prov})`;
 
         // Validazione
         if (!nameInput.value.trim() || !opticianIdInput.value.trim() || !manufacturerSelect.value || !modelSelect.value || !phoneInput.value.trim()) {
@@ -700,17 +806,31 @@
           return;
         }
         
-        if (deliveryOption === 'delivery' && !addressValue) {
-          alert("Per la consegna a domicilio, è obbligatorio inserire un indirizzo (Scheda 'Dati Paziente').");
-          switchSettingsTab('patient');
-          return;
+        if (deliveryOption === 'delivery') {
+            if (!street || !num || !cap || !city) {
+                alert("Per la consegna a domicilio, è obbligatorio compilare tutti i campi dell'indirizzo (Scheda 'Dati Paziente').");
+                switchSettingsTab('patient');
+                return;
+            }
         }
 
         // Salvataggio in LocalStorage
         localStorage.setItem(KEY_NAME, nameInput.value.trim());
         localStorage.setItem(KEY_PHONE, phoneInput.value.trim());
+        localStorage.setItem(KEY_EMAIL, emailInput.value.trim());
+        localStorage.setItem(KEY_CF, cfInput.value.trim());
+        
+        // Salva parti indirizzo
+        localStorage.setItem(KEY_ADDR_STREET, street);
+        localStorage.setItem(KEY_ADDR_NUM, num);
+        localStorage.setItem(KEY_ADDR_CAP, cap);
+        localStorage.setItem(KEY_ADDR_CITY, city);
+        localStorage.setItem(KEY_ADDR_PROV, prov);
+        
+        localStorage.setItem(KEY_ADDRESS, fullAddress); // Salva anche la stringa per compatibilità
+        localStorage.setItem(KEY_PRIVACY, 'true');
+        
         localStorage.setItem(KEY_DELIVERY_OPTION, deliveryOption);
-        localStorage.setItem(KEY_ADDRESS, addressValue);
         localStorage.setItem(KEY_OPTICIAN_ID, opticianIdInput.value.trim());
         localStorage.setItem(KEY_LENS_MANUFACTURER, manufacturerSelect.value);
         localStorage.setItem(KEY_LENS_MODEL, modelSelect.value);
@@ -779,9 +899,13 @@
         const deliveryOption = deliveryToggle.checked ? 'delivery' : 'pickup';
         const addressValue = localStorage.getItem(KEY_ADDRESS);
         
-        if (deliveryOption === 'delivery' && (!addressValue || addressValue.trim() === '')) {
-           alert("Manca l'indirizzo per la consegna. Vai nelle impostazioni (i tre puntini) > Dati Paziente per aggiungerlo.");
-           return;
+        // Validazione finale consegna
+        if (deliveryOption === 'delivery') {
+            const street = localStorage.getItem(KEY_ADDR_STREET);
+            if (!street) {
+                alert("Manca l'indirizzo per la consegna. Vai nelle impostazioni > Dati Paziente per aggiungerlo.");
+                return;
+            }
         }
 
         const patientName = localStorage.getItem(KEY_NAME); 
@@ -853,9 +977,9 @@
         toggleAddressField(); 
         buildAndSaveMessage(); 
         
-        const addressValue = localStorage.getItem(KEY_ADDRESS);
-        if (newOption === 'delivery' && (!addressValue || addressValue.trim() === '')) {
-           alert("Hai scelto la consegna. Ricorda di inserire il tuo indirizzo nelle impostazioni (Dati Paziente).");
+        if (newOption === 'delivery') {
+           const street = localStorage.getItem(KEY_ADDR_STREET);
+           if (!street) alert("Hai scelto la consegna. Ricorda di inserire il tuo indirizzo nelle impostazioni (Dati Paziente).");
         }
       };
       
