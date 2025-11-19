@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ottico Analytics</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js per i grafici -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .hidden { display: none; }
+    .chart-container { position: relative; height: 300px; width: 100%; }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800">
+
+  <!-- VIEW: LOGIN (Uguale alla Dashboard) -->
+  <div id="login-view" class="min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-sm border border-gray-200">
+      <div class="text-center mb-6">
+        <h1 class="text-3xl font-extrabold text-blue-700">Analytics</h1>
+        <p class="text-sm text-gray-500">Accedi per vedere le statistiche</p>
+      </div>
+      <div class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" id="email" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" id="password" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <p id="login-error" class="text-red-500 text-sm hidden text-center"></p>
+        <button id="login-button" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-bold hover:bg-blue-700 transition">Entra nei Dati</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW: STATISTICHE -->
+  <div id="stats-view" class="hidden min-h-screen">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm border-b">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+             <div class="bg-blue-100 p-2 rounded-full"><svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg></div>
+             <span class="font-bold text-xl text-gray-800">Ottico<span class="text-blue-600">Data</span></span>
+        </div>
+        <button id="logout-button" class="text-sm text-gray-500 hover:text-red-500 font-medium">Esci</button>
+      </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <p class="text-sm font-medium text-gray-500 uppercase">Totale Ordini</p>
+          <p id="kpi-total" class="text-3xl font-bold text-gray-900 mt-2">-</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <p class="text-sm font-medium text-gray-500 uppercase">Consegne a Domicilio</p>
+          <p id="kpi-delivery" class="text-3xl font-bold text-blue-600 mt-2">-</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <p class="text-sm font-medium text-gray-500 uppercase">Ritiro in Store</p>
+          <p id="kpi-pickup" class="text-3xl font-bold text-green-600 mt-2">-</p>
+        </div>
+      </div>
+
+      <!-- Grafici Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        
+        <!-- Chart 1: Produttori -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h3 class="text-lg font-bold text-gray-800 mb-4">Brand Lenti Preferiti</h3>
+          <div class="chart-container">
+            <canvas id="chart-manufacturers"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: Mappa Città -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h3 class="text-lg font-bold text-gray-800 mb-4">Distribuzione Geografica (Top Città)</h3>
+          <div class="chart-container">
+            <canvas id="chart-cities"></canvas>
+          </div>
+        </div>
+
+      </div>
+      
+      <!-- Data Table -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+             <h3 class="text-lg font-bold text-gray-800">Ultimi Ordini (Dati Grezzi)</h3>
+             <button id="refresh-btn" class="text-sm text-blue-600 hover:underline">Aggiorna Dati</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand Lente</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Modalità</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Privacy</th>
+              </tr>
+            </thead>
+            <tbody id="data-table-body" class="bg-white divide-y divide-gray-200">
+              <!-- Rows injected by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDMRWXipp7VCMQiezOZSSZAhSQo8MWVgKs",
+      authDomain: "ordinalac.firebaseapp.com",
+      projectId: "ordinalac",
+      storageBucket: "ordinalac.firebasestorage.app",
+      messagingSenderId: "642877461161",
+      appId: "1:642877461161:web:6a4d979e7a7ddd56140fb8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = "ordinalac-app";
+
+    // DOM Elements
+    const loginView = document.getElementById('login-view');
+    const statsView = document.getElementById('stats-view');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loginButton = document.getElementById('login-button');
+    const logoutButton = document.getElementById('logout-button');
+    const loginError = document.getElementById('login-error');
+    
+    // KPI Elements
+    const kpiTotal = document.getElementById('kpi-total');
+    const kpiDelivery = document.getElementById('kpi-delivery');
+    const kpiPickup = document.getElementById('kpi-pickup');
+    const tableBody = document.getElementById('data-table-body');
+
+    let charts = {}; // Store chart instances
+
+    // --- AUTH ---
+    loginButton.addEventListener('click', async () => {
+      try {
+        await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
+      } catch (e) {
+        loginError.innerText = "Login fallito: " + e.message;
+        loginError.classList.remove('hidden');
+      }
+    });
+
+    logoutButton.addEventListener('click', () => signOut(auth));
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginView.classList.add('hidden');
+        statsView.classList.remove('hidden');
+        fetchAndVisualizeData(user.uid);
+      } else {
+        loginView.classList.remove('hidden');
+        statsView.classList.add('hidden');
+      }
+    });
+    
+    document.getElementById('refresh-btn').onclick = () => {
+        const user = auth.currentUser;
+        if(user) fetchAndVisualizeData(user.uid);
+    }
+
+    // --- CORE LOGIC: FETCH & ANALYZE ---
+    async function fetchAndVisualizeData(opticianId) {
+      // 1. Scarica TUTTI gli ordini per questo ottico
+      // FIX: Rimosso orderBy server-side per evitare errore "requires index"
+      // Firestore richiede un indice composito se si usa where() su un campo e orderBy() su un altro.
+      // Rimuoviamo orderBy dalla query e lo facciamo in memoria (Javascript).
+      const q = query(
+        collection(db, `artifacts/${appId}/public/data/orders`),
+        where("optician_id", "==", opticianId)
+      );
+
+      try {
+        const querySnapshot = await getDocs(q);
+        let orders = querySnapshot.docs.map(doc => doc.data());
+        
+        // ORDINAMENTO CLIENT-SIDE
+        orders.sort((a, b) => {
+            const timeA = a.timestamp ? a.timestamp.seconds : 0;
+            const timeB = b.timestamp ? b.timestamp.seconds : 0;
+            return timeB - timeA; // Dal più recente al più vecchio
+        });
+
+        processStats(orders);
+        populateTable(orders);
+
+      } catch (e) {
+        console.error("Errore fetch dati:", e);
+        alert("Errore nel recupero dati: " + e.message);
+      }
+    }
+
+    function processStats(orders) {
+      // Contatori
+      let stats = {
+        total: orders.length,
+        delivery: 0,
+        pickup: 0,
+        manufacturers: {},
+        cities: {}
+      };
+
+      // 2. Loop su ogni ordine per estrarre i dati STRUTTURATI
+      orders.forEach(order => {
+        
+        // A. Analisi Modalità Consegna
+        // Cerchiamo nel nuovo oggetto strutturato 'delivery', altrimenti fallback su logica testo (se servisse)
+        let mode = 'pickup'; // default
+        if (order.delivery && order.delivery.mode) {
+            mode = order.delivery.mode;
+        } else if (order.message && order.message.toLowerCase().includes('domicilio')) {
+            // Fallback per vecchi ordini basati su testo
+            mode = 'delivery';
+        }
+        
+        if (mode === 'delivery') stats.delivery++;
+        else stats.pickup++;
+
+        // B. Analisi Produttore Lenti
+        // Cerchiamo in 'lens_order.manufacturer'
+        if (order.lens_order && order.lens_order.manufacturer) {
+            const manuf = order.lens_order.manufacturer;
+            stats.manufacturers[manuf] = (stats.manufacturers[manuf] || 0) + 1;
+        } else {
+            stats.manufacturers['Non specificato'] = (stats.manufacturers['Non specificato'] || 0) + 1;
+        }
+
+        // C. Analisi Città (Solo se delivery)
+        if (mode === 'delivery' && order.delivery && order.delivery.address_details && order.delivery.address_details.city) {
+            // Normalizziamo la città (es. "Roma " -> "Roma")
+            const city = order.delivery.address_details.city.trim().toUpperCase();
+            stats.cities[city] = (stats.cities[city] || 0) + 1;
+        }
+      });
+
+      // 3. Aggiorna UI KPI
+      kpiTotal.innerText = stats.total;
+      kpiDelivery.innerText = stats.delivery;
+      kpiPickup.innerText = stats.pickup;
+
+      // 4. Genera Grafici
+      renderChartManufacturers(stats.manufacturers);
+      renderChartCities(stats.cities);
+    }
+
+    // --- CHART RENDERING (Chart.js) ---
+    function renderChartManufacturers(dataObj) {
+      const ctx = document.getElementById('chart-manufacturers').getContext('2d');
+      
+      // Distruggi vecchio grafico se esiste
+      if (charts.manuf) charts.manuf.destroy();
+
+      const labels = Object.keys(dataObj);
+      const data = Object.values(dataObj);
+
+      charts.manuf = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: '# Ordini',
+            data: data,
+            backgroundColor: [
+              '#3B82F6', // Blue
+              '#10B981', // Green
+              '#F59E0B', // Yellow
+              '#EF4444', // Red
+              '#8B5CF6', // Purple
+              '#6B7280'  // Gray
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'right' }
+          }
+        }
+      });
+    }
+
+    function renderChartCities(dataObj) {
+      const ctx = document.getElementById('chart-cities').getContext('2d');
+      if (charts.cities) charts.cities.destroy();
+
+      // Sort cities by count
+      const sortedCities = Object.entries(dataObj)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10); // Top 10
+
+      const labels = sortedCities.map(x => x[0]);
+      const data = sortedCities.map(x => x[1]);
+
+      charts.cities = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Ordini per Città',
+            data: data,
+            backgroundColor: '#3B82F6',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+          }
+        }
+      });
+    }
+
+    function populateTable(orders) {
+      tableBody.innerHTML = '';
+      // Prendi solo i primi 20 per performance
+      orders.slice(0, 20).forEach(order => {
+        const date = order.timestamp ? new Date(order.timestamp.seconds * 1000).toLocaleDateString('it-IT') : 'N/D';
+        const brand = order.lens_order?.manufacturer || '<span class="text-gray-400 italic">Vecchio formato</span>';
+        const modeRaw = order.delivery?.mode || 'pickup';
+        const modeBadge = modeRaw === 'delivery' 
+            ? '<span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">Domicilio</span>' 
+            : '<span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">Store</span>';
+        
+        const privacyIcon = order.client_info?.privacy_accepted 
+            ? '<span class="text-green-500">✓</span>' 
+            : '<span class="text-gray-300">-</span>';
+
+        const row = `
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${date}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${order.patient_name}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${brand}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${modeBadge}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">${privacyIcon}</td>
+          </tr>
+        `;
+        tableBody.innerHTML += row;
+      });
+    }
+
+  </script>
+</body>
+</html>

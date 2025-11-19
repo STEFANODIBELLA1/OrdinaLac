@@ -894,7 +894,7 @@
       
       function closeApp() { window.close(); actionView.classList.add('hidden'); }
       
-      // Funzione MODIFICATA: runOrder (con validazione finale)
+      // *** NUOVA FUNZIONE RUNORDER: Salva tutti i dati strutturati ***
       async function runOrder() { 
         const deliveryOption = deliveryToggle.checked ? 'delivery' : 'pickup';
         const addressValue = localStorage.getItem(KEY_ADDRESS);
@@ -912,6 +912,58 @@
         const opticianId = localStorage.getItem(KEY_OPTICIAN_ID); 
         const message = localStorage.getItem(KEY_MESSAGE); 
         
+        // COSTRUZIONE OGGETTO DATI COMPLETO (PER FILTRI FUTURI)
+        const fullOrderData = {
+            patient_name: patientName,
+            optician_id: opticianId,
+            message: message, // Per compatibilità Dashboard attuale
+            status: 'new',
+            timestamp: serverTimestamp(),
+            
+            // Dati Cliente Strutturati
+            client_info: {
+                phone: localStorage.getItem(KEY_PHONE) || '',
+                email: localStorage.getItem(KEY_EMAIL) || '',
+                cf: localStorage.getItem(KEY_CF) || '',
+                privacy_accepted: true
+            },
+            
+            // Dati Consegna Strutturati
+            delivery: {
+                mode: deliveryOption,
+                address_full: addressValue,
+                address_details: {
+                    street: localStorage.getItem(KEY_ADDR_STREET) || '',
+                    number: localStorage.getItem(KEY_ADDR_NUM) || '',
+                    cap: localStorage.getItem(KEY_ADDR_CAP) || '',
+                    city: localStorage.getItem(KEY_ADDR_CITY) || '',
+                    province: localStorage.getItem(KEY_ADDR_PROV) || ''
+                }
+            },
+            
+            // Dati Lenti Strutturati (per filtri es. "Tutti quelli che usano Alcon")
+            lens_order: {
+                manufacturer: localStorage.getItem(KEY_LENS_MANUFACTURER),
+                model: localStorage.getItem(KEY_LENS_MODEL),
+                od: {
+                    qty: localStorage.getItem(KEY_QTY_OD),
+                    type: localStorage.getItem(KEY_LENS_TYPE_OD),
+                    pwr: localStorage.getItem(KEY_PARAM_PWR_OD),
+                    cyl: localStorage.getItem(KEY_PARAM_CYL_OD),
+                    axis: localStorage.getItem(KEY_PARAM_AXIS_OD),
+                    add: localStorage.getItem(KEY_PARAM_ADD_OD)
+                },
+                os: {
+                    qty: localStorage.getItem(KEY_QTY_OS),
+                    type: localStorage.getItem(KEY_LENS_TYPE_OS),
+                    pwr: localStorage.getItem(KEY_PARAM_PWR_OS),
+                    cyl: localStorage.getItem(KEY_PARAM_CYL_OS),
+                    axis: localStorage.getItem(KEY_PARAM_AXIS_OS),
+                    add: localStorage.getItem(KEY_PARAM_ADD_OS)
+                }
+            }
+        };
+
         actionTitle.innerText = "Invio in corso..."; 
         actionLoader.classList.remove('hidden'); 
         actionMessage.classList.add('hidden'); 
@@ -925,8 +977,10 @@
         
         try { 
           const ordersCollectionPath = `artifacts/${appId}/public/data/orders`; 
-          await addDoc(collection(db, ordersCollectionPath), { patient_name: patientName, optician_id: opticianId, message: message, status: 'new', timestamp: serverTimestamp() }); 
+          // Salvataggio dell'oggetto completo
+          await addDoc(collection(db, ordersCollectionPath), fullOrderData); 
           
+          // Reset Qty dopo invio
           localStorage.setItem(KEY_QTY_OD, '1');
           localStorage.setItem(KEY_QTY_OS, '1');
           qtyInput_OD.value = '1';
