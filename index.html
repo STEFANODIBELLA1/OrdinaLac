@@ -15,10 +15,10 @@
     .hidden { display: none; }
     .whitespace-pre-wrap { white-space: pre-wrap; }
     
-    /* Stile Input Readonly (Lenti fisse) */
+    /* Input Readonly: Grigio chiaro e cursore bloccato per indicare immutabilità */
     input[readonly] { 
         background-color: #f3f4f6; 
-        color: #4b5563; 
+        color: #374151;
         cursor: not-allowed; 
         border-color: #e5e7eb;
         font-weight: 600;
@@ -36,6 +36,7 @@
     input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number] { -moz-appearance: textfield; }
     
+    /* Tabs */
     .tab-active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 600; }
     .tab-inactive { color: #6b7280; border-bottom: 2px solid transparent; }
   </style>
@@ -43,6 +44,7 @@
 
 <body class="bg-white font-sans">
 
+<!-- INSTALL PROMPT -->
 <div id="install-prompt" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 hidden z-50 backdrop-blur-sm">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 relative text-center">
         <h1 class="text-2xl font-bold text-gray-800 mb-4">Installa l'App</h1>
@@ -51,6 +53,7 @@
     </div>
 </div>
 
+<!-- SETTINGS VIEW -->
 <div id="settings-view" class="max-w-md mx-auto min-h-screen bg-white shadow-lg p-6 hidden relative flex flex-col">
     <h1 class="text-3xl font-bold text-gray-800 mb-4">I Tuoi Dati</h1>
     
@@ -59,6 +62,7 @@
         <button id="tab-btn-lenses" class="flex-1 py-2 px-1 text-center text-sm tab-inactive">Lenti</button>
     </div>
     
+    <!-- TAB PAZIENTE -->
     <div id="tab-content-patient" class="space-y-4 flex-1 pb-10">
       <div>
           <label class="block text-sm font-medium text-gray-700">Nome e Cognome</label>
@@ -84,8 +88,10 @@
       <div class="bg-gray-50 p-3 rounded border">
         <label class="block text-xs font-bold text-gray-500 uppercase">Il tuo Ottico (ID)</label>
         <input type="text" id="optician-id" readonly class="mt-1 block w-full px-3 py-2 border border-gray-200 rounded-md bg-white text-gray-500 text-sm">
+        <p id="pricing-loading" class="text-xs text-blue-600 mt-1 hidden">Caricamento listino...</p>
       </div>
       
+      <!-- Address Section -->
       <div id="address-container" class="bg-gray-50 p-4 rounded-md border border-gray-200 space-y-3 hidden">
         <h2 class="text-sm font-semibold text-gray-700 border-b pb-1">Indirizzo Spedizione</h2>
         <div class="flex space-x-2">
@@ -101,10 +107,11 @@
 
       <div class="flex items-start mt-4">
         <input id="privacy-check" type="checkbox" class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded">
-        <label for="privacy-check" class="ml-2 block text-sm text-gray-700">Accetto la privacy policy e il trattamento dati.</label>
+        <label for="privacy-check" class="ml-2 block text-sm text-gray-700">Accetto la privacy policy.</label>
       </div>
     </div>
 
+    <!-- TAB LENTI (READONLY) -->
     <div id="tab-content-lenses" class="space-y-4 hidden flex-1 pb-10">
       
       <div id="warning-no-lens" class="hidden bg-yellow-100 text-yellow-800 p-3 rounded text-sm mb-4 border border-yellow-200">
@@ -112,13 +119,14 @@
       </div>
 
       <div class="bg-gray-50 p-4 rounded border border-gray-200">
-          <label class="block text-xs font-bold text-gray-500 uppercase">Produttore</label>
-          <input type="text" id="lens-manufacturer" readonly class="w-full bg-transparent font-bold text-gray-800 border-none p-0 focus:ring-0">
+          <label class="block text-xs font-bold text-gray-500 uppercase">Produttore (Fisso)</label>
+          <input type="text" id="lens-manufacturer" readonly class="w-full bg-transparent font-bold text-gray-800 border-none p-0 focus:ring-0 shadow-none">
           
-          <label class="block text-xs font-bold text-gray-500 uppercase mt-2">Modello</label>
-          <input type="text" id="lens-model" readonly class="w-full bg-transparent font-bold text-gray-800 border-none p-0 focus:ring-0">
+          <label class="block text-xs font-bold text-gray-500 uppercase mt-2">Modello (Fisso)</label>
+          <input type="text" id="lens-model" readonly class="w-full bg-transparent font-bold text-gray-800 border-none p-0 focus:ring-0 shadow-none">
       </div>
       
+      <!-- OCCHIO DESTRO -->
       <div class="border-t pt-4 mt-4">
           <div class="flex justify-between items-center mb-2">
               <h3 class="text-sm font-bold text-blue-700 uppercase">Occhio Destro (OD)</h3>
@@ -128,10 +136,11 @@
               </div>
           </div>
           
-          <label class="block text-xs text-gray-500">Tipo</label>
+          <label class="block text-xs text-gray-500">Tipo (Fisso)</label>
           <input type="text" id="lens-type-od" readonly class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm bg-gray-100 mb-2">
 
           <div id="params-container-od" class="grid grid-cols-2 gap-3 pl-2 border-l-2 border-blue-200">
+            <!-- Questi parametri rimangono EDITABILI -->
             <div class="col-span-2 hidden" id="box-pwr-od"><label class="text-xs text-gray-500">Sfera (PWR)</label><input type="text" id="param-pwr-od" class="w-full border-gray-300 rounded font-bold text-sm"></div>
             <div class="hidden" id="box-cyl-od"><label class="text-xs text-gray-500">Cilindro</label><input type="text" id="param-cyl-od" class="w-full border-gray-300 rounded font-bold text-sm"></div>
             <div class="hidden" id="box-axis-od"><label class="text-xs text-gray-500">Asse</label><input type="text" id="param-axis-od" class="w-full border-gray-300 rounded font-bold text-sm"></div>
@@ -139,6 +148,7 @@
           </div>
       </div>
       
+      <!-- OCCHIO SINISTRO -->
       <div class="border-t pt-4 mt-4">
           <div class="flex justify-between items-center mb-2">
               <h3 class="text-sm font-bold text-blue-700 uppercase">Occhio Sinistro (OS)</h3>
@@ -148,10 +158,11 @@
               </div>
           </div>
 
-          <label class="block text-xs text-gray-500">Tipo</label>
+          <label class="block text-xs text-gray-500">Tipo (Fisso)</label>
           <input type="text" id="lens-type-os" readonly class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm bg-gray-100 mb-2">
 
           <div id="params-container-os" class="grid grid-cols-2 gap-3 pl-2 border-l-2 border-blue-200">
+            <!-- Questi parametri rimangono EDITABILI -->
             <div class="col-span-2 hidden" id="box-pwr-os"><label class="text-xs text-gray-500">Sfera (PWR)</label><input type="text" id="param-pwr-os" class="w-full border-gray-300 rounded font-bold text-sm"></div>
             <div class="hidden" id="box-cyl-os"><label class="text-xs text-gray-500">Cilindro</label><input type="text" id="param-cyl-os" class="w-full border-gray-300 rounded font-bold text-sm"></div>
             <div class="hidden" id="box-axis-os"><label class="text-xs text-gray-500">Asse</label><input type="text" id="param-axis-os" class="w-full border-gray-300 rounded font-bold text-sm"></div>
@@ -163,6 +174,7 @@
     <button id="save-button" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md shadow-lg font-bold hover:bg-blue-700 mt-6 sticky bottom-0">Vai al Riepilogo</button>
 </div>
 
+<!-- ACTION VIEW (RIEPILOGO) -->
 <div id="action-view" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 hidden backdrop-blur-sm">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 relative text-center flex flex-col max-h-[90vh] overflow-y-auto">
       
@@ -187,7 +199,8 @@
           </div>
       </div>
 
-      <div class="flex justify-between items-center px-2 mb-4">
+      <!-- PREZZO VISIBILE -->
+      <div class="flex justify-between items-center px-2 mb-4 border-t pt-2">
           <span class="font-bold text-gray-600">Totale Stimato:</span>
           <span id="price-display" class="font-extrabold text-xl text-green-600">€ --</span>
       </div>
@@ -228,7 +241,7 @@
     };
 
     let db, auth;
-    let pricingConfig = {}; // Cache prezzi
+    let pricingConfig = {}; 
 
     // DOM Elements
     const els = {
@@ -236,7 +249,7 @@
         views: { set: document.getElementById('settings-view'), act: document.getElementById('action-view') },
         contents: { pat: document.getElementById('tab-content-patient'), lens: document.getElementById('tab-content-lenses') },
         
-        // Inputs Paziente
+        // Inputs
         name: document.getElementById('patient-name'),
         phone: document.getElementById('patient-phone'),
         email: document.getElementById('patient-email'),
@@ -249,7 +262,7 @@
             cap: document.getElementById('addr-cap'), city: document.getElementById('addr-city'), pr: document.getElementById('addr-prov')
         },
         
-        // Inputs Lenti (Readonly + Edit)
+        // Inputs Lenti (INPUT READONLY invece di SELECT)
         manuf: document.getElementById('lens-manufacturer'),
         model: document.getElementById('lens-model'),
         od: {
@@ -267,7 +280,6 @@
             boxA: document.getElementById('box-axis-os'), boxAdd: document.getElementById('box-add-os')
         },
         
-        // Action View
         summary: {
             pat: document.getElementById('summary-patient'), lens: document.getElementById('summary-lens'),
             od: document.getElementById('summary-od'), os: document.getElementById('summary-os'),
@@ -282,10 +294,10 @@
         btnClose: document.getElementById('close-btn'),
         msgSuccess: document.getElementById('success-msg'),
         actionBtns: document.getElementById('action-buttons'),
-        warnLens: document.getElementById('warning-no-lens')
+        warnLens: document.getElementById('warning-no-lens'),
+        pricingLoad: document.getElementById('pricing-loading')
     };
 
-    // --- INIT ---
     (async () => {
         try {
             const app = initializeApp(firebaseConfig);
@@ -295,11 +307,10 @@
         } catch (e) { console.error(e); }
 
         loadFromLocalStorage();
-        parseUrlParams(); // Se c'è QR, sovrascrive
+        parseUrlParams(); 
         updateUI();
     })();
 
-    // --- LOGICA TABS ---
     function switchTab(tab) {
         els.tabs.pat.className = tab === 'pat' ? 'flex-1 py-2 px-1 text-center text-sm tab-active' : 'flex-1 py-2 px-1 text-center text-sm tab-inactive';
         els.tabs.lens.className = tab === 'lens' ? 'flex-1 py-2 px-1 text-center text-sm tab-active' : 'flex-1 py-2 px-1 text-center text-sm tab-inactive';
@@ -309,16 +320,14 @@
     els.tabs.pat.onclick = () => switchTab('pat');
     els.tabs.lens.onclick = () => switchTab('lens');
 
-    // --- VISIBILITÀ PARAMETRI ---
+    // Mostra/Nascondi Parametri in base al testo del Tipo
     function checkParamsVisibility() {
         ['od', 'os'].forEach(eye => {
             const type = els[eye].type.value.toLowerCase();
             const b = els[eye];
-            // Reset
             b.boxP.classList.add('hidden'); b.boxC.classList.add('hidden'); b.boxA.classList.add('hidden'); b.boxAdd.classList.add('hidden');
             
             if(type) {
-                // Logica semplice basata su stringhe standard
                 b.boxP.classList.remove('hidden'); // Sfera quasi sempre
                 if(type.includes('toric') || type.includes('astigm')) {
                     b.boxC.classList.remove('hidden'); b.boxA.classList.remove('hidden');
@@ -330,7 +339,6 @@
         });
     }
 
-    // --- SALVATAGGIO E CARICAMENTO ---
     function saveToLocalStorage() {
         localStorage.setItem('app_n', els.name.value);
         localStorage.setItem('app_ph', els.phone.value);
@@ -339,11 +347,10 @@
         localStorage.setItem('app_oid', els.oid.value);
         localStorage.setItem('app_priv', els.privacy.checked);
         
-        // Indirizzo
         localStorage.setItem('app_st', els.addr.st.value); localStorage.setItem('app_num', els.addr.num.value);
         localStorage.setItem('app_cap', els.addr.cap.value); localStorage.setItem('app_city', els.addr.city.value); localStorage.setItem('app_pr', els.addr.pr.value);
         
-        // Lenti (Parametri editabili e Qty)
+        // Parametri modificabili e Qty
         ['od', 'os'].forEach(e => {
             localStorage.setItem(`app_q_${e}`, els[e].qty.value);
             localStorage.setItem(`app_p_${e}`, els[e].pwr.value);
@@ -352,7 +359,6 @@
             localStorage.setItem(`app_add_${e}`, els[e].add.value);
         });
         
-        // Toggle Consegna
         localStorage.setItem('app_del', els.delToggle.checked ? '1' : '0');
     }
 
@@ -367,7 +373,7 @@
         els.addr.st.value = localStorage.getItem('app_st') || ''; els.addr.num.value = localStorage.getItem('app_num') || '';
         els.addr.cap.value = localStorage.getItem('app_cap') || ''; els.addr.city.value = localStorage.getItem('app_city') || ''; els.addr.pr.value = localStorage.getItem('app_pr') || '';
 
-        // Lenti Fisse (dal QR precedente o cache)
+        // Lenti Fisse (solo testo)
         els.manuf.value = localStorage.getItem('app_m') || '';
         els.model.value = localStorage.getItem('app_md') || '';
         els.od.type.value = localStorage.getItem('app_t_od') || '';
@@ -388,7 +394,7 @@
     function parseUrlParams() {
         const p = new URLSearchParams(window.location.search);
         if(p.has('oid')) {
-            // Dati Fissi da QR (Sovrascrivono)
+            // Dati da QR (Fissi)
             els.oid.value = p.get('oid');
             els.name.value = p.get('n') || '';
             els.manuf.value = p.get('m') || '';
@@ -396,54 +402,52 @@
             els.od.type.value = p.get('tod') || '';
             els.os.type.value = p.get('tos') || '';
             
-            // Parametri preimpostati (editabili)
+            // Parametri preimpostati (ma modificabili dall'utente)
             els.od.pwr.value = p.get('pod') || ''; els.od.cyl.value = p.get('cod') || ''; els.od.axis.value = p.get('aod') || ''; els.od.add.value = p.get('addod') || '';
             els.os.pwr.value = p.get('pos') || ''; els.os.cyl.value = p.get('cos') || ''; els.os.axis.value = p.get('aos') || ''; els.os.add.value = p.get('addos') || '';
             
-            // Salva i fissi in cache
+            // Salvo i fissi
             localStorage.setItem('app_m', els.manuf.value);
             localStorage.setItem('app_md', els.model.value);
             localStorage.setItem('app_t_od', els.od.type.value);
             localStorage.setItem('app_t_os', els.os.type.value);
             
-            // Pulisci URL
             history.replaceState(null, '', window.location.pathname);
-            
-            // Forza switch su tab lenti per conferma visiva
-            switchTab('lens');
+            switchTab('lens'); // Conferma visiva
         }
     }
 
     function updateUI() {
         checkParamsVisibility();
         
-        // Warning se manca lente
         if(!els.manuf.value) {
             els.warnLens.classList.remove('hidden');
             switchTab('lens');
         } else {
             els.warnLens.classList.add('hidden');
-            // Se tutto ok, mostra settings
             els.views.set.classList.remove('hidden');
         }
         
-        // Indirizzo toggle
         els.delLabel.innerText = els.delToggle.checked ? 'Consegna a Domicilio' : 'Ritiro in Negozio';
         els.addrBox.classList.toggle('hidden', !els.delToggle.checked);
 
-        // Carica prezzi se possibile
+        // Carica prezzi se abbiamo l'ID
         if(els.oid.value && Object.keys(pricingConfig).length === 0) fetchPricing();
     }
 
     async function fetchPricing() {
+        if(!els.oid.value) return;
+        els.pricingLoad.classList.remove('hidden');
         try {
             const snap = await getDoc(doc(db, "optician_config", els.oid.value, "lenses", "main"));
             if(snap.exists()) pricingConfig = snap.data().pricing_config || {};
         } catch(e) { console.log("No price config"); }
+        els.pricingLoad.classList.add('hidden');
     }
 
     function calculateTotal() {
         let tot = 0;
+        // Usa la chiave Manufacturer::Model::Type per cercare il prezzo
         const getP = (m, md, t) => {
             const key = `${m}::${md}::${t}`;
             return (pricingConfig[key] && pricingConfig[key].enabled) ? parseFloat(pricingConfig[key].price) : 0;
