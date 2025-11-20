@@ -82,15 +82,17 @@
                 <p class="text-xs text-gray-500">Loggato come</p>
                 <p id="user-email" class="text-sm font-bold text-gray-800"></p>
             </div>
-            <div class="relative group">
-                <button class="flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
+            
+            <div class="relative">
+                <button id="user-menu-btn" class="flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
                     <svg class="h-8 w-8 rounded-full bg-gray-100 p-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 </button>
-                <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block hover:block border border-gray-100">
+                <div id="user-menu-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden border border-gray-100 z-50">
                     <button id="profile-button" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profilo & Password</button>
                     <button id="logout-button" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Esci</button>
                 </div>
             </div>
+
           </div>
         </div>
       </div>
@@ -311,6 +313,27 @@
     const catalogContainer = document.getElementById('catalog-container');
     const saveCatalogBtn = document.getElementById('save-catalog-btn');
 
+    // --- GESTIONE MENU UTENTE (FIXED) ---
+    const userMenuBtn = document.getElementById('user-menu-btn');
+    const userMenuDropdown = document.getElementById('user-menu-dropdown');
+
+    if(userMenuBtn && userMenuDropdown) {
+        // Toggle menu al click
+        userMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userMenuDropdown.classList.toggle('hidden');
+        });
+
+        // Chiudi menu cliccando fuori
+        document.addEventListener('click', (e) => {
+            if (!userMenuDropdown.classList.contains('hidden')) {
+                if (!userMenuDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
+                    userMenuDropdown.classList.add('hidden');
+                }
+            }
+        });
+    }
+
     // --- AUTHENTICATION ---
     loginButton.addEventListener('click', async () => {
       try {
@@ -376,6 +399,8 @@
         newPasswordInput.value = '';
         pwdMsg.classList.add('hidden');
         passwordModal.classList.remove('hidden');
+        // Chiudi il menu utente quando apri il modale
+        userMenuDropdown.classList.add('hidden');
     };
     closePwdModal.onclick = () => passwordModal.classList.add('hidden');
     
