@@ -16,7 +16,8 @@
     .whitespace-pre-wrap { white-space: pre-wrap; }
     #send-order-button:active img { transform: scale(0.95); }
     #send-order-button img { transition: transform 0.1s ease-out; }
-    select:disabled { background-color: #f3f4f6; opacity: 0.7; }
+    /* Select disabilitati sembrano "bloccati" ma leggibili */
+    select:disabled { background-color: #f3f4f6; opacity: 1; color: #4b5563; cursor: not-allowed; }
 
     /* Stili per il toggle switch */
     .toggle-switch {
@@ -116,7 +117,7 @@
 
 <div id="settings-view" class="max-w-md mx-auto min-h-screen bg-white shadow-lg p-6 hidden relative flex flex-col">
     <h1 class="text-3xl font-bold text-gray-800 mb-4">Impostazioni</h1>
-    <p class="text-gray-600 mb-4">Configura i tuoi dati per l'ordine.</p>
+    <p class="text-gray-600 mb-4">Verifica e completa i tuoi dati.</p>
     
     <div class="flex border-b border-gray-200 mb-6">
         <button id="tab-btn-patient" class="flex-1 py-2 px-1 text-center text-sm tab-active">Dati Paziente</button>
@@ -198,6 +199,11 @@
 
     <div id="tab-content-lenses" class="space-y-4 hidden flex-1 pb-10">
       <h2 class="text-lg font-semibold text-gray-700 pb-2">Configurazione Lenti</h2>
+      
+      <div class="bg-yellow-50 border border-yellow-200 p-3 rounded mb-2 hidden" id="locked-config-msg">
+          <p class="text-xs text-yellow-800">Configurazione bloccata dall'ottico. Puoi modificare solo le diottrie.</p>
+      </div>
+
       <div>
         <label for="lens-manufacturer" class="block text-sm font-medium text-gray-700">Produttore</label>
         <select id="lens-manufacturer" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled>
@@ -352,8 +358,7 @@
       const KEY_CF = 'otticoApp_patient_cf';
       
       const KEY_DELIVERY_OPTION = 'otticoApp_delivery_option'; 
-      const KEY_ADDRESS = 'otticoApp_patient_address'; // Salva stringa completa per compatibilità
-      // Nuove chiavi indirizzo
+      const KEY_ADDRESS = 'otticoApp_patient_address'; 
       const KEY_ADDR_STREET = 'otticoApp_addr_street';
       const KEY_ADDR_NUM = 'otticoApp_addr_num';
       const KEY_ADDR_CAP = 'otticoApp_addr_cap';
@@ -394,7 +399,6 @@
       const activeDeliveryLabel = document.getElementById('active-delivery-label');
       const addressContainer = document.getElementById('address-container');
       
-      // Nuovi input Indirizzo
       const addrStreetInput = document.getElementById('addr-street');
       const addrNumInput = document.getElementById('addr-num');
       const addrCapInput = document.getElementById('addr-cap');
@@ -441,6 +445,7 @@
       const offerContainer = document.getElementById('offer-container');
       const lensesLoadingMessage = document.getElementById('lenses-loading-message');
       const lensesErrorMessage = document.getElementById('lenses-error-message');
+      const lockedConfigMsg = document.getElementById('locked-config-msg');
       
       const installPrompt = document.getElementById('install-prompt');
       const closeInstallPrompt = document.getElementById('close-install-prompt');
@@ -460,7 +465,6 @@
       const tabContentLenses = document.getElementById('tab-content-lenses');
       const tabContentPayment = document.getElementById('tab-content-payment');
 
-      // *** FUNZIONE GESTIONE TABS ***
       function switchSettingsTab(tabName) {
         [tabBtnPatient, tabBtnLenses, tabBtnPayment].forEach(btn => {
             btn.classList.remove('tab-active');
@@ -489,8 +493,6 @@
       tabBtnLenses.onclick = () => switchSettingsTab('lenses');
       tabBtnPayment.onclick = () => switchSettingsTab('payment');
 
-
-      // *** FUNZIONE: Carica lenti specifiche dell'ottico ***
       async function loadLensData(opticianId) {
         if (!opticianId) return false;
         
@@ -505,13 +507,11 @@
             lensesLoadingMessage.classList.add('hidden');
             return true;
           } else {
-            console.error("ERRORE: Documento lenti non trovato per l'ottico:", opticianId);
             globalLensData = null;
             lensesErrorMessage.classList.remove('hidden');
             return false;
           }
         } catch (e) {
-          console.error("Errore caricamento lenti:", e);
           globalLensData = null;
           lensesErrorMessage.classList.remove('hidden');
           return false;
@@ -527,7 +527,6 @@
         }
       }
 
-      // *** FUNZIONE MODIFICATA: Costruisce il messaggio per l'ottico ***
       function buildAndSaveMessage() {
         const data = {
           n: localStorage.getItem(KEY_NAME) || '',
@@ -612,13 +611,22 @@
         summaryMessageOs.innerText = osMsg.trim();
       }
 
-      // Logica Lettura URL
+      // Logica Lettura URL - AGGIORNATA CON TUTTI I CAMPI
       const urlParams = new URLSearchParams(window.location.search);
       let qrData = null;
       if (urlParams.has('oid') || urlParams.has('n')) {
         qrData = {
           n: urlParams.get('n') || '',
           oid: urlParams.get('oid') || '',
+          ph: urlParams.get('ph') || '', // Nuovo
+          e: urlParams.get('e') || '',   // Nuovo
+          cf: urlParams.get('cf') || '', // Nuovo
+          // Indirizzo
+          sa: urlParams.get('sa') || '',
+          sc: urlParams.get('sc') || '',
+          sz: urlParams.get('sz') || '',
+          sp: urlParams.get('sp') || '',
+          // Lenti
           m: urlParams.get('m') || '',
           md: urlParams.get('md') || '',
           tod: urlParams.get('tod') || '',
@@ -635,7 +643,6 @@
         history.replaceState(null, document.title, window.location.pathname);
       }
 
-      // Funzioni Popolamento Menu
       function populateManufacturers() {
         if (!globalLensData) {
           manufacturerSelect.innerHTML = '<option value="">-- Inserisci Codice Ottico --</option>';
@@ -678,7 +685,6 @@
       function resetEyeSection(eyeSuffix) { const typeSelect = (eyeSuffix === 'od') ? typeSelect_OD : typeSelect_OS; typeSelect.innerHTML = '<option value="">-- Seleziona Tipo --</option>'; typeSelect.disabled = true; updateParameterFields(eyeSuffix, true); }
       function updateParameterFields(eyeSuffix, forceHide = false) { const typeSelect = (eyeSuffix === 'od') ? typeSelect_OD : typeSelect_OS; const pwrField = (eyeSuffix === 'od') ? pwrField_OD : pwrField_OS; const cylField = (eyeSuffix === 'od') ? cylField_OD : cylField_OS; const axisField = (eyeSuffix === 'od') ? axisField_OD : axisField_OS; const addField = (eyeSuffix === 'od') ? addField_OD : addField_OS; const paramsInfo = (eyeSuffix === 'od') ? paramsInfo_OD : paramsInfo_OS; const type = typeSelect.value.toLowerCase(); pwrField.classList.add('hidden'); cylField.classList.add('hidden'); axisField.classList.add('hidden'); addField.classList.add('hidden'); paramsInfo.classList.remove('hidden'); if (forceHide || !type) return; paramsInfo.classList.add('hidden'); if (type.includes('standard')) { pwrField.classList.remove('hidden'); } else if (type.includes('astigmatismo') || type.includes('toric')) { pwrField.classList.remove('hidden'); cylField.classList.remove('hidden'); axisField.classList.remove('hidden'); } else if (type.includes('multifocal') || type.includes('presbiopia')) { pwrField.classList.remove('hidden'); addField.classList.remove('hidden'); } else if (type.includes('xr')) { pwrField.classList.remove('hidden'); cylField.classList.remove('hidden'); axisField.classList.remove('hidden'); } }
 
-      // *** FUNZIONE MODIFICATA: Mostra/nasconde campo indirizzo ***
       function toggleAddressField() {
         const isDelivery = deliveryToggle.checked; 
         if (isDelivery) {
@@ -688,37 +694,65 @@
         }
       }
 
-      // Funzioni Viste
       async function loadSettings(fromQrData = null) {
         if (fromQrData) {
-          // Carica da QR
+          // CARICAMENTO DA QR - ORA POPOLA TUTTI I CAMPI
           nameInput.value = fromQrData.n;
           opticianIdInput.value = fromQrData.oid;
-          phoneInput.value = ''; 
-          emailInput.value = ''; // QR non ha email
-          cfInput.value = ''; // QR non ha CF
+          phoneInput.value = fromQrData.ph; // Corretto
+          emailInput.value = fromQrData.e;  // Corretto
+          cfInput.value = fromQrData.cf;    // Corretto
+          
+          // Indirizzo da QR
+          addrStreetInput.value = fromQrData.sa;
+          addrCityInput.value = fromQrData.sc;
+          addrCapInput.value = fromQrData.sz;
+          addrProvInput.value = fromQrData.sp;
+          
+          // Se c'è l'indirizzo nel QR, potremmo attivare la consegna, ma lasciamo scelta utente
           localStorage.setItem(KEY_DELIVERY_OPTION, 'pickup'); 
           deliveryToggle.checked = false;
           
-          // Reset indirizzo
-          addrStreetInput.value = ''; addrNumInput.value = ''; addrCapInput.value = ''; addrCityInput.value = ''; addrProvInput.value = '';
-          privacyCheck.checked = false;
-
+          privacyCheck.checked = false; // Utente deve accettare
           qtyInput_OD.value = '1';
           qtyInput_OS.value = '1';
           
+          // Salvataggio immediato in LocalStorage per persistenza
+          localStorage.setItem(KEY_NAME, fromQrData.n);
+          localStorage.setItem(KEY_PHONE, fromQrData.ph);
+          localStorage.setItem(KEY_EMAIL, fromQrData.e);
+          localStorage.setItem(KEY_CF, fromQrData.cf);
+          localStorage.setItem(KEY_ADDR_STREET, fromQrData.sa);
+          localStorage.setItem(KEY_ADDR_CITY, fromQrData.sc);
+          localStorage.setItem(KEY_ADDR_CAP, fromQrData.sz);
+          localStorage.setItem(KEY_ADDR_PROV, fromQrData.sp);
+          
           const success = await loadLensData(fromQrData.oid);
           if (success) {
+            // Blocca configurazione se da QR
+            lockedConfigMsg.classList.remove('hidden');
+            
             populateManufacturers();
             manufacturerSelect.value = fromQrData.m;
+            manufacturerSelect.disabled = true; // BLOCCO
+
             populateModels();
             modelSelect.value = fromQrData.md;
+            modelSelect.disabled = true; // BLOCCO
+
             populateTypes();
-            typeSelect_OD.value = fromQrData.tod; pwrInput_OD.value = fromQrData.pod; cylInput_OD.value = fromQrData.cod; axisInput_OD.value = fromQrData.aod; addInput_OD.value = fromQrData.addod; updateParameterFields('od');
-            typeSelect_OS.value = fromQrData.tos; pwrInput_OS.value = fromQrData.pos; cylInput_OS.value = fromQrData.cos; axisInput_OS.value = fromQrData.aos; addInput_OS.value = fromQrData.addos; updateParameterFields('os');
+            
+            typeSelect_OD.value = fromQrData.tod; 
+            typeSelect_OD.disabled = true; // BLOCCO
+            pwrInput_OD.value = fromQrData.pod; cylInput_OD.value = fromQrData.cod; axisInput_OD.value = fromQrData.aod; addInput_OD.value = fromQrData.addod; updateParameterFields('od');
+            
+            typeSelect_OS.value = fromQrData.tos; 
+            typeSelect_OS.disabled = true; // BLOCCO
+            pwrInput_OS.value = fromQrData.pos; cylInput_OS.value = fromQrData.cos; axisInput_OS.value = fromQrData.aos; addInput_OS.value = fromQrData.addos; updateParameterFields('os');
           }
         } else {
           // Carica da LocalStorage
+          lockedConfigMsg.classList.add('hidden'); // Nascondi messaggio
           nameInput.value = localStorage.getItem(KEY_NAME) || '';
           phoneInput.value = localStorage.getItem(KEY_PHONE) || '';
           emailInput.value = localStorage.getItem(KEY_EMAIL) || '';
@@ -727,7 +761,6 @@
           const savedDeliveryOption = localStorage.getItem(KEY_DELIVERY_OPTION) || 'pickup';
           deliveryToggle.checked = (savedDeliveryOption === 'delivery'); 
           
-          // Carica campi indirizzo
           addrStreetInput.value = localStorage.getItem(KEY_ADDR_STREET) || '';
           addrNumInput.value = localStorage.getItem(KEY_ADDR_NUM) || '';
           addrCapInput.value = localStorage.getItem(KEY_ADDR_CAP) || '';
@@ -773,7 +806,6 @@
         switchSettingsTab('patient'); 
       }
 
-      // *** FUNZIONE MODIFICATA: Salva Impostazioni ***
       function saveSettings() {
         if (!globalLensData) {
           alert("Devi prima caricare le lenti del tuo ottico. Inserisci il Codice Ottico nella scheda 'Dati Paziente'.");
@@ -781,7 +813,6 @@
           return;
         }
         
-        // Privacy Check
         if (!privacyCheck.checked) {
             alert("Devi accettare la Privacy Policy per continuare.");
             switchSettingsTab('patient');
@@ -790,17 +821,14 @@
         
         const deliveryOption = deliveryToggle.checked ? 'delivery' : 'pickup';
         
-        // Validazione Indirizzo
         const street = addrStreetInput.value.trim();
         const num = addrNumInput.value.trim();
         const cap = addrCapInput.value.trim();
         const city = addrCityInput.value.trim();
         const prov = addrProvInput.value.trim();
         
-        // Costruisci stringa indirizzo
         const fullAddress = `${street} ${num}, ${cap} ${city} (${prov})`;
 
-        // Validazione
         if (!nameInput.value.trim() || !opticianIdInput.value.trim() || !manufacturerSelect.value || !modelSelect.value || !phoneInput.value.trim()) {
           alert("Compila tutti i dati necessari nelle schede 'Dati Paziente' e 'La tua Lente'.");
           return;
@@ -814,20 +842,18 @@
             }
         }
 
-        // Salvataggio in LocalStorage
         localStorage.setItem(KEY_NAME, nameInput.value.trim());
         localStorage.setItem(KEY_PHONE, phoneInput.value.trim());
         localStorage.setItem(KEY_EMAIL, emailInput.value.trim());
         localStorage.setItem(KEY_CF, cfInput.value.trim());
         
-        // Salva parti indirizzo
         localStorage.setItem(KEY_ADDR_STREET, street);
         localStorage.setItem(KEY_ADDR_NUM, num);
         localStorage.setItem(KEY_ADDR_CAP, cap);
         localStorage.setItem(KEY_ADDR_CITY, city);
         localStorage.setItem(KEY_ADDR_PROV, prov);
         
-        localStorage.setItem(KEY_ADDRESS, fullAddress); // Salva anche la stringa per compatibilità
+        localStorage.setItem(KEY_ADDRESS, fullAddress);
         localStorage.setItem(KEY_PRIVACY, 'true');
         
         localStorage.setItem(KEY_DELIVERY_OPTION, deliveryOption);
@@ -847,7 +873,6 @@
         localStorage.setItem(KEY_PARAM_AXIS_OS, axisInput_OS.value.trim());
         localStorage.setItem(KEY_PARAM_ADD_OS, addInput_OS.value.trim());
         
-        // Sincronizza i quick input
         quickQtyInput_OD.value = localStorage.getItem(KEY_QTY_OD);
         quickQtyInput_OS.value = localStorage.getItem(KEY_QTY_OS);
         
@@ -894,12 +919,10 @@
       
       function closeApp() { window.close(); actionView.classList.add('hidden'); }
       
-      // *** NUOVA FUNZIONE RUNORDER: Salva tutti i dati strutturati ***
       async function runOrder() { 
         const deliveryOption = deliveryToggle.checked ? 'delivery' : 'pickup';
         const addressValue = localStorage.getItem(KEY_ADDRESS);
         
-        // Validazione finale consegna
         if (deliveryOption === 'delivery') {
             const street = localStorage.getItem(KEY_ADDR_STREET);
             if (!street) {
@@ -912,15 +935,13 @@
         const opticianId = localStorage.getItem(KEY_OPTICIAN_ID); 
         const message = localStorage.getItem(KEY_MESSAGE); 
         
-        // COSTRUZIONE OGGETTO DATI COMPLETO (PER FILTRI FUTURI)
         const fullOrderData = {
             patient_name: patientName,
             optician_id: opticianId,
-            message: message, // Per compatibilità Dashboard attuale
+            message: message,
             status: 'new',
             timestamp: serverTimestamp(),
             
-            // Dati Cliente Strutturati
             client_info: {
                 phone: localStorage.getItem(KEY_PHONE) || '',
                 email: localStorage.getItem(KEY_EMAIL) || '',
@@ -928,7 +949,6 @@
                 privacy_accepted: true
             },
             
-            // Dati Consegna Strutturati
             delivery: {
                 mode: deliveryOption,
                 address_full: addressValue,
@@ -941,7 +961,6 @@
                 }
             },
             
-            // Dati Lenti Strutturati (per filtri es. "Tutti quelli che usano Alcon")
             lens_order: {
                 manufacturer: localStorage.getItem(KEY_LENS_MANUFACTURER),
                 model: localStorage.getItem(KEY_LENS_MODEL),
@@ -977,10 +996,8 @@
         
         try { 
           const ordersCollectionPath = `artifacts/${appId}/public/data/orders`; 
-          // Salvataggio dell'oggetto completo
           await addDoc(collection(db, ordersCollectionPath), fullOrderData); 
           
-          // Reset Qty dopo invio
           localStorage.setItem(KEY_QTY_OD, '1');
           localStorage.setItem(KEY_QTY_OS, '1');
           qtyInput_OD.value = '1';
@@ -1013,7 +1030,6 @@
         } 
       }
 
-      // Inizializzazione
       saveButton.onclick = saveSettings; 
       sendOrderButton.onclick = runOrder; 
       editSettingsButton.onclick = () => showSettingsView();
@@ -1023,7 +1039,6 @@
       typeSelect_OD.onchange = () => updateParameterFields('od');
       typeSelect_OS.onchange = () => updateParameterFields('os');
       
-      // *** LISTENER per il TOGGLE ***
       deliveryToggle.onchange = () => {
         const newOption = deliveryToggle.checked ? 'delivery' : 'pickup';
         localStorage.setItem(KEY_DELIVERY_OPTION, newOption);
@@ -1037,7 +1052,6 @@
         }
       };
       
-      // *** LISTENER PER I QUICK INPUT (POPUP) ***
       quickQtyInput_OD.addEventListener('change', () => {
         const newVal = quickQtyInput_OD.value.trim() || '1';
         localStorage.setItem(KEY_QTY_OD, newVal);
@@ -1079,7 +1093,6 @@
           localStorage.setItem(KEY_HAS_VISITED, 'true');
       };
 
-      // *** LOGICA DI AVVIO ***
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
       if (qrData) {
