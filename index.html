@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ordine Lenti DB</title>
+  <title>Ordine Lenti</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,28 +14,30 @@
   <style>
     .hidden { display: none; }
     .whitespace-pre-wrap { white-space: pre-wrap; }
-    #send-order-button:active img { transform: scale(0.95); }
-    #send-order-button img { transition: transform 0.1s ease-out; }
-    /* Stile per input sola lettura */
-    input[readonly] { background-color: #f3f4f6; color: #6b7280; cursor: default; border-color: #e5e7eb; }
+    
+    /* Stile Input Readonly (Lenti fisse) */
+    input[readonly] { 
+        background-color: #f3f4f6; 
+        color: #4b5563; 
+        cursor: not-allowed; 
+        border-color: #e5e7eb;
+        font-weight: 600;
+    }
 
-    /* Stili per il toggle switch */
+    /* Toggle Switch */
     .toggle-switch { position: relative; display: inline-block; width: 60px; height: 34px; }
     .toggle-switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
     .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
     input:checked + .slider { background-color: #2196F3; }
-    input + .slider { background-color: #888; }
     input:focus + .slider { box-shadow: 0 0 1px #2196F3; }
     input:checked + .slider:before { transform: translateX(26px); }
     
-    input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number] { -moz-appearance: textfield; }
     
     .tab-active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: 600; }
     .tab-inactive { color: #6b7280; border-bottom: 2px solid transparent; }
-    .tab-inactive:hover { color: #374151; border-bottom: 2px solid #e5e7eb; }
   </style>
 </head>
 
@@ -43,184 +45,171 @@
 
 <div id="install-prompt" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 hidden z-50 backdrop-blur-sm">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 relative text-center">
-        <h1 class="text-2xl font-bold text-gray-800 mb-4">Installa l'App per Ordini Rapidi!</h1>
-        <p class="text-gray-600 mb-4">Per un accesso più veloce, aggiungi questa app alla tua schermata Home.</p>
-        <button id="close-install-prompt" class="mt-6 w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-blue-700">Ho capito</button>
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">Installa l'App</h1>
+        <p class="text-gray-600 mb-4">Aggiungi alla Home per ordinare velocemente.</p>
+        <button id="close-install-prompt" class="mt-6 w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-blue-700">Chiudi</button>
     </div>
 </div>
 
 <div id="settings-view" class="max-w-md mx-auto min-h-screen bg-white shadow-lg p-6 hidden relative flex flex-col">
-    <h1 class="text-3xl font-bold text-gray-800 mb-4">Impostazioni</h1>
-    <p class="text-gray-600 mb-4">Configura i tuoi dati per l'ordine.</p>
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">I Tuoi Dati</h1>
     
     <div class="flex border-b border-gray-200 mb-6">
-        <button id="tab-btn-patient" class="flex-1 py-2 px-1 text-center text-sm tab-active">Dati Paziente</button>
-        <button id="tab-btn-lenses" class="flex-1 py-2 px-1 text-center text-sm tab-inactive">La tua Lente</button>
-        <button id="tab-btn-payment" class="flex-1 py-2 px-1 text-center text-sm tab-inactive">Pagamento</button>
+        <button id="tab-btn-patient" class="flex-1 py-2 px-1 text-center text-sm tab-active">Profilo</button>
+        <button id="tab-btn-lenses" class="flex-1 py-2 px-1 text-center text-sm tab-inactive">Lenti</button>
     </div>
     
     <div id="tab-content-patient" class="space-y-4 flex-1 pb-10">
-      <h2 class="text-lg font-semibold text-gray-700 pb-2">Informazioni Personali</h2>
       <div>
-          <label for="patient-name" class="block text-sm font-medium text-gray-700">Nome e Cognome</label>
-          <input type="text" id="patient-name" placeholder="Es: Mario Rossi" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-      </div>
-      <div class="grid grid-cols-2 gap-4">
-          <div>
-              <label for="patient-phone" class="block text-sm font-medium text-gray-700">Telefono</label>
-              <input type="tel" id="patient-phone" placeholder="Es: 333 1234567" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-          </div>
-          <div>
-              <label for="patient-email" class="block text-sm font-medium text-gray-700">Email</label>
-              <input type="email" id="patient-email" placeholder="mario@email.it" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-          </div>
-      </div>
-      <div>
-          <label for="patient-cf" class="block text-sm font-medium text-gray-700">Codice Fiscale</label>
-          <input type="text" id="patient-cf" placeholder="RSSMRA80A01H501U" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm uppercase focus:ring-blue-500 focus:border-blue-500">
-      </div>
-      <div>
-        <label for="optician-id" class="block text-sm font-medium text-gray-700">Codice Ottico</label>
-        <input type="text" id="optician-id" readonly class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-500">
-        <p id="pricing-loading-message" class="text-sm text-indigo-600 mt-1 hidden">Recupero listino prezzi...</p>
-        <p id="pricing-error-message" class="text-sm text-red-600 mt-1 hidden">Impossibile recuperare i prezzi.</p>
+          <label class="block text-sm font-medium text-gray-700">Nome e Cognome</label>
+          <input type="text" id="patient-name" placeholder="Mario Rossi" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
       </div>
       
-      <div id="address-container" class="hidden bg-gray-50 p-4 rounded-md border border-gray-200 space-y-3">
-        <h2 class="text-sm font-semibold text-gray-700 border-b pb-1">Indirizzo di Consegna</h2>
+      <div class="grid grid-cols-2 gap-4">
+          <div>
+              <label class="block text-sm font-medium text-gray-700">Telefono</label>
+              <input type="tel" id="patient-phone" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+          </div>
+          <div>
+              <label class="block text-sm font-medium text-gray-700">Email</label>
+              <input type="email" id="patient-email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+          </div>
+      </div>
+
+      <div>
+          <label class="block text-sm font-medium text-gray-700">Codice Fiscale</label>
+          <input type="text" id="patient-cf" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm uppercase">
+      </div>
+
+      <div class="bg-gray-50 p-3 rounded border">
+        <label class="block text-xs font-bold text-gray-500 uppercase">Il tuo Ottico (ID)</label>
+        <input type="text" id="optician-id" readonly class="mt-1 block w-full px-3 py-2 border border-gray-200 rounded-md bg-white text-gray-500 text-sm">
+      </div>
+      
+      <div id="address-container" class="bg-gray-50 p-4 rounded-md border border-gray-200 space-y-3 hidden">
+        <h2 class="text-sm font-semibold text-gray-700 border-b pb-1">Indirizzo Spedizione</h2>
         <div class="flex space-x-2">
-            <div class="flex-1"><label class="block text-xs font-medium text-gray-500">Via</label><input type="text" id="addr-street" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm"></div>
-            <div class="w-20"><label class="block text-xs font-medium text-gray-500">N.</label><input type="text" id="addr-num" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm"></div>
+            <div class="flex-1"><input type="text" id="addr-street" placeholder="Via" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"></div>
+            <div class="w-20"><input type="text" id="addr-num" placeholder="N." class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"></div>
         </div>
         <div class="flex space-x-2">
-            <div class="w-24"><label class="block text-xs font-medium text-gray-500">CAP</label><input type="text" id="addr-cap" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm"></div>
-            <div class="flex-1"><label class="block text-xs font-medium text-gray-500">Città</label><input type="text" id="addr-city" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm"></div>
-            <div class="w-16"><label class="block text-xs font-medium text-gray-500">Prov.</label><input type="text" id="addr-prov" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm uppercase" maxlength="2"></div>
+            <div class="w-24"><input type="text" id="addr-cap" placeholder="CAP" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"></div>
+            <div class="flex-1"><input type="text" id="addr-city" placeholder="Città" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"></div>
+            <div class="w-16"><input type="text" id="addr-prov" placeholder="PR" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm uppercase" maxlength="2"></div>
         </div>
       </div>
 
-      <div class="flex items-start mt-4 p-2 bg-blue-50 rounded border border-blue-100">
-        <div class="flex items-center h-5"><input id="privacy-check" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"></div>
-        <div class="ml-3 text-sm"><label for="privacy-check" class="font-medium text-gray-700">Autorizzo il trattamento dati</label></div>
+      <div class="flex items-start mt-4">
+        <input id="privacy-check" type="checkbox" class="mt-1 h-4 w-4 text-blue-600 border-gray-300 rounded">
+        <label for="privacy-check" class="ml-2 block text-sm text-gray-700">Accetto la privacy policy e il trattamento dati.</label>
       </div>
     </div>
 
     <div id="tab-content-lenses" class="space-y-4 hidden flex-1 pb-10">
-      <h2 class="text-lg font-semibold text-gray-700 pb-2">La tua Lente (da QR Code)</h2>
       
-      <div id="no-lens-warning" class="hidden bg-yellow-50 p-3 rounded border border-yellow-200 text-sm text-yellow-800 mb-2">
-         Nessuna lente configurata. Fatti scansionare il QR Code dal tuo ottico per impostare la lente corretta.
+      <div id="warning-no-lens" class="hidden bg-yellow-100 text-yellow-800 p-3 rounded text-sm mb-4 border border-yellow-200">
+          ⚠️ Nessuna lente configurata. Scansiona il QR Code fornito dal tuo ottico.
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Produttore</label>
-        <input type="text" id="lens-manufacturer" readonly class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm font-bold">
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Modello Lente</label>
-        <input type="text" id="lens-model" readonly class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm font-bold">
+      <div class="bg-gray-50 p-4 rounded border border-gray-200">
+          <label class="block text-xs font-bold text-gray-500 uppercase">Produttore</label>
+          <input type="text" id="lens-manufacturer" readonly class="w-full bg-transparent font-bold text-gray-800 border-none p-0 focus:ring-0">
+          
+          <label class="block text-xs font-bold text-gray-500 uppercase mt-2">Modello</label>
+          <input type="text" id="lens-model" readonly class="w-full bg-transparent font-bold text-gray-800 border-none p-0 focus:ring-0">
       </div>
       
       <div class="border-t pt-4 mt-4">
-          <h3 class="text-md font-bold text-gray-800 mb-3">OCCHIO DESTRO</h3>
-          <div class="flex items-center space-x-2 mb-3">
-              <label class="block text-sm font-medium text-gray-700">Quantità</label>
-              <input type="number" id="qty-od" value="1" class="mt-1 block w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm text-center">
-              <span class="text-sm text-gray-700 pt-1">pz.</span>
+          <div class="flex justify-between items-center mb-2">
+              <h3 class="text-sm font-bold text-blue-700 uppercase">Occhio Destro (OD)</h3>
+              <div class="flex items-center gap-2">
+                  <label class="text-xs text-gray-500">Q.tà</label>
+                  <input type="number" id="qty-od" class="w-12 text-center border rounded text-sm font-bold py-1" value="1">
+              </div>
           </div>
           
-          <div>
-              <label class="block text-sm font-medium text-gray-700">Tipo Correzione</label>
-              <input type="text" id="lens-type-od" readonly class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50">
-          </div>
-          <div id="prescription-fields-od" class="space-y-3 mt-3 pl-2 border-l-2 border-blue-200">
-            <div id="params-pwr-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Potere (Sfera)</label><input type="text" id="param-pwr-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md"></div>
-            <div id="params-cyl-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Cilindro</label><input type="text" id="param-cyl-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md"></div>
-            <div id="params-axis-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Asse</label><input type="text" id="param-axis-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md"></div>
-            <div id="params-add-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Addizione</label><input type="text" id="param-add-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md"></div>
+          <label class="block text-xs text-gray-500">Tipo</label>
+          <input type="text" id="lens-type-od" readonly class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm bg-gray-100 mb-2">
+
+          <div id="params-container-od" class="grid grid-cols-2 gap-3 pl-2 border-l-2 border-blue-200">
+            <div class="col-span-2 hidden" id="box-pwr-od"><label class="text-xs text-gray-500">Sfera (PWR)</label><input type="text" id="param-pwr-od" class="w-full border-gray-300 rounded font-bold text-sm"></div>
+            <div class="hidden" id="box-cyl-od"><label class="text-xs text-gray-500">Cilindro</label><input type="text" id="param-cyl-od" class="w-full border-gray-300 rounded font-bold text-sm"></div>
+            <div class="hidden" id="box-axis-od"><label class="text-xs text-gray-500">Asse</label><input type="text" id="param-axis-od" class="w-full border-gray-300 rounded font-bold text-sm"></div>
+            <div class="col-span-2 hidden" id="box-add-od"><label class="text-xs text-gray-500">Addizione</label><input type="text" id="param-add-od" class="w-full border-gray-300 rounded font-bold text-sm"></div>
           </div>
       </div>
       
       <div class="border-t pt-4 mt-4">
-          <h3 class="text-md font-bold text-gray-800 mb-3">OCCHIO SINISTRO</h3>
-          <div class="flex items-center space-x-2 mb-3">
-              <label class="block text-sm font-medium text-gray-700">Quantità</label>
-              <input type="number" id="qty-os" value="1" class="mt-1 block w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm text-center">
-              <span class="text-sm text-gray-700 pt-1">pz.</span>
+          <div class="flex justify-between items-center mb-2">
+              <h3 class="text-sm font-bold text-blue-700 uppercase">Occhio Sinistro (OS)</h3>
+              <div class="flex items-center gap-2">
+                  <label class="text-xs text-gray-500">Q.tà</label>
+                  <input type="number" id="qty-os" class="w-12 text-center border rounded text-sm font-bold py-1" value="1">
+              </div>
           </div>
-          
-          <div>
-              <label class="block text-sm font-medium text-gray-700">Tipo Correzione</label>
-              <input type="text" id="lens-type-os" readonly class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50">
-          </div>
-          <div id="prescription-fields-os" class="space-y-3 mt-3 pl-2 border-l-2 border-blue-200">
-            <div id="params-pwr-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Potere (Sfera)</label><input type="text" id="param-pwr-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md"></div>
-            <div id="params-cyl-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Cilindro</label><input type="text" id="param-cyl-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md"></div>
-            <div id="params-axis-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Asse</label><input type="text" id="param-axis-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md"></div>
-            <div id="params-add-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Addizione</label><input type="text" id="param-add-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md"></div>
+
+          <label class="block text-xs text-gray-500">Tipo</label>
+          <input type="text" id="lens-type-os" readonly class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm bg-gray-100 mb-2">
+
+          <div id="params-container-os" class="grid grid-cols-2 gap-3 pl-2 border-l-2 border-blue-200">
+            <div class="col-span-2 hidden" id="box-pwr-os"><label class="text-xs text-gray-500">Sfera (PWR)</label><input type="text" id="param-pwr-os" class="w-full border-gray-300 rounded font-bold text-sm"></div>
+            <div class="hidden" id="box-cyl-os"><label class="text-xs text-gray-500">Cilindro</label><input type="text" id="param-cyl-os" class="w-full border-gray-300 rounded font-bold text-sm"></div>
+            <div class="hidden" id="box-axis-os"><label class="text-xs text-gray-500">Asse</label><input type="text" id="param-axis-os" class="w-full border-gray-300 rounded font-bold text-sm"></div>
+            <div class="col-span-2 hidden" id="box-add-os"><label class="text-xs text-gray-500">Addizione</label><input type="text" id="param-add-os" class="w-full border-gray-300 rounded font-bold text-sm"></div>
           </div>
       </div>
     </div>
-
-    <div id="tab-content-payment" class="hidden flex-1 flex flex-col items-center justify-center text-center py-10">
-        <h2 class="text-xl font-bold text-gray-800">Pagamenti</h2>
-        <p class="text-gray-500 mt-2">Il pagamento avverrà in negozio o alla consegna.</p>
-    </div>
       
-    <button id="save-button" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md shadow-lg font-semibold hover:bg-blue-700 mt-6 sticky bottom-0">Salva Tutto</button>
-    <p id="save-success" class="text-green-600 text-center hidden mt-2">Salvato!</p>
+    <button id="save-button" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md shadow-lg font-bold hover:bg-blue-700 mt-6 sticky bottom-0">Vai al Riepilogo</button>
 </div>
 
 <div id="action-view" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-6 hidden backdrop-blur-sm">
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 relative text-center">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 relative text-center flex flex-col max-h-[90vh] overflow-y-auto">
       
-      <svg id="action-loader" class="animate-spin h-12 w-12 text-blue-500 mx-auto mt-6 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-      <h1 id="action-title" class="text-3xl font-bold text-gray-800">Pronto per l'Ordine</h1>
-      
-      <div id="summary-container" class="text-left bg-gray-50 p-4 rounded-lg my-6 border">
-        <p id="summary-patient" class="text-gray-800 font-medium"></p>
-        <p id="summary-message-top" class="text-gray-700 whitespace-pre-wrap mt-2 text-sm"></p>
-        
-        <div class="flex justify-between items-center mt-2 border-t pt-2">
-          <span class="text-gray-700 font-bold text-xs">OCCHIO DESTRO</span>
-          <div class="flex items-center space-x-2">
-            <input type="number" id="quick-qty-od" value="1" class="w-12 px-2 py-1 border rounded text-center text-sm">
-            <span class="text-xs text-gray-500">pz</span>
+      <h1 class="text-2xl font-bold text-gray-800 mb-2">Riepilogo Ordine</h1>
+      <svg id="loader" class="animate-spin h-8 w-8 text-blue-500 mx-auto mb-4 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+
+      <div class="bg-gray-50 p-4 rounded-lg text-left text-sm space-y-2 border border-gray-200 mb-4">
+          <p id="summary-patient" class="font-bold text-gray-900 text-lg border-b pb-2 mb-2"></p>
+          <p class="text-gray-600"><span class="font-bold">Lente:</span> <span id="summary-lens"></span></p>
+          
+          <div class="grid grid-cols-2 gap-2 mt-2">
+              <div class="bg-white p-2 rounded border">
+                  <span class="block font-bold text-blue-600 text-xs">OD (Destro)</span>
+                  <p id="summary-od" class="text-xs"></p>
+                  <p class="text-xs font-bold mt-1">Qty: <span id="summary-qty-od"></span></p>
+              </div>
+              <div class="bg-white p-2 rounded border">
+                  <span class="block font-bold text-blue-600 text-xs">OS (Sinistro)</span>
+                  <p id="summary-os" class="text-xs"></p>
+                  <p class="text-xs font-bold mt-1">Qty: <span id="summary-qty-os"></span></p>
+              </div>
           </div>
-        </div>
-        
-        <div class="flex justify-between items-center mt-2">
-          <span class="text-gray-700 font-bold text-xs">OCCHIO SINISTRO</span>
-          <div class="flex items-center space-x-2">
-            <input type="number" id="quick-qty-os" value="1" class="w-12 px-2 py-1 border rounded text-center text-sm">
-            <span class="text-xs text-gray-500">pz</span>
-          </div>
-        </div>
-
-        <div class="mt-4 pt-3 border-t border-gray-200 flex justify-between items-center">
-            <span class="font-bold text-gray-700">Totale Stimato:</span>
-            <span id="estimated-total" class="font-extrabold text-xl text-green-600">€ --</span>
-        </div>
       </div>
 
-      <p id="action-message" class="text-lg text-gray-600 mt-6 mb-4 hidden"></p>
-      <div id="offer-container" class="hidden my-6"><img src="https://placehold.co/400x300/0d6efd/ffffff?text=Offerta+Speciale" class="rounded-lg shadow-md mx-auto"></div>
-      
-      <div id="delivery-switch-container" class="flex items-center justify-between my-6 space-x-2">
-        <div class="flex items-center space-x-3 flex-1 min-w-0">
-            <label class="toggle-switch flex-shrink-0">
-              <input type="checkbox" id="delivery-toggle">
-              <span class="slider"></span>
-            </label>
-            <span id="active-delivery-label" class="text-gray-900 font-bold text-sm text-left truncate"></span>
-        </div>
-        <button id="edit-settings-button" class="p-2 rounded-full text-gray-400 hover:bg-gray-100">⚙️</button>
-        <button id="close-app-button" class="p-2 rounded-full text-gray-400 hover:bg-gray-100">❌</button>
+      <div class="flex justify-between items-center px-2 mb-4">
+          <span class="font-bold text-gray-600">Totale Stimato:</span>
+          <span id="price-display" class="font-extrabold text-xl text-green-600">€ --</span>
       </div>
 
-      <div id="send-button-container" class="mt-4">
-        <button id="send-order-button" class="mx-auto focus:outline-none rounded-full focus:ring-4 focus:ring-red-300"><img src="buttonRed.png" alt="Invia" class="w-40 h-40" /></button>
+      <div class="flex items-center justify-between bg-gray-100 p-3 rounded-lg mb-4">
+        <span id="delivery-label" class="text-sm font-bold text-gray-700">Ritiro in Negozio</span>
+        <label class="toggle-switch flex-shrink-0">
+            <input type="checkbox" id="delivery-toggle">
+            <span class="slider"></span>
+        </label>
       </div>
+
+      <div id="success-msg" class="hidden mb-4">
+          <p class="text-green-600 font-bold text-lg">Ordine Inviato!</p>
+          <p class="text-gray-500 text-xs">Grazie per averci scelto.</p>
+      </div>
+
+      <div class="flex gap-2" id="action-buttons">
+          <button id="edit-btn" class="flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg font-bold">Modifica</button>
+          <button id="send-btn" class="flex-1 py-3 bg-red-500 text-white rounded-lg font-bold shadow-lg hover:bg-red-600">INVIA ORDINE</button>
+      </div>
+      <button id="close-btn" class="hidden w-full py-3 bg-gray-800 text-white rounded-lg font-bold mt-4">Chiudi App</button>
     </div>
 </div>
 
@@ -230,315 +219,325 @@
     import { getFirestore, collection, addDoc, serverTimestamp, getDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyDMRWXipp7VCMQiezOZSSZAhSQo8MWVgKs",
-      authDomain: "ordinalac.firebaseapp.com",
-      projectId: "ordinalac",
-      storageBucket: "ordinalac.firebasestorage.app",
-      messagingSenderId: "642877461161",
-      appId: "1:642877461161:web:6a4d979e7a7ddd56140fb8"
+        apiKey: "AIzaSyDMRWXipp7VCMQiezOZSSZAhSQo8MWVgKs",
+        authDomain: "ordinalac.firebaseapp.com",
+        projectId: "ordinalac",
+        storageBucket: "ordinalac.firebasestorage.app",
+        messagingSenderId: "642877461161",
+        appId: "1:642877461161:web:6a4d979e7a7ddd56140fb8"
     };
 
     let db, auth;
-    let pricingConfig = {}; // Contiene i prezzi scaricati
+    let pricingConfig = {}; // Cache prezzi
 
-    // Keys LocalStorage
-    const K = {
-        N: 'otticoApp_n', PH: 'otticoApp_ph', EM: 'otticoApp_em', CF: 'otticoApp_cf',
-        OID: 'otticoApp_oid', DEL: 'otticoApp_del', PRIV: 'otticoApp_priv',
-        ADR: 'otticoApp_adr_full', STR: 'otticoApp_adr_str', NUM: 'otticoApp_adr_num', CAP: 'otticoApp_adr_cap', CIT: 'otticoApp_adr_cit', PRV: 'otticoApp_adr_prv',
-        M: 'otticoApp_l_m', MD: 'otticoApp_l_md', 
-        QOD: 'otticoApp_qod', TOD: 'otticoApp_tod', POD: 'otticoApp_pod', COD: 'otticoApp_cod', AOD: 'otticoApp_aod', ADDOD: 'otticoApp_addod',
-        QOS: 'otticoApp_qos', TOS: 'otticoApp_tos', POS: 'otticoApp_pos', COS: 'otticoApp_cos', AOS: 'otticoApp_aos', ADDOS: 'otticoApp_addos'
-    };
-
-    try {
-      const app = initializeApp(firebaseConfig);
-      auth = getAuth(app);
-      db = getFirestore(app);
-      signInAnonymously(auth);
-    } catch (e) { console.error(e); }
-
-    // Elementi DOM
+    // DOM Elements
     const els = {
+        tabs: { pat: document.getElementById('tab-btn-patient'), lens: document.getElementById('tab-btn-lenses') },
+        views: { set: document.getElementById('settings-view'), act: document.getElementById('action-view') },
+        contents: { pat: document.getElementById('tab-content-patient'), lens: document.getElementById('tab-content-lenses') },
+        
+        // Inputs Paziente
         name: document.getElementById('patient-name'),
         phone: document.getElementById('patient-phone'),
         email: document.getElementById('patient-email'),
         cf: document.getElementById('patient-cf'),
         oid: document.getElementById('optician-id'),
-        manuf: document.getElementById('lens-manufacturer'), // Input Text Readonly
-        model: document.getElementById('lens-model'), // Input Text Readonly
-        q_od: document.getElementById('qty-od'),
-        t_od: document.getElementById('lens-type-od'), // Input Text Readonly
-        p_od: document.getElementById('param-pwr-od'),
-        c_od: document.getElementById('param-cyl-od'),
-        ax_od: document.getElementById('param-axis-od'),
-        add_od: document.getElementById('param-add-od'),
-        q_os: document.getElementById('qty-os'),
-        t_os: document.getElementById('lens-type-os'), // Input Text Readonly
-        p_os: document.getElementById('param-pwr-os'),
-        c_os: document.getElementById('param-cyl-os'),
-        ax_os: document.getElementById('param-axis-os'),
-        add_os: document.getElementById('param-add-os'),
-        
-        q_quick_od: document.getElementById('quick-qty-od'),
-        q_quick_os: document.getElementById('quick-qty-os'),
-        
-        del_toggle: document.getElementById('delivery-toggle'),
-        addr_cont: document.getElementById('address-container'),
-        // Indirizzo
-        s: document.getElementById('addr-street'), n: document.getElementById('addr-num'), c: document.getElementById('addr-cap'), ci: document.getElementById('addr-city'), pr: document.getElementById('addr-prov'),
-        
         privacy: document.getElementById('privacy-check'),
-        price_display: document.getElementById('estimated-total'),
+        addrBox: document.getElementById('address-container'),
+        addr: {
+            st: document.getElementById('addr-street'), num: document.getElementById('addr-num'),
+            cap: document.getElementById('addr-cap'), city: document.getElementById('addr-city'), pr: document.getElementById('addr-prov')
+        },
         
-        // Views
-        view_set: document.getElementById('settings-view'),
-        view_act: document.getElementById('action-view'),
+        // Inputs Lenti (Readonly + Edit)
+        manuf: document.getElementById('lens-manufacturer'),
+        model: document.getElementById('lens-model'),
+        od: {
+            qty: document.getElementById('qty-od'), type: document.getElementById('lens-type-od'),
+            pwr: document.getElementById('param-pwr-od'), cyl: document.getElementById('param-cyl-od'),
+            axis: document.getElementById('param-axis-od'), add: document.getElementById('param-add-od'),
+            boxP: document.getElementById('box-pwr-od'), boxC: document.getElementById('box-cyl-od'),
+            boxA: document.getElementById('box-axis-od'), boxAdd: document.getElementById('box-add-od')
+        },
+        os: {
+            qty: document.getElementById('qty-os'), type: document.getElementById('lens-type-os'),
+            pwr: document.getElementById('param-pwr-os'), cyl: document.getElementById('param-cyl-os'),
+            axis: document.getElementById('param-axis-os'), add: document.getElementById('param-add-os'),
+            boxP: document.getElementById('box-pwr-os'), boxC: document.getElementById('box-cyl-os'),
+            boxA: document.getElementById('box-axis-os'), boxAdd: document.getElementById('box-add-os')
+        },
         
-        // Tabs
-        tab_pat: document.getElementById('tab-btn-patient'), tab_len: document.getElementById('tab-btn-lenses'), tab_pay: document.getElementById('tab-btn-payment'),
-        cont_pat: document.getElementById('tab-content-patient'), cont_len: document.getElementById('tab-content-lenses'), cont_pay: document.getElementById('tab-content-payment')
+        // Action View
+        summary: {
+            pat: document.getElementById('summary-patient'), lens: document.getElementById('summary-lens'),
+            od: document.getElementById('summary-od'), os: document.getElementById('summary-os'),
+            qod: document.getElementById('summary-qty-od'), qos: document.getElementById('summary-qty-os')
+        },
+        delToggle: document.getElementById('delivery-toggle'),
+        delLabel: document.getElementById('delivery-label'),
+        price: document.getElementById('price-display'),
+        loader: document.getElementById('loader'),
+        btnSend: document.getElementById('send-btn'),
+        btnEdit: document.getElementById('edit-btn'),
+        btnClose: document.getElementById('close-btn'),
+        msgSuccess: document.getElementById('success-msg'),
+        actionBtns: document.getElementById('action-buttons'),
+        warnLens: document.getElementById('warning-no-lens')
     };
+
+    // --- INIT ---
+    (async () => {
+        try {
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            await signInAnonymously(auth);
+        } catch (e) { console.error(e); }
+
+        loadFromLocalStorage();
+        parseUrlParams(); // Se c'è QR, sovrascrive
+        updateUI();
+    })();
 
     // --- LOGICA TABS ---
-    function switchTab(t) {
-        [els.tab_pat, els.tab_len, els.tab_pay].forEach(x => { x.classList.remove('tab-active'); x.classList.add('tab-inactive'); });
-        [els.cont_pat, els.cont_len, els.cont_pay].forEach(x => x.classList.add('hidden'));
-        
-        if(t === 'pat') { els.tab_pat.classList.add('tab-active'); els.cont_pat.classList.remove('hidden'); }
-        if(t === 'len') { els.tab_len.classList.add('tab-active'); els.cont_len.classList.remove('hidden'); }
-        if(t === 'pay') { els.tab_pay.classList.add('tab-active'); els.cont_pay.classList.remove('hidden'); }
+    function switchTab(tab) {
+        els.tabs.pat.className = tab === 'pat' ? 'flex-1 py-2 px-1 text-center text-sm tab-active' : 'flex-1 py-2 px-1 text-center text-sm tab-inactive';
+        els.tabs.lens.className = tab === 'lens' ? 'flex-1 py-2 px-1 text-center text-sm tab-active' : 'flex-1 py-2 px-1 text-center text-sm tab-inactive';
+        els.contents.pat.classList.toggle('hidden', tab !== 'pat');
+        els.contents.lens.classList.toggle('hidden', tab !== 'lens');
     }
-    els.tab_pat.onclick = () => switchTab('pat');
-    els.tab_len.onclick = () => switchTab('len');
-    els.tab_pay.onclick = () => switchTab('pay');
+    els.tabs.pat.onclick = () => switchTab('pat');
+    els.tabs.lens.onclick = () => switchTab('lens');
 
-    // --- FUNZIONE: Recupero Prezzi Ottico ---
-    async function loadPricing(opticianId) {
-        if (!opticianId) return;
-        document.getElementById('pricing-loading-message').classList.remove('hidden');
-        try {
-            const docSnap = await getDoc(doc(db, "optician_config", opticianId, "lenses", "main"));
-            if (docSnap.exists()) {
-                pricingConfig = docSnap.data().pricing_config || {};
-                document.getElementById('pricing-loading-message').classList.add('hidden');
-                calculateTotal();
-            }
-        } catch (e) {
-            console.error("Err Prezzi:", e);
-            document.getElementById('pricing-error-message').classList.remove('hidden');
-        }
-    }
-
-    // --- FUNZIONE: Calcolo Prezzo ---
-    function calculateTotal() {
-        const manuf = els.manuf.value;
-        const model = els.model.value;
-        
-        // Chiave univoca come salvata in dashboard.html
-        const keyOD = `${manuf}::${model}::${els.t_od.value}`;
-        const keyOS = `${manuf}::${model}::${els.t_os.value}`;
-        
-        let priceOD = 0, priceOS = 0;
-        
-        if (pricingConfig[keyOD] && pricingConfig[keyOD].enabled) priceOD = parseFloat(pricingConfig[keyOD].price || 0);
-        if (pricingConfig[keyOS] && pricingConfig[keyOS].enabled) priceOS = parseFloat(pricingConfig[keyOS].price || 0);
-        
-        const qOD = parseInt(els.q_od.value) || 1;
-        const qOS = parseInt(els.q_os.value) || 1;
-        
-        const total = (priceOD * qOD) + (priceOS * qOS);
-        els.price_display.innerText = `€ ${total.toFixed(2)}`;
-    }
-
-    // --- VISIBILITÀ PARAMETRI (Sfera, Cil, ecc) ---
-    function updateParamFields(eye) {
-        const typeInput = (eye === 'od') ? els.t_od : els.t_os;
-        const type = typeInput.value.toLowerCase();
-        
-        const fPwr = document.getElementById(`params-pwr-${eye}`);
-        const fCyl = document.getElementById(`params-cyl-${eye}`);
-        const fAx = document.getElementById(`params-axis-${eye}`);
-        const fAdd = document.getElementById(`params-add-${eye}`);
-        
-        // Reset
-        fPwr.classList.add('hidden'); fCyl.classList.add('hidden'); fAx.classList.add('hidden'); fAdd.classList.add('hidden');
-        
-        if (!type) return;
-        
-        // Logica Semplificata basata sul testo
-        if (type.includes('standard')) { fPwr.classList.remove('hidden'); }
-        else if (type.includes('astigmatismo') || type.includes('toric')) { fPwr.classList.remove('hidden'); fCyl.classList.remove('hidden'); fAx.classList.remove('hidden'); }
-        else if (type.includes('multifocal') || type.includes('presbiopia')) { fPwr.classList.remove('hidden'); fAdd.classList.remove('hidden'); }
-        else { fPwr.classList.remove('hidden'); } // Default mostra almeno la sfera
-    }
-
-    // --- CARICAMENTO DATI (QR o Cache) ---
-    async function init() {
-        const p = new URLSearchParams(window.location.search);
-        
-        // Se arriviamo da QR, sovrascriviamo la cache
-        if(p.has('oid')) {
-            localStorage.setItem(K.OID, p.get('oid') || '');
-            localStorage.setItem(K.N, p.get('n') || '');
-            // Lenti (solo lettura ora)
-            localStorage.setItem(K.M, p.get('m') || '');
-            localStorage.setItem(K.MD, p.get('md') || '');
-            localStorage.setItem(K.TOD, p.get('tod') || '');
-            localStorage.setItem(K.POD, p.get('pod') || '');
-            localStorage.setItem(K.COD, p.get('cod') || '');
-            localStorage.setItem(K.AOD, p.get('aod') || '');
-            localStorage.setItem(K.ADDOD, p.get('addod') || '');
-            localStorage.setItem(K.TOS, p.get('tos') || '');
-            localStorage.setItem(K.POS, p.get('pos') || '');
-            localStorage.setItem(K.COS, p.get('cos') || '');
-            localStorage.setItem(K.AOS, p.get('aos') || '');
-            localStorage.setItem(K.ADDOS, p.get('addos') || '');
+    // --- VISIBILITÀ PARAMETRI ---
+    function checkParamsVisibility() {
+        ['od', 'os'].forEach(eye => {
+            const type = els[eye].type.value.toLowerCase();
+            const b = els[eye];
+            // Reset
+            b.boxP.classList.add('hidden'); b.boxC.classList.add('hidden'); b.boxA.classList.add('hidden'); b.boxAdd.classList.add('hidden');
             
-            history.replaceState(null, '', window.location.pathname); // Pulisce URL
-        }
-
-        // Popola i campi dai dati in LocalStorage
-        els.name.value = localStorage.getItem(K.N) || '';
-        els.phone.value = localStorage.getItem(K.PH) || '';
-        els.email.value = localStorage.getItem(K.EM) || '';
-        els.cf.value = localStorage.getItem(K.CF) || '';
-        els.oid.value = localStorage.getItem(K.OID) || '';
-        
-        els.manuf.value = localStorage.getItem(K.M) || '';
-        els.model.value = localStorage.getItem(K.MD) || '';
-        
-        els.t_od.value = localStorage.getItem(K.TOD) || '';
-        els.p_od.value = localStorage.getItem(K.POD) || '';
-        els.c_od.value = localStorage.getItem(K.COD) || '';
-        els.ax_od.value = localStorage.getItem(K.AOD) || '';
-        els.add_od.value = localStorage.getItem(K.ADDOD) || '';
-        
-        els.t_os.value = localStorage.getItem(K.TOS) || '';
-        els.p_os.value = localStorage.getItem(K.POS) || '';
-        els.c_os.value = localStorage.getItem(K.COS) || '';
-        els.ax_os.value = localStorage.getItem(K.AOS) || '';
-        els.add_os.value = localStorage.getItem(K.ADDOS) || '';
-        
-        els.s.value = localStorage.getItem(K.STR) || ''; els.n.value = localStorage.getItem(K.NUM) || '';
-        els.c.value = localStorage.getItem(K.CAP) || ''; els.ci.value = localStorage.getItem(K.CIT) || ''; els.pr.value = localStorage.getItem(K.PRV) || '';
-        
-        els.del_toggle.checked = (localStorage.getItem(K.DEL) === 'delivery');
-        els.addr_cont.classList.toggle('hidden', !els.del_toggle.checked);
-        
-        // Aggiorna UI Parametri in base ai tipi caricati
-        updateParamFields('od');
-        updateParamFields('os');
-        
-        // Carica i prezzi se c'è l'ID
-        if (els.oid.value) {
-            await loadPricing(els.oid.value);
-        }
-        
-        // Controlla se manca la lente
-        if (!els.manuf.value) {
-            document.getElementById('no-lens-warning').classList.remove('hidden');
-            switchTab('len');
-        } else {
-            switchTab('pat');
-        }
-        
-        els.view_set.classList.remove('hidden');
-    }
-
-    // --- SALVATAGGIO E PASSAGGIO AD ACTION VIEW ---
-    document.getElementById('save-button').onclick = () => {
-        if (!els.privacy.checked) { alert("Accetta la privacy."); return; }
-        if (!els.manuf.value) { alert("Nessuna lente. Scansiona il QR."); switchTab('len'); return; }
-        
-        // Salva modifiche (es. indirizzo, telefono, o diottrie modificate)
-        localStorage.setItem(K.PH, els.phone.value);
-        localStorage.setItem(K.EM, els.email.value);
-        localStorage.setItem(K.CF, els.cf.value);
-        localStorage.setItem(K.STR, els.s.value); localStorage.setItem(K.NUM, els.n.value);
-        localStorage.setItem(K.CAP, els.c.value); localStorage.setItem(K.CIT, els.ci.value); localStorage.setItem(K.PRV, els.pr.value);
-        localStorage.setItem(K.DEL, els.del_toggle.checked ? 'delivery' : 'pickup');
-        
-        // Salva parametri (che l'utente può aver modificato)
-        localStorage.setItem(K.POD, els.p_od.value); localStorage.setItem(K.COD, els.c_od.value);
-        localStorage.setItem(K.AOD, els.ax_od.value); localStorage.setItem(K.ADDOD, els.add_od.value);
-        localStorage.setItem(K.POS, els.p_os.value); localStorage.setItem(K.COS, els.c_os.value);
-        localStorage.setItem(K.AOS, els.ax_os.value); localStorage.setItem(K.ADDOS, els.add_os.value);
-        
-        localStorage.setItem(K.QOD, els.q_od.value);
-        localStorage.setItem(K.QOS, els.q_os.value);
-
-        // Prepara Action View
-        document.getElementById('summary-patient').innerText = els.name.value;
-        document.getElementById('summary-message-top').innerText = `${els.manuf.value} ${els.model.value}`;
-        
-        els.q_quick_od.value = els.q_od.value;
-        els.q_quick_os.value = els.q_os.value;
-        
-        // Aggiorna etichetta consegna
-        document.getElementById('active-delivery-label').innerText = els.del_toggle.checked ? "Consegna a Domicilio" : "Ritiro in Store";
-        
-        calculateTotal(); // Ricalcola totale
-        
-        els.view_set.classList.add('hidden');
-        els.view_act.classList.remove('hidden');
-    };
-
-    // --- INVIO ORDINE ---
-    document.getElementById('send-order-button').onclick = async () => {
-        const btn = document.getElementById('send-order-button');
-        const ldr = document.getElementById('action-loader');
-        
-        btn.classList.add('hidden'); ldr.classList.remove('hidden');
-        
-        const deliveryMode = els.del_toggle.checked ? 'delivery' : 'pickup';
-        const addressFull = `${els.s.value} ${els.n.value}, ${els.c.value} ${els.ci.value}`;
-
-        try {
-            await addDoc(collection(db, "artifacts/ordinalac-app/public/data/orders"), {
-                optician_id: els.oid.value,
-                patient_name: els.name.value,
-                status: 'new',
-                timestamp: serverTimestamp(),
-                client_info: { phone: els.phone.value, email: els.email.value, cf: els.cf.value },
-                delivery: { mode: deliveryMode, address_full: addressFull, address_details: {city: els.ci.value} },
-                lens_order: {
-                    manufacturer: els.manuf.value,
-                    model: els.model.value,
-                    od: { qty: els.q_quick_od.value, type: els.t_od.value, pwr: els.p_od.value, cyl: els.c_od.value, axis: els.ax_od.value, add: els.add_od.value },
-                    os: { qty: els.q_quick_os.value, type: els.t_os.value, pwr: els.p_os.value, cyl: els.c_os.value, axis: els.ax_os.value, add: els.add_os.value },
-                    estimated_total: els.price_display.innerText
+            if(type) {
+                // Logica semplice basata su stringhe standard
+                b.boxP.classList.remove('hidden'); // Sfera quasi sempre
+                if(type.includes('toric') || type.includes('astigm')) {
+                    b.boxC.classList.remove('hidden'); b.boxA.classList.remove('hidden');
                 }
-            });
+                if(type.includes('multifocal') || type.includes('presbiopia') || type.includes('add')) {
+                    b.boxAdd.classList.remove('hidden');
+                }
+            }
+        });
+    }
+
+    // --- SALVATAGGIO E CARICAMENTO ---
+    function saveToLocalStorage() {
+        localStorage.setItem('app_n', els.name.value);
+        localStorage.setItem('app_ph', els.phone.value);
+        localStorage.setItem('app_em', els.email.value);
+        localStorage.setItem('app_cf', els.cf.value);
+        localStorage.setItem('app_oid', els.oid.value);
+        localStorage.setItem('app_priv', els.privacy.checked);
+        
+        // Indirizzo
+        localStorage.setItem('app_st', els.addr.st.value); localStorage.setItem('app_num', els.addr.num.value);
+        localStorage.setItem('app_cap', els.addr.cap.value); localStorage.setItem('app_city', els.addr.city.value); localStorage.setItem('app_pr', els.addr.pr.value);
+        
+        // Lenti (Parametri editabili e Qty)
+        ['od', 'os'].forEach(e => {
+            localStorage.setItem(`app_q_${e}`, els[e].qty.value);
+            localStorage.setItem(`app_p_${e}`, els[e].pwr.value);
+            localStorage.setItem(`app_c_${e}`, els[e].cyl.value);
+            localStorage.setItem(`app_a_${e}`, els[e].axis.value);
+            localStorage.setItem(`app_add_${e}`, els[e].add.value);
+        });
+        
+        // Toggle Consegna
+        localStorage.setItem('app_del', els.delToggle.checked ? '1' : '0');
+    }
+
+    function loadFromLocalStorage() {
+        els.name.value = localStorage.getItem('app_n') || '';
+        els.phone.value = localStorage.getItem('app_ph') || '';
+        els.email.value = localStorage.getItem('app_em') || '';
+        els.cf.value = localStorage.getItem('app_cf') || '';
+        els.oid.value = localStorage.getItem('app_oid') || '';
+        els.privacy.checked = (localStorage.getItem('app_priv') === 'true');
+        
+        els.addr.st.value = localStorage.getItem('app_st') || ''; els.addr.num.value = localStorage.getItem('app_num') || '';
+        els.addr.cap.value = localStorage.getItem('app_cap') || ''; els.addr.city.value = localStorage.getItem('app_city') || ''; els.addr.pr.value = localStorage.getItem('app_pr') || '';
+
+        // Lenti Fisse (dal QR precedente o cache)
+        els.manuf.value = localStorage.getItem('app_m') || '';
+        els.model.value = localStorage.getItem('app_md') || '';
+        els.od.type.value = localStorage.getItem('app_t_od') || '';
+        els.os.type.value = localStorage.getItem('app_t_os') || '';
+        
+        // Parametri
+        ['od', 'os'].forEach(e => {
+            els[e].qty.value = localStorage.getItem(`app_q_${e}`) || '1';
+            els[e].pwr.value = localStorage.getItem(`app_p_${e}`) || '';
+            els[e].cyl.value = localStorage.getItem(`app_c_${e}`) || '';
+            els[e].axis.value = localStorage.getItem(`app_a_${e}`) || '';
+            els[e].add.value = localStorage.getItem(`app_add_${e}`) || '';
+        });
+        
+        els.delToggle.checked = (localStorage.getItem('app_del') === '1');
+    }
+
+    function parseUrlParams() {
+        const p = new URLSearchParams(window.location.search);
+        if(p.has('oid')) {
+            // Dati Fissi da QR (Sovrascrivono)
+            els.oid.value = p.get('oid');
+            els.name.value = p.get('n') || '';
+            els.manuf.value = p.get('m') || '';
+            els.model.value = p.get('md') || '';
+            els.od.type.value = p.get('tod') || '';
+            els.os.type.value = p.get('tos') || '';
             
-            document.getElementById('action-message').innerText = "Ordine inviato! Grazie.";
-            document.getElementById('action-message').classList.remove('hidden');
-            ldr.classList.add('hidden');
-            document.getElementById('offer-container').classList.remove('hidden');
-            setTimeout(() => window.close(), 3000);
+            // Parametri preimpostati (editabili)
+            els.od.pwr.value = p.get('pod') || ''; els.od.cyl.value = p.get('cod') || ''; els.od.axis.value = p.get('aod') || ''; els.od.add.value = p.get('addod') || '';
+            els.os.pwr.value = p.get('pos') || ''; els.os.cyl.value = p.get('cos') || ''; els.os.axis.value = p.get('aos') || ''; els.os.add.value = p.get('addos') || '';
             
-        } catch(e) {
-            alert("Errore: " + e.message);
-            btn.classList.remove('hidden'); ldr.classList.add('hidden');
+            // Salva i fissi in cache
+            localStorage.setItem('app_m', els.manuf.value);
+            localStorage.setItem('app_md', els.model.value);
+            localStorage.setItem('app_t_od', els.od.type.value);
+            localStorage.setItem('app_t_os', els.os.type.value);
+            
+            // Pulisci URL
+            history.replaceState(null, '', window.location.pathname);
+            
+            // Forza switch su tab lenti per conferma visiva
+            switchTab('lens');
         }
+    }
+
+    function updateUI() {
+        checkParamsVisibility();
+        
+        // Warning se manca lente
+        if(!els.manuf.value) {
+            els.warnLens.classList.remove('hidden');
+            switchTab('lens');
+        } else {
+            els.warnLens.classList.add('hidden');
+            // Se tutto ok, mostra settings
+            els.views.set.classList.remove('hidden');
+        }
+        
+        // Indirizzo toggle
+        els.delLabel.innerText = els.delToggle.checked ? 'Consegna a Domicilio' : 'Ritiro in Negozio';
+        els.addrBox.classList.toggle('hidden', !els.delToggle.checked);
+
+        // Carica prezzi se possibile
+        if(els.oid.value && Object.keys(pricingConfig).length === 0) fetchPricing();
+    }
+
+    async function fetchPricing() {
+        try {
+            const snap = await getDoc(doc(db, "optician_config", els.oid.value, "lenses", "main"));
+            if(snap.exists()) pricingConfig = snap.data().pricing_config || {};
+        } catch(e) { console.log("No price config"); }
+    }
+
+    function calculateTotal() {
+        let tot = 0;
+        const getP = (m, md, t) => {
+            const key = `${m}::${md}::${t}`;
+            return (pricingConfig[key] && pricingConfig[key].enabled) ? parseFloat(pricingConfig[key].price) : 0;
+        };
+        
+        const pOD = getP(els.manuf.value, els.model.value, els.od.type.value);
+        const pOS = getP(els.manuf.value, els.model.value, els.os.type.value);
+        
+        tot += pOD * (parseInt(els.od.qty.value)||0);
+        tot += pOS * (parseInt(els.os.qty.value)||0);
+        
+        els.price.innerText = tot > 0 ? `€ ${tot.toFixed(2)}` : "€ --";
+    }
+
+    // --- NAVIGAZIONE ---
+    document.getElementById('save-button').onclick = () => {
+        if(!els.privacy.checked) { alert("Accetta la privacy."); return; }
+        if(!els.manuf.value) { alert("Nessuna lente configurata."); return; }
+        if(els.delToggle.checked && !els.addr.city.value) { alert("Inserisci l'indirizzo."); switchTab('pat'); return; }
+        
+        saveToLocalStorage();
+        
+        // Popola Summary
+        els.summary.pat.innerText = els.name.value;
+        els.summary.lens.innerText = `${els.manuf.value} ${els.model.value}`;
+        
+        const buildDesc = (e) => {
+            let s = els[e].type.value;
+            if(els[e].pwr.value) s += ` | Sf: ${els[e].pwr.value}`;
+            if(els[e].cyl.value) s += ` Cyl: ${els[e].cyl.value}`;
+            if(els[e].axis.value) s += ` Ax: ${els[e].axis.value}`;
+            if(els[e].add.value) s += ` Add: ${els[e].add.value}`;
+            return s;
+        };
+        els.summary.od.innerText = buildDesc('od');
+        els.summary.os.innerText = buildDesc('os');
+        els.summary.qod.innerText = els.od.qty.value;
+        els.summary.qos.innerText = els.os.qty.value;
+        
+        calculateTotal();
+        
+        els.views.set.classList.add('hidden');
+        els.views.act.classList.remove('hidden');
     };
 
-    // Quick Qty Change
-    els.q_quick_od.addEventListener('change', (e) => { els.q_od.value = e.target.value; calculateTotal(); });
-    els.q_quick_os.addEventListener('change', (e) => { els.q_os.value = e.target.value; calculateTotal(); });
-
-    // Toggle Delivery
-    els.del_toggle.addEventListener('change', (e) => {
-        els.addr_cont.classList.toggle('hidden', !e.target.checked);
-        document.getElementById('active-delivery-label').innerText = e.target.checked ? "Consegna a Domicilio" : "Ritiro in Store";
-    });
+    els.btnEdit.onclick = () => { els.views.act.classList.add('hidden'); els.views.set.classList.remove('hidden'); };
     
-    document.getElementById('edit-settings-button').onclick = () => { els.view_act.classList.add('hidden'); els.view_set.classList.remove('hidden'); };
-    document.getElementById('close-app-button').onclick = () => window.close();
-    document.getElementById('close-install-prompt').onclick = () => document.getElementById('install-prompt').classList.add('hidden');
+    els.delToggle.addEventListener('change', () => {
+        els.delLabel.innerText = els.delToggle.checked ? 'Consegna a Domicilio' : 'Ritiro in Negozio';
+        els.addrBox.classList.toggle('hidden', !els.delToggle.checked);
+    });
 
-    // Start
-    init();
+    // --- INVIO ---
+    els.btnSend.onclick = async () => {
+        els.btnSend.classList.add('hidden'); els.loader.classList.remove('hidden');
+        
+        const orderData = {
+            patient_name: els.name.value,
+            optician_id: els.oid.value,
+            status: 'new',
+            timestamp: serverTimestamp(),
+            client_info: { phone: els.phone.value, email: els.email.value, cf: els.cf.value },
+            delivery: {
+                mode: els.delToggle.checked ? 'delivery' : 'pickup',
+                address_full: `${els.addr.st.value} ${els.addr.num.value}, ${els.addr.city.value}`,
+                address_details: { city: els.addr.city.value, street: els.addr.st.value }
+            },
+            lens_order: {
+                manufacturer: els.manuf.value, model: els.model.value,
+                od: { qty: els.od.qty.value, type: els.od.type.value, pwr: els.od.pwr.value, cyl: els.od.cyl.value, axis: els.od.axis.value, add: els.od.add.value },
+                os: { qty: els.os.qty.value, type: els.os.type.value, pwr: els.os.pwr.value, cyl: els.os.cyl.value, axis: els.os.axis.value, add: els.os.add.value },
+                estimated_total: els.price.innerText
+            }
+        };
+        
+        try {
+            await addDoc(collection(db, "artifacts/ordinalac-app/public/data/orders"), orderData);
+            els.loader.classList.add('hidden');
+            els.msgSuccess.classList.remove('hidden');
+            els.actionBtns.classList.add('hidden');
+            els.btnClose.classList.remove('hidden');
+        } catch(e) {
+            alert("Errore invio: " + e.message);
+            els.btnSend.classList.remove('hidden'); els.loader.classList.add('hidden');
+        }
+    };
+    
+    els.btnClose.onclick = () => window.close();
+    document.getElementById('close-install-prompt').onclick = () => document.getElementById('install-prompt').classList.add('hidden');
+    
+    // Check standalone
+    if (!window.matchMedia('(display-mode: standalone)').matches) {
+         document.getElementById('install-prompt').classList.remove('hidden');
+    }
 
 </script>
 </body>
