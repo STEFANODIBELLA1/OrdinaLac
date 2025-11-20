@@ -102,7 +102,6 @@
       <div id="view-orders" class="max-w-7xl mx-auto h-full flex flex-col">
         
         <div class="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            
             <button id="add-client-button" class="w-full md:w-auto bg-green-600 text-white py-2 px-4 rounded-md shadow-sm text-sm font-bold hover:bg-green-700 flex items-center justify-center gap-2 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Nuovo Cliente / QR
@@ -174,46 +173,72 @@
   </div>
 
   <div id="client-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 hidden z-50">
-    <div class="bg-white w-full max-w-2xl rounded-lg shadow-xl modal-content relative flex flex-col max-h-[90vh]">
+    <div class="bg-white w-full max-w-3xl rounded-lg shadow-xl modal-content relative flex flex-col max-h-[95vh]">
       
       <div class="p-6 border-b">
           <h2 class="text-xl font-bold text-gray-800">Configurazione Cliente</h2>
-          <p class="text-sm text-gray-600">Pre-compila i dati e la lente per generare il QR Code.</p>
+          <p class="text-sm text-gray-600">Compila i dati per generare il QR Code. Il cliente completerà i mancanti nell'App.</p>
       </div>
 
       <div class="p-6 overflow-y-auto" id="client-form-container">
         
-        <h4 class="font-bold text-gray-800 mb-3 border-b pb-1">Dati Paziente</h4>
+        <h4 class="font-bold text-gray-800 mb-3 border-b pb-1 text-sm uppercase tracking-wide">1. Dati Anagrafici & Contatto</h4>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1">Nome e Cognome</label>
-                <input type="text" id="client-name" placeholder="Es: Mario Rossi" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <input type="text" id="client-name" placeholder="Es: Mario Rossi" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm">
             </div>
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Email (Opzionale)</label>
-                <input type="email" id="client-email" placeholder="email@cliente.it" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <label class="block text-sm font-bold text-gray-700 mb-1">Codice Fiscale (per detrazione)</label>
+                <input type="text" id="client-fiscal-code" placeholder="RSSMRA..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm uppercase">
             </div>
         </div>
-        <div class="mb-6">
-            <label class="block text-sm font-bold text-gray-700 mb-1">Telefono</label>
-            <input type="tel" id="client-phone" placeholder="333 1234567" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+             <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" id="client-email" placeholder="email@cliente.it" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Telefono</label>
+                <input type="tel" id="client-phone" placeholder="333 1234567" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm">
+            </div>
         </div>
 
-        <h4 class="font-bold text-gray-800 mb-3 border-b pb-1">La tua Lente (Configurazione)</h4>
+        <h4 class="font-bold text-gray-800 mb-3 border-b pb-1 text-sm uppercase tracking-wide">2. Indirizzo Spedizione</h4>
+        <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Indirizzo (Via/Piazza, Civico)</label>
+            <input type="text" id="client-address" placeholder="Via Roma 1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm">
+        </div>
+        <div class="grid grid-cols-6 gap-3 mb-6">
+             <div class="col-span-3">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Città</label>
+                <input type="text" id="client-city" placeholder="Città" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm">
+            </div>
+             <div class="col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">CAP</label>
+                <input type="text" id="client-zip" placeholder="00000" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm">
+            </div>
+             <div class="col-span-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Prov</label>
+                <input type="text" id="client-province" placeholder="RM" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm uppercase" maxlength="2">
+            </div>
+        </div>
+
+        <h4 class="font-bold text-gray-800 mb-3 border-b pb-1 text-sm uppercase tracking-wide">3. Configurazione Lente</h4>
         <div class="bg-gray-50 p-4 rounded border border-gray-200 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700">Produttore</label>
-                <select id="client-lens-manufacturer" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"><option value="">-- Seleziona --</option></select>
+                <select id="client-lens-manufacturer" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm"><option value="">-- Seleziona --</option></select>
             </div>
             <div>
                 <label class="block text-sm font-medium text-gray-700">Modello</label>
-                <select id="client-lens-model" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" disabled><option value="">-- --</option></select>
+                <select id="client-lens-model" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" disabled><option value="">-- --</option></select>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="border rounded p-3">
-                <h4 class="font-bold text-center text-gray-700 mb-2 border-b pb-1">Occhio Destro (OD)</h4>
+                <h4 class="font-bold text-center text-gray-700 mb-2 border-b pb-1 text-xs">Occhio Destro (OD)</h4>
                 <label class="block text-xs font-medium text-gray-500">Tipo</label>
                 <select id="client-lens-type-od" class="block w-full text-sm border-gray-300 rounded mb-2" disabled><option value="">--</option></select>
                 
@@ -225,7 +250,7 @@
                 </div>
             </div>
             <div class="border rounded p-3">
-                <h4 class="font-bold text-center text-gray-700 mb-2 border-b pb-1">Occhio Sinistro (OS)</h4>
+                <h4 class="font-bold text-center text-gray-700 mb-2 border-b pb-1 text-xs">Occhio Sinistro (OS)</h4>
                 <label class="block text-xs font-medium text-gray-500">Tipo</label>
                 <select id="client-lens-type-os" class="block w-full text-sm border-gray-300 rounded mb-2" disabled><option value="">--</option></select>
                 
@@ -690,7 +715,7 @@
     };
 
 
-    // --- CLIENT QR MODAL LOGIC (AGGIORNATA) ---
+    // --- CLIENT QR MODAL LOGIC (AGGIORNATA CON NUOVI CAMPI) ---
     const clientModal = document.getElementById('client-modal');
     const clientFormActions = document.getElementById('client-form-actions');
     const clientQrContainer = document.getElementById('client-qr-container');
@@ -742,10 +767,16 @@
 
     function showClientModal() {
         clientPopulateManufacturers();
-        // Reset campi
+        // Reset campi (Inclusi i nuovi)
         document.getElementById('client-name').value = '';
         document.getElementById('client-email').value = '';
         document.getElementById('client-phone').value = '';
+        document.getElementById('client-fiscal-code').value = '';
+        document.getElementById('client-address').value = '';
+        document.getElementById('client-city').value = '';
+        document.getElementById('client-zip').value = '';
+        document.getElementById('client-province').value = '';
+
         cManuf.value = ''; cModel.value = ''; 
         cModel.disabled = true; cTypeOD.disabled = true; cTypeOS.disabled = true;
 
@@ -756,11 +787,18 @@
     }
 
     document.getElementById('generate-qr-button').onclick = () => {
-        // Costruzione dati completi (Lente + Anagrafica)
+        // Costruzione dati completi (usando chiavi corte per URL)
         const data = {
             n: document.getElementById('client-name').value,
-            e: document.getElementById('client-email').value, // Nuova Email
-            ph: document.getElementById('client-phone').value, // Nuovo Telefono
+            e: document.getElementById('client-email').value,
+            ph: document.getElementById('client-phone').value,
+            cf: document.getElementById('client-fiscal-code').value, // Nuovo CF
+            // Spedizione (Short keys)
+            sa: document.getElementById('client-address').value,
+            sc: document.getElementById('client-city').value,
+            sz: document.getElementById('client-zip').value,
+            sp: document.getElementById('client-province').value,
+            
             oid: currentOpticianUid,
             m: cManuf.value, 
             md: cModel.value,
@@ -779,7 +817,7 @@
         };
         
         // Generazione URL
-        const baseUrl = window.location.origin + '/'; // Assicurati che punti a index.html
+        const baseUrl = window.location.origin + '/'; 
         const params = new URLSearchParams();
         Object.entries(data).forEach(([k,v]) => { if(v) params.set(k,v); });
         const fullUrl = baseUrl + '?' + params.toString();
@@ -795,18 +833,28 @@
     document.getElementById('print-qr-button').onclick = () => {
         const img = document.querySelector('#qr-code-display img');
         const name = document.getElementById('client-name').value;
+        const cf = document.getElementById('client-fiscal-code').value;
+        const addr = document.getElementById('client-address').value;
+        const city = document.getElementById('client-city').value;
         const lens = `${cManuf.value} ${cModel.value}`;
+        
         if(!img) return;
         const w = window.open('');
         w.document.write(`
             <html>
             <body style="text-align:center; font-family:sans-serif; padding:50px;">
                 <h1>Scansiona per installare l'App</h1>
-                <p>La tua configurazione è pronta.</p>
+                <p>Configurazione cliente pronta.</p>
                 <img src="${img.src}" style="width:300px; margin: 20px 0;">
                 <br>
-                <h2>${name}</h2>
-                <p>Lente Configurata: <strong>${lens}</strong></p>
+                <div style="text-align:left; max-width:400px; margin:0 auto; border:1px solid #ddd; padding:20px; border-radius:8px;">
+                    <h3>Riepilogo Dati</h3>
+                    <p><strong>Cliente:</strong> ${name}</p>
+                    <p><strong>CF:</strong> ${cf}</p>
+                    <p><strong>Spedizione:</strong> ${addr} ${city ? ',' + city : ''}</p>
+                    <hr>
+                    <p><strong>Lente:</strong> ${lens}</p>
+                </div>
                 <script>window.print();<\/script>
             </body>
             </html>
