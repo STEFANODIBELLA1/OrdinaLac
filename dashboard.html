@@ -109,7 +109,7 @@
 
             <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
                 <div class="relative flex-grow">
-                     <input type="text" id="search-patient" placeholder="Cerca paziente..." class="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500">
+                     <input type="text" id="search-patient" placeholder="Cerca cliente..." class="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500">
                      <svg class="w-4 h-4 text-gray-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
                 <div class="flex items-center bg-gray-100 rounded-md px-2 border border-gray-200">
@@ -126,7 +126,7 @@
                 <span class="font-bold">Il tuo Codice Ottico:</span>
                 <code id="optician-id-code" class="font-mono bg-white px-2 py-1 rounded border border-blue-200 ml-2 select-all cursor-pointer" title="Clicca per copiare">...</code>
             </div>
-            <span class="text-xs hidden sm:inline">Comunica questo codice ai pazienti per l'app.</span>
+            <span class="text-xs hidden sm:inline">Comunica questo codice ai clienti per l'app.</span>
         </div>
 
         <div id="orders-list-container" class="flex-1 overflow-y-auto pr-2 pb-10 space-y-4">
@@ -265,8 +265,8 @@
       </div>
 
       <div id="client-qr-container" class="hidden p-6 flex-col items-center justify-center text-center h-full">
-         <h3 class="text-2xl font-bold text-gray-800 mb-2">QR Code Paziente</h3>
-         <p class="text-gray-500 mb-4">Il paziente troverà l'app pre-compilata scansionando questo codice.</p>
+         <h3 class="text-2xl font-bold text-gray-800 mb-2">QR Code Cliente</h3>
+         <p class="text-gray-500 mb-4">Il cliente troverà l'app pre-compilata scansionando questo codice.</p>
          <div id="qr-code-display" class="bg-white p-4 border rounded-lg shadow-sm mb-6"></div>
          <div class="flex gap-4 w-full max-w-xs">
              <button id="print-qr-button" class="flex-1 bg-blue-100 text-blue-700 py-2 rounded font-bold hover:bg-blue-200">Stampa</button>
@@ -591,10 +591,51 @@
     }
     searchPatientInput.addEventListener('input', () => renderOrders(allOrdersCache));
 
+    // --- UPDATE STATUS WITH NOTIFICATION (NEW) ---
     async function updateOrderStatus(orderId, newStatus) {
       try {
         await updateDoc(doc(db, `artifacts/${appId}/public/data/orders`, orderId), { status: newStatus });
-      } catch (e) { alert("Errore aggiornamento: " + e.message); }
+      } catch (e) { 
+        alert("Errore aggiornamento: " + e.message); 
+        return;
+      }
+
+      // Logica Notifica Cliente
+      const order = allOrdersCache.find(o => o.id === orderId);
+      if (!order) return;
+
+      const clientPhone = order.client_info?.phone;
+      const clientEmail = order.client_info?.email;
+      const clientName = order.patient_name || "Cliente";
+      
+      let msgBody = "";
+      let subject = "";
+
+      if (newStatus === 'ready') {
+          subject = `Il tuo ordine è pronto! 👓`;
+          msgBody = `Ciao ${clientName}, le tue lenti sono pronte per il ritiro (o in spedizione). Ti aspettiamo!`;
+      } else if (newStatus === 'processing') {
+          subject = `Ordine in lavorazione`;
+          msgBody = `Ciao ${clientName}, abbiamo preso in carico il tuo ordine e stiamo preparando le tue lenti.`;
+      } else {
+          return; 
+      }
+
+      if (confirm(`Stato aggiornato a "${newStatus}". Vuoi inviare una notifica al cliente?`)) {
+          if (clientPhone) {
+              let cleanPhone = clientPhone.replace(/[^0-9]/g, '');
+              if (!cleanPhone.startsWith('39')) cleanPhone = '39' + cleanPhone; 
+              const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msgBody)}`;
+              window.open(waUrl, '_blank');
+          } 
+          else if (clientEmail) {
+              const mailUrl = `mailto:${clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msgBody)}`;
+              window.open(mailUrl, '_blank');
+          } 
+          else {
+              alert("Nessun contatto (telefono o email) trovato per questo cliente.");
+          }
+      }
     }
     
     function printOrder(order) {
@@ -715,7 +756,7 @@
     };
 
 
-    // --- CLIENT QR MODAL LOGIC (AGGIORNATA CON NUOVI CAMPI) ---
+    // --- CLIENT QR MODAL LOGIC ---
     const clientModal = document.getElementById('client-modal');
     const clientFormActions = document.getElementById('client-form-actions');
     const clientQrContainer = document.getElementById('client-qr-container');
@@ -767,7 +808,7 @@
 
     function showClientModal() {
         clientPopulateManufacturers();
-        // Reset campi (Inclusi i nuovi)
+        // Reset campi
         document.getElementById('client-name').value = '';
         document.getElementById('client-email').value = '';
         document.getElementById('client-phone').value = '';
@@ -787,13 +828,13 @@
     }
 
     document.getElementById('generate-qr-button').onclick = () => {
-        // Costruzione dati completi (usando chiavi corte per URL)
+        // Costruzione dati
         const data = {
             n: document.getElementById('client-name').value,
             e: document.getElementById('client-email').value,
             ph: document.getElementById('client-phone').value,
-            cf: document.getElementById('client-fiscal-code').value, // Nuovo CF
-            // Spedizione (Short keys)
+            cf: document.getElementById('client-fiscal-code').value, 
+            // Spedizione
             sa: document.getElementById('client-address').value,
             sc: document.getElementById('client-city').value,
             sz: document.getElementById('client-zip').value,

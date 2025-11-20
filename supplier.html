@@ -77,6 +77,7 @@
              <div class="hidden md:flex ml-10 space-x-8 h-full items-end">
                  <div id="nav-monitor" class="nav-item active text-sm" onclick="switchTab('monitor')">Monitoraggio Ordini</div>
                  <div id="nav-catalog" class="nav-item text-sm" onclick="switchTab('catalog')">Catalogo Master</div>
+                 <div id="nav-clients" class="nav-item text-sm" onclick="switchTab('clients')">Archivio Clienti</div>
              </div>
         </div>
 
@@ -163,7 +164,7 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Data</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider text-indigo-600">Ottico</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Paziente</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Cliente</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Stato</th> <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Azioni</th>
                             </tr>
                         </thead>
@@ -219,6 +220,32 @@
                 </div>
             </div>
           </div>
+      </div>
+
+      <div id="view-clients" class="hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col min-h-[600px]">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Archivio Globale Clienti</h2>
+                    <p class="text-sm text-gray-500">Database unificato generato dallo storico ordini.</p>
+                </div>
+            </div>
+            <div class="p-6 overflow-auto">
+                <input type="text" id="search-client-global" placeholder="Cerca per nome, CF o email..." class="w-full mb-4 p-2 border border-gray-300 rounded shadow-sm">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">Cliente</th>
+                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">Contatti</th>
+                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">Codice Fiscale</th>
+                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">Ottico di Riferimento</th>
+                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">Ultimo Ordine</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clients-table-body" class="bg-white divide-y divide-gray-200 text-sm"></tbody>
+                </table>
+            </div>
+        </div>
       </div>
 
       <div id="view-catalog" class="hidden">
@@ -328,7 +355,7 @@
                 <div class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                            <h4 class="text-xs font-bold text-blue-800 uppercase mb-2 tracking-wide">Dati Paziente</h4>
+                            <h4 class="text-xs font-bold text-blue-800 uppercase mb-2 tracking-wide">Dati Cliente</h4>
                             <div class="text-sm space-y-1">
                                 <div><span class="text-gray-500 text-xs">Nome:</span> <div id="modal-pat-name" class="font-bold text-gray-800"></div></div>
                                 <div><span class="text-gray-500 text-xs">Contatti:</span> <div id="modal-pat-contact" class="text-gray-800"></div></div>
@@ -389,7 +416,6 @@
     let app, auth, db;
     const appId = "ordinalac-app";
     
-    // Dati di default se catalogo vuoto
     const defaultLensData = {
       "Alcon": { "Dailies Total 1": ["Standard", "Multifocal"], "Precision 1": ["Standard", "Astigmatismo"] },
       "Johnson & Johnson": { "Acuvue Oasys": ["Standard", "Astigmatismo"] }
@@ -412,8 +438,10 @@
     // Nav Items
     const viewMonitor = document.getElementById('view-monitor');
     const viewCatalog = document.getElementById('view-catalog');
+    const viewClients = document.getElementById('view-clients');
     const navMonitor = document.getElementById('nav-monitor');
     const navCatalog = document.getElementById('nav-catalog');
+    const navClients = document.getElementById('nav-clients');
 
     // Monitor Data Elements
     const searchInput = document.getElementById('search-input');
@@ -465,19 +493,27 @@
         else loadingOverlay.classList.add('hidden');
     };
     
-    // Tabs Logic
+    // Tabs Logic Updated
     window.switchTab = (tabName) => {
+        viewMonitor.classList.add('hidden');
+        viewCatalog.classList.add('hidden');
+        viewClients.classList.add('hidden');
+        
+        navMonitor.classList.remove('active');
+        navCatalog.classList.remove('active');
+        navClients.classList.remove('active');
+
         if(tabName === 'monitor') {
             viewMonitor.classList.remove('hidden');
-            viewCatalog.classList.add('hidden');
             navMonitor.classList.add('active');
-            navCatalog.classList.remove('active');
-        } else {
-            viewMonitor.classList.add('hidden');
+        } else if (tabName === 'catalog') {
             viewCatalog.classList.remove('hidden');
-            navMonitor.classList.remove('active');
             navCatalog.classList.add('active');
             if(Object.keys(globalCatalogData).length === 0) loadMasterCatalog();
+        } else if (tabName === 'clients') {
+            viewClients.classList.remove('hidden');
+            navClients.classList.add('active');
+            renderGlobalClients(globalOrders);
         }
     };
 
@@ -579,6 +615,12 @@
         
         processAndRender(globalOrders);
         populateOpticianDropdown(globalOrders);
+        
+        // Se siamo nella tab clienti, aggiorniamo anche quella
+        if(navClients.classList.contains('active')) {
+            renderGlobalClients(globalOrders);
+        }
+
       } catch (e) {
         console.error("Fetch error:", e);
         fetchErrorMsg.innerText = e.message;
@@ -590,9 +632,8 @@
       }
     }
 
-    // --- MASTER CATALOG LOGIC (CORRECTED) ---
+    // --- MASTER CATALOG LOGIC ---
     async function loadMasterCatalog() {
-        // FIX: Usiamo un percorso 'pulito' e globale, invece di quello complesso o quello personale dell'ottico
         const docRef = doc(db, "catalogs", "master");
         try {
             const docSnap = await getDoc(docRef);
@@ -600,7 +641,6 @@
                 globalCatalogData = docSnap.data().data || {};
             } else {
                 globalCatalogData = defaultLensData;
-                // Creiamo il documento master se non esiste
                 await saveMasterCatalog(true); 
             }
         } catch (e) {
@@ -615,7 +655,6 @@
         if(!silent) { btn.innerText = "Salvataggio..."; btn.disabled = true; }
         
         try {
-            // FIX: Scriviamo nello stesso percorso globale pulito
             await setDoc(doc(db, "catalogs", "master"), { data: globalCatalogData });
             if(!silent) alert("Catalogo Globale aggiornato con successo! Gli ottici vedranno queste modifiche aggiornando la pagina.");
         } catch(e) {
@@ -887,7 +926,7 @@
 
         doc.autoTable({
             startY: 28,
-            head: [['Paziente', 'Telefono', 'Email', 'Città', 'Produttore', 'Modello', 'Dettagli Lenti']],
+            head: [['Cliente', 'Telefono', 'Email', 'Città', 'Produttore', 'Modello', 'Dettagli Lenti']],
             body: tableBody,
             theme: 'grid',
             styles: { fontSize: 9, cellPadding: 3 },
@@ -1032,16 +1071,6 @@
         orderModal.classList.remove('hidden');
     };
 
-    window.exportOpticianClients = function(opticianId) {
-        if(!opticianId) return;
-        const select = document.getElementById('optician-export-select');
-        select.value = opticianId;
-        select.dispatchEvent(new Event('change'));
-        select.scrollIntoView({behavior: "smooth", block: "center"});
-        select.classList.add('ring-2', 'ring-indigo-500');
-        setTimeout(() => select.classList.remove('ring-2', 'ring-indigo-500'), 1000);
-    };
-
     function renderBrandChart(counts) {
         const ctx = document.getElementById('chart-brands').getContext('2d');
         if (charts.brands) charts.brands.destroy();
@@ -1094,6 +1123,65 @@
             topOpticiansList.appendChild(li);
         });
     }
+    
+    // --- CLIENTS ARCHIVE FUNCTIONS (NEW) ---
+    function extractUniqueClients(orders) {
+        const clients = {};
+        orders.forEach(o => {
+            const info = o.client_info || {};
+            // Chiave univoca: CF se presente, altrimenti Nome + Email (normalizzati)
+            const key = info.cf ? info.cf.toUpperCase() : (o.patient_name + (info.email || '')).replace(/\s/g, '');
+            
+            // Mantieni il record con l'ordine più recente
+            if (!clients[key] || (o.timestamp?.seconds > clients[key].lastOrderTimestamp)) {
+                clients[key] = {
+                    name: o.patient_name,
+                    cf: info.cf || '-',
+                    email: info.email || '-',
+                    phone: info.phone || '-',
+                    opticianId: o.optician_id,
+                    opticianName: opticiansMap[o.optician_id] || 'N/D',
+                    lastOrderDate: o.timestamp ? new Date(o.timestamp.seconds * 1000).toLocaleDateString() : '-',
+                    lastOrderTimestamp: o.timestamp?.seconds || 0,
+                    address: o.delivery?.address_full || 'N/D'
+                };
+            }
+        });
+        return Object.values(clients);
+    }
+
+    window.renderGlobalClients = (orders) => {
+        const tbody = document.getElementById('clients-table-body');
+        tbody.innerHTML = '';
+        const uniqueClients = extractUniqueClients(orders);
+        
+        const searchTerm = (document.getElementById('search-client-global').value || '').toLowerCase();
+        
+        const filtered = uniqueClients.filter(c => 
+            (c.name || '').toLowerCase().includes(searchTerm) || 
+            (c.cf || '').toLowerCase().includes(searchTerm) || 
+            (c.email || '').toLowerCase().includes(searchTerm)
+        );
+
+        filtered.forEach(c => {
+            const row = document.createElement('tr');
+            row.className = "hover:bg-gray-50 transition";
+            row.innerHTML = `
+                <td class="px-4 py-3 font-bold text-gray-800">${c.name}</td>
+                <td class="px-4 py-3">
+                    <div class="text-xs text-gray-500">${c.email}</div>
+                    <div class="text-xs text-gray-500">${c.phone}</div>
+                </td>
+                <td class="px-4 py-3 font-mono text-xs">${c.cf}</td>
+                <td class="px-4 py-3 text-indigo-600 font-bold">${c.opticianName}</td>
+                <td class="px-4 py-3 text-gray-500">${c.lastOrderDate}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    };
+
+    document.getElementById('search-client-global').addEventListener('input', () => renderGlobalClients(globalOrders));
+
   </script>
 </body>
 </html>
