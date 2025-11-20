@@ -13,25 +13,22 @@
     .hidden { display: none; }
     .chart-container { position: relative; height: 250px; width: 100%; }
     .modal-open { overflow: hidden; }
-    /* Scrollbar personalizzata */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f1f1f1; }
     ::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
     
-    /* Tab Nav */
     .nav-item { cursor: pointer; border-bottom: 3px solid transparent; padding-bottom: 10px; transition: all 0.3s; }
     .nav-item.active { border-bottom-color: #4f46e5; color: #4f46e5; font-weight: 700; }
     .nav-item:hover:not(.active) { color: #374151; border-bottom-color: #d1d5db; }
 
-    /* Loader */
     .loader {
       border: 3px solid #f3f3f3;
       border-radius: 50%;
       border-top: 3px solid #3498db;
       width: 20px;
       height: 20px;
-      -webkit-animation: spin 1s linear infinite; /* Safari */
+      -webkit-animation: spin 1s linear infinite; 
       animation: spin 1s linear infinite;
     }
     @keyframes spin {
@@ -399,7 +396,7 @@
     };
     let globalCatalogData = {};
 
-    // UI Elements Login/Nav
+    // UI Elements
     const loginView = document.getElementById('login-view');
     const dashboardView = document.getElementById('dashboard-view');
     const loadingOverlay = document.getElementById('loading-overlay');
@@ -480,7 +477,6 @@
             viewCatalog.classList.remove('hidden');
             navMonitor.classList.remove('active');
             navCatalog.classList.add('active');
-            // Load catalog when switching if empty
             if(Object.keys(globalCatalogData).length === 0) loadMasterCatalog();
         }
     };
@@ -594,17 +590,18 @@
       }
     }
 
-    // --- MASTER CATALOG LOGIC ---
+    // --- MASTER CATALOG LOGIC (CORRECTED) ---
     async function loadMasterCatalog() {
-        // CORREZIONE: Percorso modificato per avere un numero pari di segmenti (6)
-        const docRef = doc(db, `artifacts/${appId}/public/data/catalogs/master`);
+        // FIX: Usiamo un percorso 'pulito' e globale, invece di quello complesso o quello personale dell'ottico
+        const docRef = doc(db, "catalogs", "master");
         try {
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
                 globalCatalogData = docSnap.data().data || {};
             } else {
-                globalCatalogData = defaultLensData; // Init default
-                saveMasterCatalog(true); // Create initial
+                globalCatalogData = defaultLensData;
+                // Creiamo il documento master se non esiste
+                await saveMasterCatalog(true); 
             }
         } catch (e) {
             console.error("Catalog Load Error:", e);
@@ -618,9 +615,9 @@
         if(!silent) { btn.innerText = "Salvataggio..."; btn.disabled = true; }
         
         try {
-            // CORREZIONE: Percorso modificato per avere un numero pari di segmenti (6)
-            await setDoc(doc(db, `artifacts/${appId}/public/data/catalogs/master`), { data: globalCatalogData });
-            if(!silent) alert("Catalogo Globale aggiornato con successo!");
+            // FIX: Scriviamo nello stesso percorso globale pulito
+            await setDoc(doc(db, "catalogs", "master"), { data: globalCatalogData });
+            if(!silent) alert("Catalogo Globale aggiornato con successo! Gli ottici vedranno queste modifiche aggiornando la pagina.");
         } catch(e) {
             alert("Errore salvataggio: " + e.message);
         } finally {
@@ -633,7 +630,6 @@
         const listDiv = document.getElementById('catalog-list-container');
         listDiv.innerHTML = '';
         
-        // Populate Dropdowns
         const manufSelectModel = document.getElementById('manufacturer-select-for-model');
         const manufSelectType = document.getElementById('manufacturer-select-for-type');
         let ops = '<option value="">Seleziona...</option>';
@@ -641,7 +637,6 @@
         manufSelectModel.innerHTML = ops; 
         manufSelectType.innerHTML = ops;
 
-        // Render List
         for (const manufacturer in globalCatalogData) {
             let modelsHtml = '';
             for (const model in globalCatalogData[manufacturer]) {
@@ -672,7 +667,6 @@
         }
     }
 
-    // Catalog Event Handlers
     window.deleteItem = async (manuf, model, type) => {
         if(type) {
             if(!confirm(`Eliminare tipo ${type}?`)) return;

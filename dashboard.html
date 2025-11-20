@@ -468,7 +468,7 @@
         const date = order.timestamp?.seconds ? new Date(order.timestamp.seconds * 1000).toLocaleString('it-IT', { day:'numeric', month:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
         
         const isDel = order.delivery?.mode === 'delivery';
-        const delIcon = isDel ? '🚚' : '🏪';
+        const delIcon = isDel ? '🚚' : '🏬';
         const delText = isDel ? 'Domicilio' : 'Ritiro in Sede';
         
         const l = order.lens_order || {};
@@ -568,8 +568,8 @@
     // 1. Fetch Master Catalog (from Supplier)
     async function loadMasterCatalog() {
         try {
-            // CORREZIONE QUI: Percorso aggiornato a 6 segmenti per matchare il fornitore
-            const docRef = doc(db, `artifacts/${appId}/public/data/catalogs/master`);
+            // PERCORSO CORRETTO PER LEGGERE IL CATALOGO GLOBALE
+            const docRef = doc(db, "catalogs", "master");
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
                 masterCatalog = docSnap.data().data || {};
@@ -646,11 +646,6 @@
                     
                     toggle.addEventListener('change', (e) => {
                         priceInput.disabled = !e.target.checked;
-                        if(e.target.checked) {
-                           typeCard.classList.remove('opacity-50');
-                        } else {
-                           // typeCard.classList.add('opacity-50');
-                        }
                     });
 
                     typesContainer.appendChild(typeCard);
