@@ -568,7 +568,7 @@
     // 1. Fetch Master Catalog (from Supplier)
     async function loadMasterCatalog() {
         try {
-            // PERCORSO CORRETTO PER LEGGERE IL CATALOGO GLOBALE
+            // Lettura dal percorso globale (lo stesso usato da supplier.html)
             const docRef = doc(db, "catalogs", "master");
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
@@ -586,7 +586,7 @@
             if (docSnap.exists()) {
                 const d = docSnap.data();
                 myPricingConfig = d.pricing_config || {};
-                myLensData = d.data || {}; // This is the simplified object for the client app
+                myLensData = d.data || {}; 
             }
         } catch(e) { console.error("Err loading config:", e); }
     }
@@ -595,7 +595,7 @@
     function renderCatalogUI() {
         catalogContainer.innerHTML = '';
         if (Object.keys(masterCatalog).length === 0) {
-            catalogContainer.innerHTML = '<p class="text-gray-500">Nessun dato nel catalogo Master.</p>';
+            catalogContainer.innerHTML = '<p class="text-gray-500 p-4">Il catalogo Master è vuoto o non è stato ancora creato dal fornitore.</p>';
             return;
         }
 
@@ -622,6 +622,9 @@
                     // Create a unique key for this item
                     const key = `${manuf}::${model}::${type}`;
                     const config = myPricingConfig[key] || { enabled: false, price: '' };
+                    
+                    // FIX: Create a valid HTML ID for simple selection
+                    const domId = `toggle-${key}`;
 
                     const typeCard = document.createElement('div');
                     typeCard.className = "bg-gray-50 p-2 rounded border border-gray-200 flex items-center justify-between";
@@ -629,8 +632,8 @@
                     typeCard.innerHTML = `
                         <div class="flex items-center gap-3">
                             <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                                <input type="checkbox" name="toggle" id="toggle-${key}" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300" ${config.enabled ? 'checked' : ''}/>
-                                <label for="toggle-${key}" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
+                                <input type="checkbox" name="toggle" id="${domId}" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300" ${config.enabled ? 'checked' : ''}/>
+                                <label for="${domId}" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
                             </div>
                             <span class="text-sm font-medium text-gray-700">${type}</span>
                         </div>
@@ -641,8 +644,9 @@
                     `;
 
                     // Bind toggle event to enable/disable price input
-                    const toggle = typeCard.querySelector(`#toggle-${key.replace(/::/g, '\\:\\:')}`); // Escape for querySelector
-                    const priceInput = typeCard.querySelector(`#price-${key.replace(/::/g, '\\:\\:')}`);
+                    // FIX: Use getElementById to avoid issues with spaces/special chars in Selectors
+                    const toggle = typeCard.querySelector(`[id='${domId}']`); 
+                    const priceInput = typeCard.querySelector(`[id='price-${key}']`);
                     
                     toggle.addEventListener('change', (e) => {
                         priceInput.disabled = !e.target.checked;
@@ -665,38 +669,37 @@
         saveCatalogBtn.disabled = true;
         
         const newPricingConfig = {};
-        const newLensData = {}; // The simplified structure for the app
-
-        // Reconstruct data from UI logic + Master Catalog structure
-        Object.keys(masterCatalog).forEach(manuf => {
-            Object.keys(masterCatalog[manuf]).forEach(model => {
-                masterCatalog[manuf][model].forEach(type => {
-                    const key = `${manuf}::${model}::${type}`;
-                    // Escape key for selector
-                    const safeKey = key.replace(/::/g, '\\:\\:');
-                    const toggle = document.querySelector(`#toggle-${safeKey}`);
-                    const priceIn = document.querySelector(`#price-${safeKey}`);
-                    
-                    if (toggle && toggle.checked) {
-                        // 1. Save to Pricing Config
-                        newPricingConfig[key] = {
-                            enabled: true,
-                            price: priceIn.value
-                        };
-
-                        // 2. Build simplified structure for App
-                        if (!newLensData[manuf]) newLensData[manuf] = {};
-                        if (!newLensData[manuf][model]) newLensData[manuf][model] = [];
-                        newLensData[manuf][model].push(type);
-                    }
-                });
-            });
-        });
+        const newLensData = {}; 
 
         try {
+            // Reconstruct data from UI logic + Master Catalog structure
+            Object.keys(masterCatalog).forEach(manuf => {
+                Object.keys(masterCatalog[manuf]).forEach(model => {
+                    masterCatalog[manuf][model].forEach(type => {
+                        const key = `${manuf}::${model}::${type}`;
+                        
+                        // FIX: Use getElementById to perfectly match HTML ID regardless of spaces
+                        const domId = `toggle-${key}`;
+                        const toggle = document.getElementById(domId);
+                        const priceIn = document.getElementById(`price-${key}`);
+                        
+                        if (toggle && toggle.checked) {
+                            newPricingConfig[key] = {
+                                enabled: true,
+                                price: priceIn.value
+                            };
+
+                            if (!newLensData[manuf]) newLensData[manuf] = {};
+                            if (!newLensData[manuf][model]) newLensData[manuf][model] = [];
+                            newLensData[manuf][model].push(type);
+                        }
+                    });
+                });
+            });
+
             await setDoc(doc(db, "optician_config", currentOpticianUid, "lenses", "main"), {
                 pricing_config: newPricingConfig,
-                data: newLensData // IMPORTANT: This overwrites 'data' with only enabled items
+                data: newLensData 
             });
             
             // Update local vars
@@ -705,6 +708,7 @@
             
             alert("Listino salvato! I tuoi clienti vedranno solo i prodotti selezionati.");
         } catch(e) {
+            console.error(e);
             alert("Errore salvataggio: " + e.message);
         } finally {
             saveCatalogBtn.innerText = "Salva Listino";
