@@ -92,7 +92,6 @@
                     <button id="logout-button" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Esci</button>
                 </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -179,15 +178,28 @@
       
       <div class="p-6 border-b">
           <h2 class="text-xl font-bold text-gray-800">Configurazione Cliente</h2>
-          <p class="text-sm text-gray-600">Pre-compila i dati per generare il QR Code di installazione.</p>
+          <p class="text-sm text-gray-600">Pre-compila i dati e la lente per generare il QR Code.</p>
       </div>
 
       <div class="p-6 overflow-y-auto" id="client-form-container">
+        
+        <h4 class="font-bold text-gray-800 mb-3 border-b pb-1">Dati Paziente</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Nome e Cognome</label>
+                <input type="text" id="client-name" placeholder="Es: Mario Rossi" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Email (Opzionale)</label>
+                <input type="email" id="client-email" placeholder="email@cliente.it" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+            </div>
+        </div>
         <div class="mb-6">
-            <label class="block text-sm font-bold text-gray-700 mb-1">Nome Paziente</label>
-            <input type="text" id="client-name" placeholder="Es: Mario Rossi" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+            <label class="block text-sm font-bold text-gray-700 mb-1">Telefono</label>
+            <input type="tel" id="client-phone" placeholder="333 1234567" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
         </div>
 
+        <h4 class="font-bold text-gray-800 mb-3 border-b pb-1">La tua Lente (Configurazione)</h4>
         <div class="bg-gray-50 p-4 rounded border border-gray-200 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700">Produttore</label>
@@ -229,7 +241,7 @@
 
       <div id="client-qr-container" class="hidden p-6 flex-col items-center justify-center text-center h-full">
          <h3 class="text-2xl font-bold text-gray-800 mb-2">QR Code Paziente</h3>
-         <p class="text-gray-500 mb-4">Fai scansionare questo codice al paziente.</p>
+         <p class="text-gray-500 mb-4">Il paziente troverà l'app pre-compilata scansionando questo codice.</p>
          <div id="qr-code-display" class="bg-white p-4 border rounded-lg shadow-sm mb-6"></div>
          <div class="flex gap-4 w-full max-w-xs">
              <button id="print-qr-button" class="flex-1 bg-blue-100 text-blue-700 py-2 rounded font-bold hover:bg-blue-200">Stampa</button>
@@ -264,9 +276,9 @@
     let currentOpticianUid = null; 
     
     // Global Vars for Data
-    let masterCatalog = {}; // Read only
-    let myPricingConfig = {}; // { "Manuf_Model_Type": { enabled: true, price: 20 } }
-    let myLensData = {}; // The simple structure for the Client App
+    let masterCatalog = {}; 
+    let myPricingConfig = {}; 
+    let myLensData = {}; 
 
     let allOrdersCache = [];
 
@@ -313,18 +325,15 @@
     const catalogContainer = document.getElementById('catalog-container');
     const saveCatalogBtn = document.getElementById('save-catalog-btn');
 
-    // --- GESTIONE MENU UTENTE (FIXED) ---
+    // --- GESTIONE MENU UTENTE ---
     const userMenuBtn = document.getElementById('user-menu-btn');
     const userMenuDropdown = document.getElementById('user-menu-dropdown');
 
     if(userMenuBtn && userMenuDropdown) {
-        // Toggle menu al click
         userMenuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             userMenuDropdown.classList.toggle('hidden');
         });
-
-        // Chiudi menu cliccando fuori
         document.addEventListener('click', (e) => {
             if (!userMenuDropdown.classList.contains('hidden')) {
                 if (!userMenuDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
@@ -359,7 +368,6 @@
         userEmailDisplay.innerText = user.email;
         opticianIdCode.innerText = user.uid;
         
-        // Init Dates (Last 30 days)
         const end = new Date();
         const start = new Date();
         start.setDate(end.getDate() - 30);
@@ -367,7 +375,6 @@
         dateStartInput.valueAsDate = start;
 
         loadOrders(user.uid);
-        // Load data for config tab (and for modal)
         await Promise.all([loadMasterCatalog(), loadMyConfig()]);
         
       } else {
@@ -388,7 +395,7 @@
         } else {
             tabConfig.classList.add('active'); tabOrders.classList.remove('active');
             viewConfig.classList.remove('hidden'); viewOrders.classList.add('hidden');
-            renderCatalogUI(); // Render UI when tab opens
+            renderCatalogUI();
         }
     }
     tabOrders.onclick = () => switchTab('orders');
@@ -399,7 +406,6 @@
         newPasswordInput.value = '';
         pwdMsg.classList.add('hidden');
         passwordModal.classList.remove('hidden');
-        // Chiudi il menu utente quando apri il modale
         userMenuDropdown.classList.add('hidden');
     };
     closePwdModal.onclick = () => passwordModal.classList.add('hidden');
@@ -427,7 +433,7 @@
                 savePasswordBtn.innerText = "Aggiorna Password";
             }, 1500);
         } catch(e) {
-            pwdMsg.innerText = "Errore: " + e.message + " (Prova a rifare il login)";
+            pwdMsg.innerText = "Errore: " + e.message;
             pwdMsg.className = "text-sm text-red-600";
             pwdMsg.classList.remove('hidden');
             savePasswordBtn.disabled = false;
@@ -440,10 +446,8 @@
 
     function loadOrders(opticianUid) {
       if(!opticianUid) return;
-      
       loadingOrders.classList.remove('hidden');
       ordersContainer.innerHTML = '';
-      
       const startDate = new Date(dateStartInput.value);
       const endDate = new Date(dateEndInput.value);
       startDate.setHours(0,0,0,0);
@@ -497,7 +501,6 @@
         const delText = isDel ? 'Domicilio' : 'Ritiro in Sede';
         
         const l = order.lens_order || {};
-        
         const getP = (eye) => {
             if(!eye) return '';
             let s = `<b>${eye.type || '-'}</b>`;
@@ -509,7 +512,6 @@
 
         const card = document.createElement('div');
         card.className = `bg-white rounded-lg shadow-sm border-l-4 ${conf.border} p-4 flex flex-col gap-3`;
-        
         card.innerHTML = `
            <div class="flex justify-between items-start">
               <div>
@@ -523,7 +525,6 @@
                  <span class="px-2 py-0.5 rounded text-xs font-bold uppercase ${conf.bg} ${conf.text}">${conf.label}</span>
               </div>
            </div>
-
            <div class="bg-gray-50 p-3 rounded border border-gray-100 text-sm">
                <p class="mb-2 text-gray-700"><span class="font-bold">${l.manufacturer || '-'}</span> ${l.model || ''}</p>
                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -539,10 +540,8 @@
                    </div>
                </div>
            </div>
-
            ${order.client_info?.phone ? `<div class="text-xs text-gray-600">📞 ${order.client_info.phone}</div>` : ''}
            ${order.message && !order.lens_order ? `<div class="text-xs bg-yellow-50 p-2 rounded text-gray-700 italic border border-yellow-100">${order.message}</div>` : ''}
-
            <div class="flex justify-between items-center pt-2 mt-1 border-t border-gray-100">
                <div class="flex gap-2">
                    <select class="status-select text-xs border-gray-300 rounded shadow-sm py-1 pr-8" data-id="${order.id}">
@@ -560,14 +559,11 @@
            </div>
         `;
         ordersContainer.appendChild(card);
-        
-        // Bind Events
         card.querySelector('.status-select').addEventListener('change', (e) => updateOrderStatus(order.id, e.target.value));
         card.querySelector('.print-btn').addEventListener('click', () => printOrder(order));
         card.querySelector('.delete-btn').addEventListener('click', () => deleteOrder(order.id));
       });
     }
-    
     searchPatientInput.addEventListener('input', () => renderOrders(allOrdersCache));
 
     async function updateOrderStatus(orderId, newStatus) {
@@ -588,21 +584,15 @@
         }
     }
 
-    // --- NEW CONFIG LOGIC (MASTER + PRICING) ---
-    
-    // 1. Fetch Master Catalog (from Supplier)
+    // --- CONFIG LOGIC ---
     async function loadMasterCatalog() {
         try {
-            // Lettura dal percorso globale (lo stesso usato da supplier.html)
             const docRef = doc(db, "catalogs", "master");
             const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                masterCatalog = docSnap.data().data || {};
-            }
+            if (docSnap.exists()) masterCatalog = docSnap.data().data || {};
         } catch (e) { console.error("Err loading master:", e); }
     }
 
-    // 2. Fetch My Config (Prices & Enabled items)
     async function loadMyConfig() {
         if (!currentOpticianUid) return;
         try {
@@ -616,44 +606,31 @@
         } catch(e) { console.error("Err loading config:", e); }
     }
 
-    // 3. Render UI combining Master + My Config
     function renderCatalogUI() {
         catalogContainer.innerHTML = '';
         if (Object.keys(masterCatalog).length === 0) {
-            catalogContainer.innerHTML = '<p class="text-gray-500 p-4">Il catalogo Master è vuoto o non è stato ancora creato dal fornitore.</p>';
+            catalogContainer.innerHTML = '<p class="text-gray-500 p-4">Il catalogo Master è vuoto.</p>';
             return;
         }
-
-        // Iterate Manufacturers
         Object.keys(masterCatalog).sort().forEach(manuf => {
             const manufDiv = document.createElement('div');
             manufDiv.className = "bg-white border border-gray-200 rounded-lg p-4 shadow-sm";
-            
             manufDiv.innerHTML = `<h3 class="text-lg font-bold text-indigo-800 mb-4 pb-2 border-b border-gray-100">${manuf}</h3>`;
-            
-            // Iterate Models
             const models = masterCatalog[manuf];
             Object.keys(models).forEach(model => {
                 const types = models[model];
-                
                 const modelDiv = document.createElement('div');
                 modelDiv.className = "mb-4 pl-2 border-l-2 border-indigo-100";
                 modelDiv.innerHTML = `<h4 class="text-md font-bold text-gray-700 mb-2">${model}</h4>`;
-                
                 const typesContainer = document.createElement('div');
                 typesContainer.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3";
 
                 types.forEach(type => {
-                    // Create a unique key for this item
                     const key = `${manuf}::${model}::${type}`;
                     const config = myPricingConfig[key] || { enabled: false, price: '' };
-                    
-                    // FIX: Create a valid HTML ID for simple selection
                     const domId = `toggle-${key}`;
-
                     const typeCard = document.createElement('div');
                     typeCard.className = "bg-gray-50 p-2 rounded border border-gray-200 flex items-center justify-between";
-                    
                     typeCard.innerHTML = `
                         <div class="flex items-center gap-3">
                             <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
@@ -667,53 +644,33 @@
                             <input type="number" step="0.01" id="price-${key}" value="${config.price || ''}" placeholder="0.00" class="w-20 text-sm border-gray-300 rounded px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500" ${!config.enabled ? 'disabled' : ''}>
                         </div>
                     `;
-
-                    // Bind toggle event to enable/disable price input
-                    // FIX: Use getElementById to avoid issues with spaces/special chars in Selectors
                     const toggle = typeCard.querySelector(`[id='${domId}']`); 
                     const priceInput = typeCard.querySelector(`[id='price-${key}']`);
-                    
-                    toggle.addEventListener('change', (e) => {
-                        priceInput.disabled = !e.target.checked;
-                    });
-
+                    toggle.addEventListener('change', (e) => { priceInput.disabled = !e.target.checked; });
                     typesContainer.appendChild(typeCard);
                 });
-                
                 modelDiv.appendChild(typesContainer);
                 manufDiv.appendChild(modelDiv);
             });
-            
             catalogContainer.appendChild(manufDiv);
         });
     }
 
-    // 4. Save Logic
     saveCatalogBtn.onclick = async () => {
         saveCatalogBtn.innerText = "Salvataggio...";
         saveCatalogBtn.disabled = true;
-        
         const newPricingConfig = {};
         const newLensData = {}; 
-
         try {
-            // Reconstruct data from UI logic + Master Catalog structure
             Object.keys(masterCatalog).forEach(manuf => {
                 Object.keys(masterCatalog[manuf]).forEach(model => {
                     masterCatalog[manuf][model].forEach(type => {
                         const key = `${manuf}::${model}::${type}`;
-                        
-                        // FIX: Use getElementById to perfectly match HTML ID regardless of spaces
                         const domId = `toggle-${key}`;
                         const toggle = document.getElementById(domId);
                         const priceIn = document.getElementById(`price-${key}`);
-                        
                         if (toggle && toggle.checked) {
-                            newPricingConfig[key] = {
-                                enabled: true,
-                                price: priceIn.value
-                            };
-
+                            newPricingConfig[key] = { enabled: true, price: priceIn.value };
                             if (!newLensData[manuf]) newLensData[manuf] = {};
                             if (!newLensData[manuf][model]) newLensData[manuf][model] = [];
                             newLensData[manuf][model].push(type);
@@ -721,28 +678,19 @@
                     });
                 });
             });
-
             await setDoc(doc(db, "optician_config", currentOpticianUid, "lenses", "main"), {
                 pricing_config: newPricingConfig,
                 data: newLensData 
             });
-            
-            // Update local vars
             myPricingConfig = newPricingConfig;
             myLensData = newLensData;
-            
-            alert("Listino salvato! I tuoi clienti vedranno solo i prodotti selezionati.");
-        } catch(e) {
-            console.error(e);
-            alert("Errore salvataggio: " + e.message);
-        } finally {
-            saveCatalogBtn.innerText = "Salva Listino";
-            saveCatalogBtn.disabled = false;
-        }
+            alert("Listino salvato!");
+        } catch(e) { alert("Errore salvataggio: " + e.message); } 
+        finally { saveCatalogBtn.innerText = "Salva Listino"; saveCatalogBtn.disabled = false; }
     };
 
 
-    // --- CLIENT QR MODAL ---
+    // --- CLIENT QR MODAL LOGIC (AGGIORNATA) ---
     const clientModal = document.getElementById('client-modal');
     const clientFormActions = document.getElementById('client-form-actions');
     const clientQrContainer = document.getElementById('client-qr-container');
@@ -752,14 +700,12 @@
     document.getElementById('close-modal-button').onclick = () => clientModal.classList.add('hidden');
     closeQrButton.onclick = () => clientModal.classList.add('hidden');
 
-    // Dropdowns for Client Modal (Populated from MY CONFIG, not Master)
     const cManuf = document.getElementById('client-lens-manufacturer');
     const cModel = document.getElementById('client-lens-model');
     const cTypeOD = document.getElementById('client-lens-type-od');
     const cTypeOS = document.getElementById('client-lens-type-os');
     
     function clientPopulateManufacturers() {
-        // Use myLensData to ensure we only show what the optician sells
         if(!myLensData) return;
         cManuf.innerHTML = '<option value="">-- Seleziona --</option>';
         Object.keys(myLensData).forEach(m => cManuf.innerHTML += `<option value="${m}">${m}</option>`);
@@ -780,7 +726,6 @@
         }
     };
     
-    // Show/Hide Params
     const toggleParams = (eye) => {
         const type = document.getElementById(`client-lens-type-${eye}`).value.toLowerCase();
         const div = document.getElementById(`client-params-${eye}`);
@@ -797,6 +742,13 @@
 
     function showClientModal() {
         clientPopulateManufacturers();
+        // Reset campi
+        document.getElementById('client-name').value = '';
+        document.getElementById('client-email').value = '';
+        document.getElementById('client-phone').value = '';
+        cManuf.value = ''; cModel.value = ''; 
+        cModel.disabled = true; cTypeOD.disabled = true; cTypeOS.disabled = true;
+
         document.getElementById('client-form-container').classList.remove('hidden');
         clientFormActions.classList.remove('hidden');
         clientQrContainer.classList.add('hidden');
@@ -804,15 +756,30 @@
     }
 
     document.getElementById('generate-qr-button').onclick = () => {
+        // Costruzione dati completi (Lente + Anagrafica)
         const data = {
             n: document.getElementById('client-name').value,
+            e: document.getElementById('client-email').value, // Nuova Email
+            ph: document.getElementById('client-phone').value, // Nuovo Telefono
             oid: currentOpticianUid,
-            m: cManuf.value, md: cModel.value,
-            tod: cTypeOD.value, pod: document.getElementById('client-pwr-od').value, cod: document.getElementById('client-cyl-od').value, aod: document.getElementById('client-axis-od').value, addod: document.getElementById('client-add-od').value,
-            tos: cTypeOS.value, pos: document.getElementById('client-pwr-os').value, cos: document.getElementById('client-cyl-os').value, aos: document.getElementById('client-axis-os').value, addos: document.getElementById('client-add-os').value
+            m: cManuf.value, 
+            md: cModel.value,
+            // OD
+            tod: cTypeOD.value, 
+            pod: document.getElementById('client-pwr-od').value, 
+            cod: document.getElementById('client-cyl-od').value, 
+            aod: document.getElementById('client-axis-od').value, 
+            addod: document.getElementById('client-add-od').value,
+            // OS
+            tos: cTypeOS.value, 
+            pos: document.getElementById('client-pwr-os').value, 
+            cos: document.getElementById('client-cyl-os').value, 
+            aos: document.getElementById('client-axis-os').value, 
+            addos: document.getElementById('client-add-os').value
         };
         
-        const baseUrl = window.location.origin + '/'; 
+        // Generazione URL
+        const baseUrl = window.location.origin + '/'; // Assicurati che punti a index.html
         const params = new URLSearchParams();
         Object.entries(data).forEach(([k,v]) => { if(v) params.set(k,v); });
         const fullUrl = baseUrl + '?' + params.toString();
@@ -827,9 +794,23 @@
     
     document.getElementById('print-qr-button').onclick = () => {
         const img = document.querySelector('#qr-code-display img');
+        const name = document.getElementById('client-name').value;
+        const lens = `${cManuf.value} ${cModel.value}`;
         if(!img) return;
         const w = window.open('');
-        w.document.write(`<html><body style="text-align:center; font-family:sans-serif; padding:50px;"><h1>Scansiona per installare l'App</h1><img src="${img.src}" style="width:300px;"><br><br><h2>${document.getElementById('client-name').value}</h2><script>window.print();<\/script></body></html>`);
+        w.document.write(`
+            <html>
+            <body style="text-align:center; font-family:sans-serif; padding:50px;">
+                <h1>Scansiona per installare l'App</h1>
+                <p>La tua configurazione è pronta.</p>
+                <img src="${img.src}" style="width:300px; margin: 20px 0;">
+                <br>
+                <h2>${name}</h2>
+                <p>Lente Configurata: <strong>${lens}</strong></p>
+                <script>window.print();<\/script>
+            </body>
+            </html>
+        `);
         w.document.close();
     };
 
