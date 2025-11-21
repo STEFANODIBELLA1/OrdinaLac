@@ -78,6 +78,7 @@
                  <div id="nav-monitor" class="nav-item active text-sm" onclick="switchTab('monitor')">Monitoraggio Ordini</div>
                  <div id="nav-catalog" class="nav-item text-sm" onclick="switchTab('catalog')">Catalogo Master</div>
                  <div id="nav-clients" class="nav-item text-sm" onclick="switchTab('clients')">Archivio Clienti</div>
+                 <div id="nav-opticians" class="nav-item text-sm" onclick="switchTab('opticians')">Archivio Ottici</div>
              </div>
         </div>
 
@@ -182,32 +183,6 @@
 
             <div class="flex flex-col gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <h3 class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wide flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                          <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" />
-                        </svg>
-                        Reportistica PDF
-                    </h3>
-                    <div class="space-y-3">
-                        <label class="block text-xs text-gray-500 font-bold">1. Seleziona Ottico (dal periodo)</label>
-                        <select id="optician-export-select" class="block w-full pl-3 pr-10 py-2 text-sm border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md border">
-                            <option value="">Caricamento...</option>
-                        </select>
-
-                        <div id="export-filters" class="hidden space-y-2 pt-2 border-t border-gray-100">
-                            <label class="block text-xs text-gray-500 font-bold">2. Filtra Dati (Opzionale)</label>
-                            <select id="filter-manufacturer" class="block w-full text-xs border-gray-300 rounded-md border p-2"><option value="">Tutti i Produttori</option></select>
-                            <select id="filter-model" class="block w-full text-xs border-gray-300 rounded-md border p-2"><option value="">Tutti i Modelli</option></select>
-                            <select id="filter-type" class="block w-full text-xs border-gray-300 rounded-md border p-2"><option value="">Tutti i Tipi</option></select>
-                        </div>
-
-                        <button id="btn-export-pdf" class="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-800 hover:bg-gray-900 focus:outline-none mt-4 transition">
-                            Scarica Elenco Clienti
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <h3 class="text-sm font-bold text-gray-800 mb-4 uppercase tracking-wide">Mix Produttori</h3>
                     <div class="chart-container">
                         <canvas id="chart-brands"></canvas>
@@ -224,25 +199,69 @@
 
       <div id="view-clients" class="hidden">
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col min-h-[600px]">
-            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl flex justify-between items-center">
-                <div>
-                    <h2 class="text-xl font-bold text-gray-800">Archivio Globale Clienti</h2>
-                    <p class="text-sm text-gray-500">Database unificato generato dallo storico ordini.</p>
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">Archivio Globale Clienti</h2>
+                        <p class="text-sm text-gray-500">Database unificato con indirizzi e storico acquisti.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 items-center">
+                         <select id="filter-client-optician" class="text-sm border-gray-300 rounded shadow-sm p-2 border">
+                             <option value="">Tutti gli Ottici</option>
+                         </select>
+                         <select id="filter-client-brand" class="text-sm border-gray-300 rounded shadow-sm p-2 border">
+                             <option value="">Tutti i Brand</option>
+                         </select>
+                         <button onclick="printClientsPDF()" class="bg-gray-800 text-white px-3 py-2 rounded shadow hover:bg-gray-900 text-sm font-bold flex items-center gap-2 transition">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                             </svg>
+                             Stampa Elenco PDF
+                         </button>
+                    </div>
                 </div>
             </div>
             <div class="p-6 overflow-auto">
-                <input type="text" id="search-client-global" placeholder="Cerca per nome, CF o email..." class="w-full mb-4 p-2 border border-gray-300 rounded shadow-sm">
+                <input type="text" id="search-client-global" placeholder="Cerca per nome, CF, email..." class="w-full mb-4 p-2 border border-gray-300 rounded shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-100">
                         <tr>
-                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">Cliente</th>
-                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">Contatti</th>
-                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">Codice Fiscale</th>
-                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">Ottico di Riferimento</th>
-                            <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">Ultimo Ordine</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Cliente</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Contatti</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Indirizzo</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Ottico</th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase">Azioni</th>
                         </tr>
                     </thead>
                     <tbody id="clients-table-body" class="bg-white divide-y divide-gray-200 text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+      </div>
+
+      <div id="view-opticians" class="hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col min-h-[600px]">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Archivio Ottici</h2>
+                    <p class="text-sm text-gray-500">Gestione anagrafica e loghi dei partner registrati.</p>
+                </div>
+            </div>
+            <div class="p-6 overflow-auto">
+                <input type="text" id="search-optician" placeholder="Cerca ottico..." class="w-full mb-4 p-2 border border-gray-300 rounded shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Logo</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Nome Negozio</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Partita IVA</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Indirizzo</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Contatti</th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase">Codice (UID)</th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="opticians-table-body" class="bg-white divide-y divide-gray-200 text-sm"></tbody>
                 </table>
             </div>
         </div>
@@ -287,7 +306,6 @@
                         </div>
                     </div>
                 </div>
-
                 <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">Listino Globale Attuale</h3>
                 <div id="catalog-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <p class="text-gray-500 italic">Caricamento listino...</p>
@@ -297,6 +315,42 @@
       </div>
 
     </main>
+  </div>
+
+  <div id="client-history-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+          <div class="fixed inset-0 bg-gray-900 bg-opacity-80 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeHistoryModal()"></div>
+          <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+          <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+            <div class="bg-white flex flex-col max-h-[80vh]">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center sticky top-0 z-10">
+                    <div>
+                        <h3 class="text-xl leading-6 font-bold text-gray-900" id="history-modal-title">Storico Acquisti</h3>
+                        <p class="text-sm text-gray-500" id="history-modal-subtitle">Dettaglio lenti e diottrie</p>
+                    </div>
+                    <button onclick="closeHistoryModal()" class="text-gray-400 hover:text-gray-600 bg-white rounded-full p-1 hover:bg-gray-100 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <div class="p-6 overflow-y-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">Data</th>
+                                <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">Prodotto</th>
+                                <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase text-indigo-700">Occhio Destro (OD)</th>
+                                <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase text-indigo-700">Occhio Sinistro (OS)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="bg-white divide-y divide-gray-200 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" onclick="closeHistoryModal()">Chiudi</button>
+            </div>
+          </div>
+      </div>
   </div>
 
   <div id="register-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -319,6 +373,9 @@
                         <input type="text" id="reg-piva" placeholder="Partita IVA" class="block w-full mb-2 px-3 py-2 border border-gray-300 rounded-md text-sm">
                         <input type="text" id="reg-address" placeholder="Indirizzo Completo" class="block w-full mb-2 px-3 py-2 border border-gray-300 rounded-md text-sm">
                         <input type="text" id="reg-phone" placeholder="Telefono Contatto" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                        
+                        <label class="block text-xs font-bold text-gray-600 uppercase mt-3 mb-1">Logo / Insegna (Max 500KB)</label>
+                        <input type="file" id="reg-logo" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
                     </div>
                     <div id="reg-error" class="text-red-600 text-xs bg-red-50 p-2 rounded hidden border border-red-200 font-bold"></div>
                     <div id="reg-success" class="hidden bg-green-50 border border-green-400 text-green-800 px-4 py-3 rounded relative">
@@ -336,13 +393,49 @@
       </div>
   </div>
 
+  <div id="optician-edit-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+      <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeOpticianEditModal()"></div>
+          <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+          <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <h3 class="text-xl leading-6 font-bold text-gray-900 mb-4">Modifica Dati Ottico</h3>
+                <input type="hidden" id="edit-opt-uid">
+                <div class="space-y-4">
+                    <div class="bg-gray-50 p-3 rounded border border-gray-200">
+                        <p class="text-xs font-bold text-gray-600 uppercase mb-1">Dati Negozio</p>
+                        <label class="block text-xs text-gray-500 mt-2">Nome Negozio</label>
+                        <input type="text" id="edit-opt-name" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                        
+                        <label class="block text-xs text-gray-500 mt-2">Partita IVA</label>
+                        <input type="text" id="edit-opt-piva" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                        
+                        <label class="block text-xs text-gray-500 mt-2">Indirizzo</label>
+                        <input type="text" id="edit-opt-address" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                        
+                        <label class="block text-xs text-gray-500 mt-2">Telefono</label>
+                        <input type="text" id="edit-opt-phone" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                        
+                        <label class="block text-xs font-bold text-gray-600 uppercase mt-3 mb-1">Aggiorna Logo (Opzionale)</label>
+                        <input type="file" id="edit-opt-logo" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
+                        <div id="current-logo-preview" class="mt-2"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button id="btn-save-opt-changes" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm transition">Salva Modifiche</button>
+                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition" onclick="closeOpticianEditModal()">Annulla</button>
+            </div>
+          </div>
+      </div>
+  </div>
+
   <div id="order-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeModal()"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
           <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div class="sm:flex sm:items-start">
+             <div class="sm:flex sm:items-start">
               <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                 <div class="flex justify-between items-start border-b border-gray-200 pb-4 mb-4">
                     <div>
@@ -351,7 +444,6 @@
                     </div>
                     <span id="modal-status-badge" class="px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wide"></span>
                 </div>
-                
                 <div class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
@@ -368,7 +460,6 @@
                             <div id="modal-address-box" class="text-sm text-gray-700 bg-white p-2 rounded border border-green-200 hidden"></div>
                         </div>
                     </div>
-
                     <div>
                         <h4 class="text-sm font-bold text-gray-800 mb-2 border-l-4 border-indigo-500 pl-2">Specifiche Lenti</h4>
                         <div class="bg-gray-50 p-3 rounded-md border border-gray-200 mb-3">
@@ -396,13 +487,13 @@
             <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm transition" onclick="closeModal()">Chiudi Scheda</button>
           </div>
         </div>
-      </div>
     </div>
+  </div>
 
   <script type="module">
     import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, getDocs, query, doc, setDoc, getDoc, where, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, doc, setDoc, updateDoc, getDoc, where, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDMRWXipp7VCMQiezOZSSZAhSQo8MWVgKs",
@@ -416,11 +507,12 @@
     let app, auth, db;
     const appId = "ordinalac-app";
     
-    const defaultLensData = {
-      "Alcon": { "Dailies Total 1": ["Standard", "Multifocal"], "Precision 1": ["Standard", "Astigmatismo"] },
-      "Johnson & Johnson": { "Acuvue Oasys": ["Standard", "Astigmatismo"] }
-    };
+    const defaultLensData = { "Alcon": { "Dailies Total 1": ["Standard", "Multifocal"] } };
     let globalCatalogData = {};
+    let globalOrders = [];
+    let uniqueClientsCache = []; 
+    let opticiansMap = {}; 
+    let allOpticiansCache = []; // Cache per archivio ottici
 
     // UI Elements
     const loginView = document.getElementById('login-view');
@@ -432,76 +524,73 @@
     const logoutButton = document.getElementById('logout-button');
     const loginError = document.getElementById('login-error');
     const userEmailDisplay = document.getElementById('user-email-display');
-    const anonWarning = document.getElementById('anon-warning');
-    const forceLogoutBtn = document.getElementById('force-logout-btn');
     
     // Nav Items
     const viewMonitor = document.getElementById('view-monitor');
     const viewCatalog = document.getElementById('view-catalog');
     const viewClients = document.getElementById('view-clients');
+    const viewOpticians = document.getElementById('view-opticians'); // NUOVO
     const navMonitor = document.getElementById('nav-monitor');
     const navCatalog = document.getElementById('nav-catalog');
     const navClients = document.getElementById('nav-clients');
+    const navOpticians = document.getElementById('nav-opticians'); // NUOVO
 
-    // Monitor Data Elements
+    // Monitor Elements
     const searchInput = document.getElementById('search-input');
-    const fetchErrorBanner = document.getElementById('fetch-error-banner');
-    const fetchErrorMsg = document.getElementById('fetch-error-msg');
     const dateStartInput = document.getElementById('date-start');
     const dateEndInput = document.getElementById('date-end');
     const refreshBtn = document.getElementById('refresh-btn');
-    const kpiTotal = document.getElementById('kpi-total-orders');
-    const kpiActiveOpt = document.getElementById('kpi-active-opticians');
-    const kpiDelPerc = document.getElementById('kpi-delivery-perc');
-    const kpiTopBrand = document.getElementById('kpi-top-brand');
     const ordersTableBody = document.getElementById('orders-table-body');
-    const noResultsMsg = document.getElementById('no-results');
-    const topOpticiansList = document.getElementById('top-opticians-list');
-    const opticianExportSelect = document.getElementById('optician-export-select');
-    const exportFiltersDiv = document.getElementById('export-filters');
-    const filterManufacturer = document.getElementById('filter-manufacturer');
-    const filterModel = document.getElementById('filter-model');
-    const filterType = document.getElementById('filter-type');
-    const btnExportPdf = document.getElementById('btn-export-pdf');
 
     // Modals
     const orderModal = document.getElementById('order-modal');
+    const historyModal = document.getElementById('client-history-modal');
     const registerModal = document.getElementById('register-modal');
+    const opticianEditModal = document.getElementById('optician-edit-modal'); // NUOVO
 
-    let globalOrders = [];
-    let charts = {};
-    let opticiansMap = {}; 
-
-    // --- INITIALIZATION & UTILS ---
     try {
         app = initializeApp(firebaseConfig);
         auth = getAuth(app);
         db = getFirestore(app);
     } catch(e) { console.error("Firebase init error:", e); }
 
-    const setDefaultDates = () => {
-        const end = new Date();
-        const start = new Date();
-        start.setDate(end.getDate() - 30);
-        dateEndInput.valueAsDate = end;
-        dateStartInput.valueAsDate = start;
-    };
-    setDefaultDates();
-
     const showLoading = (show) => {
         if(show) loadingOverlay.classList.remove('hidden');
         else loadingOverlay.classList.add('hidden');
     };
     
-    // Tabs Logic Updated
+    window.closeModal = () => orderModal.classList.add('hidden');
+    window.closeHistoryModal = () => historyModal.classList.add('hidden');
+    window.closeRegisterModal = () => registerModal.classList.add('hidden');
+    window.closeOpticianEditModal = () => opticianEditModal.classList.add('hidden');
+
+    window.openRegisterModal = () => {
+        document.getElementById('reg-email').value = '';
+        document.getElementById('reg-password').value = '';
+        document.getElementById('reg-store-name').value = '';
+        document.getElementById('reg-piva').value = '';
+        document.getElementById('reg-address').value = '';
+        document.getElementById('reg-phone').value = '';
+        document.getElementById('reg-logo').value = ''; 
+        document.getElementById('reg-success').classList.add('hidden');
+        document.getElementById('reg-error').classList.add('hidden');
+        const btn = document.getElementById('btn-confirm-register');
+        btn.classList.remove('hidden');
+        btn.disabled = false;
+        btn.innerText = "Crea Partner";
+        registerModal.classList.remove('hidden');
+    };
+    
     window.switchTab = (tabName) => {
         viewMonitor.classList.add('hidden');
         viewCatalog.classList.add('hidden');
         viewClients.classList.add('hidden');
+        viewOpticians.classList.add('hidden');
         
         navMonitor.classList.remove('active');
         navCatalog.classList.remove('active');
         navClients.classList.remove('active');
+        navOpticians.classList.remove('active');
 
         if(tabName === 'monitor') {
             viewMonitor.classList.remove('hidden');
@@ -514,508 +603,318 @@
             viewClients.classList.remove('hidden');
             navClients.classList.add('active');
             renderGlobalClients(globalOrders);
+        } else if (tabName === 'opticians') {
+            viewOpticians.classList.remove('hidden');
+            navOpticians.classList.add('active');
+            loadOpticiansRegistry();
         }
     };
 
-    window.closeModal = () => orderModal.classList.add('hidden');
-    window.openRegisterModal = () => {
-        document.getElementById('reg-email').value = '';
-        document.getElementById('reg-password').value = '';
-        document.getElementById('reg-store-name').value = '';
-        document.getElementById('reg-piva').value = '';
-        document.getElementById('reg-address').value = '';
-        document.getElementById('reg-phone').value = '';
-        document.getElementById('reg-success').classList.add('hidden');
-        document.getElementById('reg-error').classList.add('hidden');
-        const btn = document.getElementById('btn-confirm-register');
-        btn.classList.remove('hidden');
-        btn.disabled = false;
-        btn.innerText = "Crea Partner";
-        registerModal.classList.remove('hidden');
-    }
-    window.closeRegisterModal = () => registerModal.classList.add('hidden');
-
-    // --- AUTHENTICATION ---
+    // --- AUTH ---
     loginButton.addEventListener('click', async () => {
       try {
         loginError.classList.add('hidden');
-        loginButton.disabled = true;
-        loginButton.innerText = "Accesso in corso...";
         await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
       } catch (e) {
         loginError.innerText = "Errore: " + e.message;
         loginError.classList.remove('hidden');
-        loginButton.disabled = false;
-        loginButton.innerText = "Accedi al Portale";
       }
     });
     
     const doLogout = () => { signOut(auth).then(() => window.location.reload()); };
     logoutButton.addEventListener('click', doLogout);
-    forceLogoutBtn.addEventListener('click', doLogout);
+    document.getElementById('force-logout-btn').addEventListener('click', doLogout);
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        if (user.isAnonymous) {
-            anonWarning.classList.remove('hidden');
-            loginView.classList.remove('hidden');
-            dashboardView.classList.add('hidden');
+         if (user.isAnonymous) {
+            document.getElementById('anon-warning').classList.remove('hidden');
             return;
         }
-        anonWarning.classList.add('hidden');
         loginView.classList.add('hidden');
         dashboardView.classList.remove('hidden');
         userEmailDisplay.innerText = user.email;
-        fetchAllData(); // Load Monitor Data
-        loadMasterCatalog(); // Load Catalog Data
+        setDefaultDates();
+        fetchAllData();
+        loadMasterCatalog();
       } else {
         loginView.classList.remove('hidden');
         dashboardView.classList.add('hidden');
-        loginButton.disabled = false;
-        loginButton.innerText = "Accedi al Portale";
       }
     });
+    
+    const setDefaultDates = () => {
+        const end = new Date();
+        const start = new Date();
+        start.setDate(end.getDate() - 30);
+        dateEndInput.valueAsDate = end;
+        dateStartInput.valueAsDate = start;
+    };
 
-    refreshBtn.onclick = fetchAllData;
-
-    // --- MONITOR DATA FETCHING ---
+    // --- DATA FETCHING ---
     async function fetchOpticianRegistry() {
         try {
             const q = query(collection(db, 'opticians_registry'));
             const snapshot = await getDocs(q);
             opticiansMap = {};
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                opticiansMap[data.uid] = data.store_name;
-            });
-        } catch (e) { console.warn("Registry fetch warning:", e); }
+            snapshot.forEach(doc => { opticiansMap[doc.data().uid] = doc.data().store_name; });
+        } catch (e) {}
     }
 
     async function fetchAllData() {
       showLoading(true);
-      fetchErrorBanner.classList.add('hidden');
-      
       const startDate = new Date(dateStartInput.value);
       const endDate = new Date(dateEndInput.value);
       startDate.setHours(0,0,0,0);
       endDate.setHours(23,59,59,999);
 
       await fetchOpticianRegistry();
-
-      const q = query(
-          collection(db, `artifacts/${appId}/public/data/orders`),
-          where('timestamp', '>=', startDate),
-          where('timestamp', '<=', endDate)
-      );
+      const q = query(collection(db, `artifacts/${appId}/public/data/orders`), where('timestamp', '>=', startDate), where('timestamp', '<=', endDate));
 
       try {
         const snapshot = await getDocs(q);
         globalOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         globalOrders.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
         
-        processAndRender(globalOrders);
-        populateOpticianDropdown(globalOrders);
+        processAndRenderMonitor(globalOrders);
         
-        // Se siamo nella tab clienti, aggiorniamo anche quella
-        if(navClients.classList.contains('active')) {
-            renderGlobalClients(globalOrders);
-        }
-
-      } catch (e) {
-        console.error("Fetch error:", e);
-        fetchErrorMsg.innerText = e.message;
-        if(e.message.includes("index")) fetchErrorMsg.innerText += " (Manca indice Firestore)";
-        fetchErrorBanner.classList.remove('hidden');
-        ordersTableBody.innerHTML = '';
-      } finally {
-          showLoading(false);
-      }
-    }
-
-    // --- MASTER CATALOG LOGIC ---
-    async function loadMasterCatalog() {
-        const docRef = doc(db, "catalogs", "master");
-        try {
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                globalCatalogData = docSnap.data().data || {};
-            } else {
-                globalCatalogData = defaultLensData;
-                await saveMasterCatalog(true); 
-            }
-        } catch (e) {
-            console.error("Catalog Load Error:", e);
-            globalCatalogData = defaultLensData;
-        }
-        renderCatalogUI();
-    }
-
-    window.saveMasterCatalog = async (silent = false) => {
-        const btn = document.getElementById('btn-save-catalog');
-        if(!silent) { btn.innerText = "Salvataggio..."; btn.disabled = true; }
+        // Se siamo nella tab clienti, aggiorna
+        if(!viewClients.classList.contains('hidden')) renderGlobalClients(globalOrders);
         
+      } catch (e) { console.error(e); } finally { showLoading(false); }
+    }
+    refreshBtn.onclick = fetchAllData;
+
+    // --- OPTICIANS ARCHIVE LOGIC ---
+    
+    async function loadOpticiansRegistry() {
+        showLoading(true);
         try {
-            await setDoc(doc(db, "catalogs", "master"), { data: globalCatalogData });
-            if(!silent) alert("Catalogo Globale aggiornato con successo! Gli ottici vedranno queste modifiche aggiornando la pagina.");
+            const q = query(collection(db, 'opticians_registry'));
+            const snapshot = await getDocs(q);
+            allOpticiansCache = [];
+            snapshot.forEach(doc => {
+                allOpticiansCache.push(doc.data());
+            });
+            renderOpticiansTable(allOpticiansCache);
         } catch(e) {
-            alert("Errore salvataggio: " + e.message);
+            console.error(e);
         } finally {
-            if(!silent) { btn.innerText = "Salva Modifiche Globali"; btn.disabled = false; }
-            renderCatalogUI();
+            showLoading(false);
         }
+    }
+
+    function renderOpticiansTable(opticians) {
+        const tbody = document.getElementById('opticians-table-body');
+        tbody.innerHTML = '';
+        const search = (document.getElementById('search-optician').value || '').toLowerCase();
+        
+        const filtered = opticians.filter(o => 
+            (o.store_name || '').toLowerCase().includes(search) ||
+            (o.email || '').toLowerCase().includes(search) ||
+            (o.uid || '').toLowerCase().includes(search)
+        );
+
+        filtered.forEach(opt => {
+            const logoHtml = opt.logo_base64 
+                ? `<img src="${opt.logo_base64}" class="h-10 w-10 rounded-full object-cover border">`
+                : `<div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">Logo</div>`;
+
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-gray-50 transition border-b border-gray-100";
+            tr.innerHTML = `
+                <td class="px-4 py-3">${logoHtml}</td>
+                <td class="px-4 py-3 font-bold text-gray-800 text-sm">${opt.store_name || '-'}</td>
+                <td class="px-4 py-3 text-xs">${opt.piva || '-'}</td>
+                <td class="px-4 py-3 text-xs text-gray-500 max-w-xs truncate" title="${opt.address || ''}">${opt.address || '-'}</td>
+                <td class="px-4 py-3 text-xs">
+                    <div class="text-gray-600">${opt.email}</div>
+                    <div class="text-gray-500">${opt.phone || '-'}</div>
+                </td>
+                <td class="px-4 py-3 font-mono text-xs text-gray-500 select-all">${opt.uid}</td>
+                <td class="px-4 py-3 text-center">
+                    <button onclick="openEditOptician('${opt.uid}')" class="bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1 rounded border border-blue-200 text-xs font-bold transition">
+                        ✏️ Modifica
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+    
+    document.getElementById('search-optician').addEventListener('input', () => renderOpticiansTable(allOpticiansCache));
+
+    window.openEditOptician = (uid) => {
+        const opt = allOpticiansCache.find(o => o.uid === uid);
+        if(!opt) return;
+        
+        document.getElementById('edit-opt-uid').value = uid;
+        document.getElementById('edit-opt-name').value = opt.store_name || '';
+        document.getElementById('edit-opt-piva').value = opt.piva || '';
+        document.getElementById('edit-opt-address').value = opt.address || '';
+        document.getElementById('edit-opt-phone').value = opt.phone || '';
+        document.getElementById('edit-opt-logo').value = ''; // Reset input file
+        
+        const prevContainer = document.getElementById('current-logo-preview');
+        if(opt.logo_base64) {
+            prevContainer.innerHTML = `<p class="text-xs text-gray-500 mb-1">Logo Attuale:</p><img src="${opt.logo_base64}" class="h-16 w-auto border rounded">`;
+        } else {
+            prevContainer.innerHTML = `<p class="text-xs text-gray-400 italic">Nessun logo caricato</p>`;
+        }
+        
+        opticianEditModal.classList.remove('hidden');
     };
 
-    function renderCatalogUI() {
-        const listDiv = document.getElementById('catalog-list-container');
-        listDiv.innerHTML = '';
+    document.getElementById('btn-save-opt-changes').addEventListener('click', async () => {
+        const uid = document.getElementById('edit-opt-uid').value;
+        const name = document.getElementById('edit-opt-name').value;
+        const piva = document.getElementById('edit-opt-piva').value;
+        const addr = document.getElementById('edit-opt-address').value;
+        const phone = document.getElementById('edit-opt-phone').value;
+        const logoFile = document.getElementById('edit-opt-logo').files[0];
         
-        const manufSelectModel = document.getElementById('manufacturer-select-for-model');
-        const manufSelectType = document.getElementById('manufacturer-select-for-type');
-        let ops = '<option value="">Seleziona...</option>';
-        Object.keys(globalCatalogData).sort().forEach(m => ops += `<option value="${m}">${m}</option>`);
-        manufSelectModel.innerHTML = ops; 
-        manufSelectType.innerHTML = ops;
-
-        for (const manufacturer in globalCatalogData) {
-            let modelsHtml = '';
-            for (const model in globalCatalogData[manufacturer]) {
-                const types = globalCatalogData[manufacturer][model];
-                modelsHtml += `
-                    <div class="ml-2 mt-2 border-l-2 border-gray-200 pl-2">
-                        <div class="flex justify-between text-sm font-medium text-gray-700">
-                            <span>${model}</span>
-                            <button class="text-red-400 hover:text-red-600 text-xs" onclick="deleteItem('${manufacturer}', '${model}')">&times; Modello</button>
-                        </div>
-                        <div class="flex flex-wrap gap-1 mt-1">
-                            ${types.map(t => `<span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded border border-blue-100 flex items-center gap-1">${t} <span class="cursor-pointer font-bold hover:text-red-500" onclick="deleteItem('${manufacturer}', '${model}', '${t}')">&times;</span></span>`).join('')}
-                        </div>
-                    </div>
-                `;
+        const btn = document.getElementById('btn-save-opt-changes');
+        btn.disabled = true; btn.innerText = "Salvataggio...";
+        
+        try {
+            const updates = {
+                store_name: name,
+                piva: piva,
+                address: addr,
+                phone: phone
+            };
+            
+            if (logoFile) {
+                if (logoFile.size > 500 * 1024) throw new Error("Logo troppo grande (Max 500KB).");
+                updates.logo_base64 = await convertBase64(logoFile);
             }
             
-            const card = document.createElement('div');
-            card.className = "bg-white border border-gray-200 rounded-lg p-4 shadow-sm";
-            card.innerHTML = `
-                <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
-                    <h4 class="font-bold text-indigo-700">${manufacturer}</h4>
-                    <button class="text-red-400 hover:text-red-600 text-xs" onclick="deleteItem('${manufacturer}')">Elimina</button>
-                </div>
-                ${modelsHtml}
-            `;
-            listDiv.appendChild(card);
-        }
-    }
-
-    window.deleteItem = async (manuf, model, type) => {
-        if(type) {
-            if(!confirm(`Eliminare tipo ${type}?`)) return;
-            const idx = globalCatalogData[manuf][model].indexOf(type);
-            if(idx > -1) globalCatalogData[manuf][model].splice(idx, 1);
-        } else if (model) {
-            if(!confirm(`Eliminare modello ${model}?`)) return;
-            delete globalCatalogData[manuf][model];
-        } else {
-            if(!confirm(`Eliminare produttore ${manuf}?`)) return;
-            delete globalCatalogData[manuf];
-        }
-        renderCatalogUI(); 
-    };
-
-    document.getElementById('add-manufacturer-button').onclick = () => {
-        const val = document.getElementById('new-manufacturer-name').value.trim();
-        if(val && !globalCatalogData[val]) { 
-            globalCatalogData[val] = {}; 
-            document.getElementById('new-manufacturer-name').value=''; 
-            renderCatalogUI(); 
-        }
-    };
-    document.getElementById('add-model-button').onclick = () => {
-        const m = document.getElementById('manufacturer-select-for-model').value;
-        const val = document.getElementById('new-model-name').value.trim();
-        if(m && val && !globalCatalogData[m][val]) { 
-            globalCatalogData[m][val] = []; 
-            document.getElementById('new-model-name').value=''; 
-            renderCatalogUI(); 
-        }
-    };
-    document.getElementById('manufacturer-select-for-type').onchange = (e) => {
-        const m = e.target.value;
-        const modSel = document.getElementById('model-select-for-type');
-        modSel.innerHTML = '<option value="">Seleziona...</option>';
-        modSel.disabled = true;
-        if(m && globalCatalogData[m]) {
-            Object.keys(globalCatalogData[m]).forEach(k => modSel.innerHTML += `<option value="${k}">${k}</option>`);
-            modSel.disabled = false;
-        }
-    };
-    document.getElementById('add-type-button').onclick = () => {
-        const m = document.getElementById('manufacturer-select-for-type').value;
-        const mo = document.getElementById('model-select-for-type').value;
-        const val = document.getElementById('new-type-name').value.trim();
-        if(m && mo && val && !globalCatalogData[m][mo].includes(val)) { 
-            globalCatalogData[m][mo].push(val); 
-            document.getElementById('new-type-name').value=''; 
-            renderCatalogUI(); 
-        }
-    };
-
-
-    // --- SEARCH & UI LOGIC ---
-    searchInput.addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        if(!term) { renderTable(globalOrders); return; }
-        const filtered = globalOrders.filter(o => {
-            const optId = (o.optician_id || '').toLowerCase();
-            const optName = (opticiansMap[o.optician_id] || '').toLowerCase();
-            const patName = (o.patient_name || '').toLowerCase();
-            return optId.includes(term) || optName.includes(term) || patName.includes(term);
-        });
-        renderTable(filtered);
-    });
-
-    // --- REGISTRATION LOGIC ---
-    document.getElementById('btn-confirm-register').addEventListener('click', async () => {
-        const email = document.getElementById('reg-email').value;
-        const pass = document.getElementById('reg-password').value;
-        const storeName = document.getElementById('reg-store-name').value;
-        const piva = document.getElementById('reg-piva').value;
-        const address = document.getElementById('reg-address').value;
-        const phone = document.getElementById('reg-phone').value;
-        const errBox = document.getElementById('reg-error');
-        const successBox = document.getElementById('reg-success');
-        const confirmBtn = document.getElementById('btn-confirm-register');
-
-        if(!email || !pass || !storeName) {
-            errBox.innerText = "Compila almeno Email, Password e Nome Negozio.";
-            errBox.classList.remove('hidden'); return;
-        }
-        if(pass.length < 6) {
-            errBox.innerText = "La password deve essere di almeno 6 caratteri.";
-            errBox.classList.remove('hidden'); return;
-        }
-
-        errBox.classList.add('hidden');
-        confirmBtn.innerText = "Elaborazione...";
-        confirmBtn.disabled = true;
-
-        let secondaryApp = null;
-        try {
-            secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
-            const secondaryAuth = getAuth(secondaryApp);
-            const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
-            const newUid = userCred.user.uid;
-
-            await setDoc(doc(db, 'opticians_registry', newUid), {
-                uid: newUid, email: email, store_name: storeName, piva: piva, address: address, phone: phone, created_at: new Date()
-            });
-
-            document.getElementById('generated-uid').innerText = newUid;
-            successBox.classList.remove('hidden');
-            confirmBtn.classList.add('hidden');
-            opticiansMap[newUid] = storeName; 
-
-        } catch (error) {
-            console.error("Creation error:", error);
-            let msg = error.message;
-            if(error.code === 'auth/email-already-in-use') msg = "Email già registrata.";
-            errBox.innerText = msg;
-            errBox.classList.remove('hidden');
-            confirmBtn.innerText = "Crea Partner";
-            confirmBtn.disabled = false;
+            await updateDoc(doc(db, 'opticians_registry', uid), updates);
+            
+            alert("Dati aggiornati correttamente!");
+            closeOpticianEditModal();
+            loadOpticiansRegistry(); // Refresh list
+            
+        } catch (e) {
+            alert("Errore: " + e.message);
         } finally {
-            if (secondaryApp) deleteApp(secondaryApp); 
+            btn.disabled = false; btn.innerText = "Salva Modifiche";
         }
     });
 
-    // --- EXPORT LOGIC ---
-    function populateOpticianDropdown(orders) {
-        const opticians = new Set();
-        orders.forEach(o => { if(o.optician_id) opticians.add(o.optician_id); });
+    // --- MONITOR LOGIC ---
+    function processAndRenderMonitor(orders) {
+        const kpiTotal = document.getElementById('kpi-total-orders');
+        const kpiActiveOpt = document.getElementById('kpi-active-opticians');
+        const kpiDelPerc = document.getElementById('kpi-delivery-perc');
+        const kpiTopBrand = document.getElementById('kpi-top-brand');
         
-        opticianExportSelect.innerHTML = '<option value="">-- Seleziona Ottico --</option>';
-        const sortedOpts = Array.from(opticians).sort((a,b) => {
-            const nameA = (opticiansMap[a] || a).toLowerCase();
-            const nameB = (opticiansMap[b] || b).toLowerCase();
-            return nameA.localeCompare(nameB);
-        });
-
-        sortedOpts.forEach(opt => {
-            const option = document.createElement('option');
-            option.value = opt;
-            option.innerText = opticiansMap[opt] || opt;
-            opticianExportSelect.appendChild(option);
-        });
+        kpiTotal.innerText = orders.length;
+        kpiActiveOpt.innerText = new Set(orders.map(o => o.optician_id)).size;
+        const dC = orders.filter(o => o.delivery?.mode === 'delivery').length;
+        kpiDelPerc.innerText = (orders.length > 0 ? Math.round((dC / orders.length) * 100) : 0) + "%";
+        
+        const bC = {};
+        orders.forEach(o => { const b = o.lens_order?.manufacturer || '-'; bC[b] = (bC[b]||0)+1; });
+        const sortedB = Object.entries(bC).sort((a,b) => b[1]-a[1]);
+        kpiTopBrand.innerText = sortedB.length > 0 ? sortedB[0][0] : '-';
+        
+        renderBrandChart(bC); 
+        renderTopOpticians(orders); 
+        renderTableMonitor(orders);
     }
-
-    opticianExportSelect.addEventListener('change', () => {
-        const optId = opticianExportSelect.value;
-        if(!optId) { exportFiltersDiv.classList.add('hidden'); return; }
-        const optOrders = globalOrders.filter(o => o.optician_id === optId);
-        const manufs = new Set(); const models = new Set(); const types = new Set();
-
-        optOrders.forEach(o => {
-            if(o.lens_order?.manufacturer) manufs.add(o.lens_order.manufacturer);
-            if(o.lens_order?.model) models.add(o.lens_order.model);
-            if(o.lens_order?.od?.type) types.add(o.lens_order.od.type);
-            if(o.lens_order?.os?.type) types.add(o.lens_order.os.type);
-        });
-
-        filterManufacturer.innerHTML = '<option value="">Tutti i Produttori</option>';
-        manufs.forEach(m => filterManufacturer.innerHTML += `<option value="${m}">${m}</option>`);
-        filterModel.innerHTML = '<option value="">Tutti i Modelli</option>';
-        models.forEach(m => filterModel.innerHTML += `<option value="${m}">${m}</option>`);
-        filterType.innerHTML = '<option value="">Tutti i Tipi</option>';
-        types.forEach(t => filterType.innerHTML += `<option value="${t}">${t}</option>`);
-
-        exportFiltersDiv.classList.remove('hidden');
-    });
-
-    btnExportPdf.addEventListener('click', () => {
-        const optId = opticianExportSelect.value;
-        if(!optId) { alert("Seleziona prima un ottico dal menu."); return; }
-        showLoading(true);
-        setTimeout(() => { 
-            generatePdfForOptician(optId);
-            showLoading(false);
-        }, 100);
-    });
-
-    function generatePdfForOptician(opticianId) {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ orientation: 'landscape' });
+    
+    // Chart Rendering (Monitor)
+    let charts = {};
+    function renderBrandChart(counts) {
+        const ctx = document.getElementById('chart-brands').getContext('2d');
+        if (charts.brands) charts.brands.destroy();
+        const entries = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+        const top5 = entries.slice(0, 5);
+        const others = entries.slice(5).reduce((acc, curr) => acc + curr[1], 0);
+        const labels = top5.map(e => e[0]);
+        const data = top5.map(e => e[1]);
+        if(others > 0) { labels.push('Altri'); data.push(others); }
         
-        const selManuf = filterManufacturer.value;
-        const selModel = filterModel.value;
-        const selType = filterType.value;
-
-        let optOrders = globalOrders.filter(o => o.optician_id === opticianId);
-        if (selManuf) optOrders = optOrders.filter(o => o.lens_order?.manufacturer === selManuf);
-        if (selModel) optOrders = optOrders.filter(o => o.lens_order?.model === selModel);
-        if (selType) optOrders = optOrders.filter(o => (o.lens_order?.od?.type === selType || o.lens_order?.os?.type === selType));
-
-        if(optOrders.length === 0) { alert("Nessun cliente trovato con questi filtri."); return; }
-
-        const clientsMap = new Map();
-        optOrders.forEach(o => {
-            const key = (o.patient_name || 'Sconosciuto').trim() + '_' + (o.client_info?.phone || '').trim();
-            if (!clientsMap.has(key)) {
-                const info = o.client_info || {};
-                const del = o.delivery || {};
-                const l = o.lens_order || {};
-                let address = 'N/D';
-                if(del.address_details && del.address_details.city) address = `${del.address_details.city} (${del.address_details.province})`;
-                else if (del.address_full) address = 'Vedi Dettaglio';
-                
-                const odInfo = l.od ? `OD: ${l.od.pwr || '-'} ${l.od.cyl ? '/ '+l.od.cyl : ''}` : '';
-                const osInfo = l.os ? `OS: ${l.os.pwr || '-'} ${l.os.cyl ? '/ '+l.os.cyl : ''}` : '';
-
-                clientsMap.set(key, [
-                    o.patient_name || 'N/D', info.phone || '-', info.email || '-', address, l.manufacturer || '-', l.model || '-', `${odInfo}\n${osInfo}`
-                ]);
+        charts.brands = new Chart(ctx, {
+            type: 'doughnut',
+            data: { 
+                labels: labels, 
+                datasets: [{ 
+                    data: data, 
+                    backgroundColor: ['#4F46E5', '#10B981', '#F59E0B', '#EC4899', '#6366F1', '#9CA3AF'], 
+                    borderWidth: 0, hoverOffset: 4
+                }] 
+            },
+            options: { 
+                responsive: true, maintainAspectRatio: false, 
+                plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } } } 
             }
         });
-
-        const tableBody = Array.from(clientsMap.values());
-        const optName = opticiansMap[opticianId] || opticianId;
-
-        doc.setFontSize(16); doc.setTextColor(40); doc.text(`Report Clienti: ${optName}`, 14, 15);
-        doc.setFontSize(10); doc.setTextColor(100);
-        let filterText = `Periodo: ${dateStartInput.value} - ${dateEndInput.value}`;
-        if(selManuf) filterText += ` | Prod: ${selManuf}`;
-        doc.text(filterText, 14, 22);
-
-        doc.autoTable({
-            startY: 28,
-            head: [['Cliente', 'Telefono', 'Email', 'Città', 'Produttore', 'Modello', 'Dettagli Lenti']],
-            body: tableBody,
-            theme: 'grid',
-            styles: { fontSize: 9, cellPadding: 3 },
-            headStyles: { fillColor: [79, 70, 229], textColor: 255, fontStyle: 'bold' },
-            columnStyles: { 0: { cellWidth: 35, fontStyle: 'bold' }, 6: { cellWidth: 50, fontSize: 8 } }
-        });
-        doc.save(`Clienti_${optName.replace(/\s+/g, '_')}_${dateEndInput.value}.pdf`);
     }
 
-    // --- RENDER FUNCTIONS ---
-    function processAndRender(orders) {
-        const totalOrders = orders.length;
-        const uniqueOpticians = new Set(orders.map(o => o.optician_id)).size;
-        const deliveryCount = orders.filter(o => o.delivery?.mode === 'delivery').length;
-        const deliveryPerc = totalOrders > 0 ? Math.round((deliveryCount / totalOrders) * 100) : 0;
-
-        const brandCounts = {};
-        const opticianCounts = {};
+    function renderTopOpticians(orders) {
+        const counts = {};
         orders.forEach(o => {
-            const b = o.lens_order?.manufacturer || 'N/D';
-            brandCounts[b] = (brandCounts[b] || 0) + 1;
             const id = o.optician_id;
-            if(id) opticianCounts[id] = (opticianCounts[id] || 0) + 1;
+            if(id) counts[id] = (counts[id] || 0) + 1;
         });
-
-        const sortedBrands = Object.entries(brandCounts).sort((a,b) => b[1] - a[1]);
-        const topBrand = sortedBrands.length > 0 ? sortedBrands[0][0] : '-';
-
-        kpiTotal.innerText = totalOrders;
-        kpiActiveOpt.innerText = uniqueOpticians;
-        kpiDelPerc.innerText = deliveryPerc + "%";
-        kpiTopBrand.innerText = topBrand; kpiTopBrand.title = topBrand;
-
-        renderBrandChart(brandCounts);
-        renderTopOpticians(opticianCounts);
-        renderTable(orders);
+        const topOpticiansList = document.getElementById('top-opticians-list');
+        topOpticiansList.innerHTML = '';
+        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 5); 
+        if(sorted.length === 0) { topOpticiansList.innerHTML = '<li class="text-sm text-gray-400 italic text-center p-4">Nessun dato nel periodo</li>'; return; }
+        const maxVal = sorted[0][1];
+        sorted.forEach(([id, count], index) => {
+            const name = opticiansMap[id] || id;
+            const percent = (count / maxVal) * 100;
+            const li = document.createElement('li');
+            li.className = "flex flex-col p-2 rounded-lg hover:bg-gray-50 transition";
+            li.innerHTML = `
+                <div class="flex justify-between items-center mb-1">
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        <span class="bg-indigo-100 text-indigo-700 font-bold w-5 h-5 flex items-center justify-center rounded text-xs flex-shrink-0">${index + 1}</span>
+                        <span class="text-sm font-bold text-gray-700 truncate" title="${name}">${name}</span>
+                    </div>
+                    <span class="text-xs font-bold text-gray-900">${count}</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5">
+                    <div class="bg-indigo-500 h-1.5 rounded-full" style="width: ${percent}%"></div>
+                </div>
+            `;
+            topOpticiansList.appendChild(li);
+        });
     }
 
-    function renderTable(orders) {
+    function renderTableMonitor(orders) {
         ordersTableBody.innerHTML = '';
-        if (orders.length === 0) { noResultsMsg.classList.remove('hidden'); return; }
-        noResultsMsg.classList.add('hidden');
-        
-        const displayOrders = orders.slice(0, 100); 
         const statusColors = { 'new': 'bg-blue-100 text-blue-800', 'processing': 'bg-yellow-100 text-yellow-800', 'ready': 'bg-green-100 text-green-800', 'completed': 'bg-gray-100 text-gray-600', 'cancelled': 'bg-red-100 text-red-800' };
-        const statusLabels = { 'new': 'Nuovo', 'processing': 'In Lav.', 'ready': 'Pronto', 'completed': 'Chiuso', 'cancelled': 'Annullato' };
-
-        displayOrders.forEach((o) => {
-            const date = o.timestamp ? new Date(o.timestamp.seconds * 1000).toLocaleDateString('it-IT') : '-';
-            const optId = o.optician_id || '';
-            const optName = opticiansMap[optId] || optId || '<span class="text-red-400">ID Mancante</span>';
-            const patName = o.patient_name || 'Sconosciuto';
-            const status = o.status || 'new';
-            const badgeClass = statusColors[status] || 'bg-gray-100 text-gray-800';
-            const statusText = statusLabels[status] || status;
-
-            const row = document.createElement('tr');
-            row.className = "hover:bg-indigo-50 transition-colors border-b border-gray-100";
-            row.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap text-gray-500 font-mono">${date}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-indigo-700 font-bold">
-                    <div class="flex items-center">
-                        <span class="truncate max-w-[150px]" title="${optName}">${optName}</span>
-                        <button onclick="window.exportOpticianClients('${optId}')" title="Filtra questo ottico" class="ml-2 text-gray-300 hover:text-indigo-600 transition">
-                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
-                        </button>
-                    </div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">${patName}</td>
-                <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${badgeClass}">${statusText}</span></td>
-                <td class="px-6 py-4 whitespace-nowrap text-center">
-                   <button class="text-indigo-600 hover:text-indigo-900 bg-white border border-indigo-200 hover:border-indigo-400 p-2 rounded-full shadow-sm transition detail-btn" data-id="${o.id}" title="Vedi Dettagli">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                   </button>
+        
+        orders.slice(0, 100).forEach(o => {
+            const date = o.timestamp ? new Date(o.timestamp.seconds * 1000).toLocaleDateString() : '-';
+            const optName = opticiansMap[o.optician_id] || o.optician_id;
+            const badgeClass = statusColors[o.status] || 'bg-gray-100';
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-gray-50 border-b border-gray-100";
+            tr.innerHTML = `
+                <td class="px-6 py-4 text-gray-500 text-xs font-mono">${date}</td>
+                <td class="px-6 py-4 text-indigo-700 font-bold text-sm">${optName}</td>
+                <td class="px-6 py-4 text-gray-900 font-medium text-sm">${o.patient_name || '-'}</td>
+                <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${badgeClass}">${o.status || 'new'}</span></td>
+                <td class="px-6 py-4 text-center">
+                    <button onclick="showOrderDetails('${o.id}')" class="text-indigo-600 hover:text-indigo-900 bg-white border p-1 rounded-full">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                    </button>
                 </td>
             `;
-            ordersTableBody.appendChild(row);
-        });
-        document.querySelectorAll('.detail-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const target = e.target.closest('button');
-                const orderId = target.getAttribute('data-id');
-                const order = orders.find(o => o.id === orderId);
-                if(order) showOrderDetails(order);
-            });
+            ordersTableBody.appendChild(tr);
         });
     }
-
-    window.showOrderDetails = function(order) {
+    
+    // Global exposure for button onclick
+    window.showOrderDetails = (id) => {
+        const order = globalOrders.find(x => x.id === id);
+        if(!order) return;
+        
         const optName = opticiansMap[order.optician_id] || order.optician_id;
         document.getElementById('modal-opt-id').innerText = optName;
         
@@ -1071,116 +970,444 @@
         orderModal.classList.remove('hidden');
     };
 
-    function renderBrandChart(counts) {
-        const ctx = document.getElementById('chart-brands').getContext('2d');
-        if (charts.brands) charts.brands.destroy();
-        const entries = Object.entries(counts).sort((a,b) => b[1] - a[1]);
-        const top5 = entries.slice(0, 5);
-        const others = entries.slice(5).reduce((acc, curr) => acc + curr[1], 0);
-        const labels = top5.map(e => e[0]);
-        const data = top5.map(e => e[1]);
-        if(others > 0) { labels.push('Altri'); data.push(others); }
-        
-        charts.brands = new Chart(ctx, {
-            type: 'doughnut',
-            data: { 
-                labels: labels, 
-                datasets: [{ 
-                    data: data, 
-                    backgroundColor: ['#4F46E5', '#10B981', '#F59E0B', '#EC4899', '#6366F1', '#9CA3AF'], 
-                    borderWidth: 0, hoverOffset: 4
-                }] 
-            },
-            options: { 
-                responsive: true, maintainAspectRatio: false, 
-                plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 11 } } } } 
-            }
-        });
-    }
 
-    function renderTopOpticians(counts) {
-        topOpticiansList.innerHTML = '';
-        const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 5); 
-        if(sorted.length === 0) { topOpticiansList.innerHTML = '<li class="text-sm text-gray-400 italic text-center p-4">Nessun dato nel periodo</li>'; return; }
-        const maxVal = sorted[0][1];
-        sorted.forEach(([id, count], index) => {
-            const name = opticiansMap[id] || id;
-            const percent = (count / maxVal) * 100;
-            const li = document.createElement('li');
-            li.className = "flex flex-col p-2 rounded-lg hover:bg-gray-50 transition";
-            li.innerHTML = `
-                <div class="flex justify-between items-center mb-1">
-                    <div class="flex items-center gap-2 overflow-hidden">
-                        <span class="bg-indigo-100 text-indigo-700 font-bold w-5 h-5 flex items-center justify-center rounded text-xs flex-shrink-0">${index + 1}</span>
-                        <span class="text-sm font-bold text-gray-700 truncate" title="${name}">${name}</span>
-                    </div>
-                    <span class="text-xs font-bold text-gray-900">${count}</span>
-                </div>
-                <div class="w-full bg-gray-100 rounded-full h-1.5">
-                    <div class="bg-indigo-500 h-1.5 rounded-full" style="width: ${percent}%"></div>
-                </div>
-            `;
-            topOpticiansList.appendChild(li);
-        });
-    }
+    // --- CLIENT ARCHIVE LOGIC ---
     
-    // --- CLIENTS ARCHIVE FUNCTIONS (NEW) ---
     function extractUniqueClients(orders) {
         const clients = {};
         orders.forEach(o => {
             const info = o.client_info || {};
-            // Chiave univoca: CF se presente, altrimenti Nome + Email (normalizzati)
+            // Chiave univoca: CF se presente, altrimenti Nome + Email
             const key = info.cf ? info.cf.toUpperCase() : (o.patient_name + (info.email || '')).replace(/\s/g, '');
             
-            // Mantieni il record con l'ordine più recente
-            if (!clients[key] || (o.timestamp?.seconds > clients[key].lastOrderTimestamp)) {
+            if (!clients[key]) {
                 clients[key] = {
+                    key: key,
                     name: o.patient_name,
                     cf: info.cf || '-',
                     email: info.email || '-',
                     phone: info.phone || '-',
                     opticianId: o.optician_id,
                     opticianName: opticiansMap[o.optician_id] || 'N/D',
-                    lastOrderDate: o.timestamp ? new Date(o.timestamp.seconds * 1000).toLocaleDateString() : '-',
-                    lastOrderTimestamp: o.timestamp?.seconds || 0,
-                    address: o.delivery?.address_full || 'N/D'
+                    address: o.delivery?.address_full || 'N/D', // Indirizzo
+                    lastOrderDate: 0,
+                    brandSet: new Set(), // Per i filtri
+                    history: [] // Storico ordini
                 };
             }
+            
+            // Aggiorna dati se l'ordine è più recente
+            const ts = o.timestamp?.seconds || 0;
+            if (ts > clients[key].lastOrderDate) {
+                clients[key].lastOrderDate = ts;
+                clients[key].address = o.delivery?.address_full || clients[key].address; // Aggiorna indirizzo
+                clients[key].phone = info.phone || clients[key].phone;
+            }
+            
+            // Aggiungi allo storico
+            if(o.lens_order?.manufacturer) clients[key].brandSet.add(o.lens_order.manufacturer);
+            
+            clients[key].history.push({
+                date: ts,
+                orderId: o.id, // Necessario per l'eliminazione
+                dateStr: new Date(ts * 1000).toLocaleDateString(),
+                manuf: o.lens_order?.manufacturer || '-',
+                model: o.lens_order?.model || '-',
+                od: o.lens_order?.od,
+                os: o.lens_order?.os
+            });
         });
+        
+        // Ordina lo storico per data desc
+        Object.values(clients).forEach(c => c.history.sort((a,b) => b.date - a.date));
+        
         return Object.values(clients);
     }
 
     window.renderGlobalClients = (orders) => {
         const tbody = document.getElementById('clients-table-body');
         tbody.innerHTML = '';
-        const uniqueClients = extractUniqueClients(orders);
         
+        uniqueClientsCache = extractUniqueClients(orders);
+        
+        // Popola filtri dinamici
+        const filterOpt = document.getElementById('filter-client-optician');
+        const filterBrand = document.getElementById('filter-client-brand');
+        const currentOpt = filterOpt.value;
+        const currentBrand = filterBrand.value;
+        
+        // Ottici unici
+        const opts = new Set(uniqueClientsCache.map(c => c.opticianId));
+        filterOpt.innerHTML = '<option value="">Tutti gli Ottici</option>';
+        Array.from(opts).forEach(id => {
+            filterOpt.innerHTML += `<option value="${id}" ${id===currentOpt?'selected':''}>${opticiansMap[id] || id}</option>`;
+        });
+
+        // Brand unici (da tutti gli ordini di tutti i clienti)
+        const brands = new Set();
+        uniqueClientsCache.forEach(c => c.brandSet.forEach(b => brands.add(b)));
+        filterBrand.innerHTML = '<option value="">Tutti i Brand</option>';
+        Array.from(brands).sort().forEach(b => {
+            filterBrand.innerHTML += `<option value="${b}" ${b===currentBrand?'selected':''}>${b}</option>`;
+        });
+
+        // Filtra tabella
         const searchTerm = (document.getElementById('search-client-global').value || '').toLowerCase();
         
-        const filtered = uniqueClients.filter(c => 
-            (c.name || '').toLowerCase().includes(searchTerm) || 
-            (c.cf || '').toLowerCase().includes(searchTerm) || 
-            (c.email || '').toLowerCase().includes(searchTerm)
-        );
+        const filtered = uniqueClientsCache.filter(c => {
+            const matchesSearch = c.name.toLowerCase().includes(searchTerm) || 
+                                  c.cf.toLowerCase().includes(searchTerm) || 
+                                  c.email.toLowerCase().includes(searchTerm);
+            const matchesOpt = currentOpt ? c.opticianId === currentOpt : true;
+            const matchesBrand = currentBrand ? c.brandSet.has(currentBrand) : true;
+            
+            return matchesSearch && matchesOpt && matchesBrand;
+        });
 
         filtered.forEach(c => {
+            const lastDate = c.lastOrderDate ? new Date(c.lastOrderDate * 1000).toLocaleDateString() : '-';
             const row = document.createElement('tr');
-            row.className = "hover:bg-gray-50 transition";
+            row.className = "hover:bg-gray-50 transition border-b border-gray-100";
             row.innerHTML = `
-                <td class="px-4 py-3 font-bold text-gray-800">${c.name}</td>
-                <td class="px-4 py-3">
-                    <div class="text-xs text-gray-500">${c.email}</div>
-                    <div class="text-xs text-gray-500">${c.phone}</div>
+                <td class="px-4 py-3 font-bold text-gray-800">
+                    ${c.name}
+                    <div class="text-xs font-normal text-gray-400">Ultimo: ${lastDate}</div>
                 </td>
-                <td class="px-4 py-3 font-mono text-xs">${c.cf}</td>
-                <td class="px-4 py-3 text-indigo-600 font-bold">${c.opticianName}</td>
-                <td class="px-4 py-3 text-gray-500">${c.lastOrderDate}</td>
+                <td class="px-4 py-3 text-xs">
+                    <div class="text-gray-600">${c.email}</div>
+                    <div class="text-gray-500">${c.phone}</div>
+                    <div class="font-mono text-gray-400 mt-1">${c.cf}</div>
+                </td>
+                <td class="px-4 py-3 text-xs text-gray-600 max-w-xs truncate" title="${c.address}">
+                    ${c.address}
+                </td>
+                <td class="px-4 py-3 text-indigo-600 font-bold text-xs">${c.opticianName}</td>
+                <td class="px-4 py-3 text-center flex items-center justify-center gap-2">
+                    <button onclick="openClientHistory('${c.key}')" class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-3 py-1 rounded border border-indigo-200 text-xs font-bold transition flex items-center gap-1">
+                        <span>📜 Storico & Diottrie</span>
+                    </button>
+                    <button onclick="deleteGlobalClient('${c.key}')" class="bg-red-50 text-red-700 hover:bg-red-100 p-1.5 rounded border border-red-200 text-xs transition" title="Elimina Cliente e Storico">
+                        🗑️
+                    </button>
+                </td>
             `;
             tbody.appendChild(row);
         });
     };
 
+    // --- STAMPA PDF ---
+    window.printClientsPDF = () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('l', 'mm', 'a4'); 
+
+        const search = (document.getElementById('search-client-global').value || '').toLowerCase();
+        const currentOpt = document.getElementById('filter-client-optician').value;
+        const currentBrand = document.getElementById('filter-client-brand').value;
+
+        const dataToPrint = uniqueClientsCache.filter(c => {
+            const matchesSearch = c.name.toLowerCase().includes(search) || 
+                                  c.cf.toLowerCase().includes(search) || 
+                                  c.email.toLowerCase().includes(search);
+            const matchesOpt = currentOpt ? c.opticianId === currentOpt : true;
+            const matchesBrand = currentBrand ? c.brandSet.has(currentBrand) : true;
+            return matchesSearch && matchesOpt && matchesBrand;
+        });
+
+        doc.setFontSize(16);
+        doc.text("Archivio Globale Clienti", 14, 15);
+        doc.setFontSize(10);
+        let filterText = `Totale Clienti: ${dataToPrint.length}`;
+        if(currentOpt) filterText += ` | Ottico: ${opticiansMap[currentOpt] || currentOpt}`;
+        if(currentBrand) filterText += ` | Brand: ${currentBrand}`;
+        doc.text(filterText, 14, 22);
+
+        const tableBody = dataToPrint.map(c => [
+            c.name, 
+            c.cf, 
+            `${c.email}\n${c.phone}`, 
+            c.opticianName, 
+            c.address
+        ]);
+
+        doc.autoTable({
+            startY: 26,
+            head: [['Nome Cliente', 'Codice Fiscale', 'Contatti', 'Ottico Rif.', 'Indirizzo']],
+            body: tableBody,
+            theme: 'grid',
+            styles: { fontSize: 9, cellPadding: 3 },
+            headStyles: { fillColor: [50, 50, 50], textColor: 255, fontStyle: 'bold' },
+            columnStyles: { 0: { fontStyle: 'bold' }, 4: { cellWidth: 60 } }
+        });
+
+        doc.save('Elenco_Clienti_Filtrato.pdf');
+    };
+
+    // Logic Filtri
     document.getElementById('search-client-global').addEventListener('input', () => renderGlobalClients(globalOrders));
+    document.getElementById('filter-client-optician').addEventListener('change', () => renderGlobalClients(globalOrders));
+    document.getElementById('filter-client-brand').addEventListener('change', () => renderGlobalClients(globalOrders));
+
+    // --- ELIMINAZIONE CLIENTE ---
+    window.deleteGlobalClient = async (key) => {
+        if(!confirm("ATTENZIONE: Stai per eliminare questo cliente e TUTTO il suo storico ordini. Questa azione è irreversibile. Continuare?")) return;
+        
+        const client = uniqueClientsCache.find(c => c.key === key);
+        if(!client) return;
+
+        showLoading(true);
+        try {
+            // Eliminazione di tutti gli ordini associati a questo cliente
+            const deletePromises = client.history.map(h => 
+                deleteDoc(doc(db, `artifacts/${appId}/public/data/orders`, h.orderId))
+            );
+            await Promise.all(deletePromises);
+            
+            alert("Cliente e storico eliminati con successo.");
+            await fetchAllData(); // Ricarica tutto
+        } catch (e) {
+            alert("Errore durante l'eliminazione: " + e.message);
+        } finally {
+            showLoading(false);
+        }
+    };
+
+    // --- POPUP STORICO ---
+    window.openClientHistory = (key) => {
+        const client = uniqueClientsCache.find(c => c.key === key);
+        if(!client) return;
+
+        document.getElementById('history-modal-title').innerText = `Storico: ${client.name}`;
+        document.getElementById('history-modal-subtitle').innerText = `CF: ${client.cf} | Tel: ${client.phone}`;
+        
+        const tbody = document.getElementById('history-table-body');
+        tbody.innerHTML = '';
+
+        client.history.forEach(h => {
+            // Helper per formattare i parametri occhio
+            const formatEye = (eye) => {
+                if (!eye) return '-';
+                let s = `<div class="font-bold text-gray-700 text-xs mb-1">${eye.type || ''}</div>`;
+                if(eye.pwr) s += `<span class="bg-gray-100 px-1 rounded border text-xs mr-1">SF: ${eye.pwr}</span>`;
+                if(eye.cyl) s += `<span class="bg-gray-100 px-1 rounded border text-xs mr-1">CYL: ${eye.cyl}</span>`;
+                if(eye.axis) s += `<span class="bg-gray-100 px-1 rounded border text-xs mr-1">AX: ${eye.axis}</span>`;
+                if(eye.add) s += `<span class="bg-yellow-50 px-1 rounded border text-xs text-yellow-700">ADD: ${eye.add}</span>`;
+                return s;
+            };
+
+            const row = document.createElement('tr');
+            row.className = "border-b border-gray-100 hover:bg-gray-50";
+            row.innerHTML = `
+                <td class="px-4 py-3 text-gray-500 font-mono text-xs">${h.dateStr}</td>
+                <td class="px-4 py-3 text-sm">
+                    <div class="font-bold text-gray-800">${h.manuf}</div>
+                    <div class="text-xs text-gray-500">${h.model}</div>
+                </td>
+                <td class="px-4 py-3 text-xs">${formatEye(h.od)}</td>
+                <td class="px-4 py-3 text-xs">${formatEye(h.os)}</td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        historyModal.classList.remove('hidden');
+    };
+
+    // --- REGISTRATION LOGIC ---
+    
+    // Funzione helper per convertire immagine in Base64
+    const convertBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const fileReader = new FileReader();
+            fileReader.readAsDataURL(file);
+            fileReader.onload = () => resolve(fileReader.result);
+            fileReader.onerror = (error) => reject(error);
+        });
+    };
+
+    document.getElementById('btn-confirm-register').addEventListener('click', async () => {
+        const email = document.getElementById('reg-email').value;
+        const pass = document.getElementById('reg-password').value;
+        const storeName = document.getElementById('reg-store-name').value;
+        const piva = document.getElementById('reg-piva').value;
+        const address = document.getElementById('reg-address').value;
+        const phone = document.getElementById('reg-phone').value;
+        const logoFile = document.getElementById('reg-logo').files[0]; // File Logo
+
+        const errBox = document.getElementById('reg-error');
+        const successBox = document.getElementById('reg-success');
+        const confirmBtn = document.getElementById('btn-confirm-register');
+
+        if(!email || !pass || !storeName) {
+            errBox.innerText = "Compila almeno Email, Password e Nome Negozio.";
+            errBox.classList.remove('hidden'); return;
+        }
+        if(pass.length < 6) {
+            errBox.innerText = "La password deve essere di almeno 6 caratteri.";
+            errBox.classList.remove('hidden'); return;
+        }
+        
+        let base64Logo = "";
+        if (logoFile) {
+            if (logoFile.size > 500 * 1024) { // Limit 500KB
+                errBox.innerText = "L'immagine è troppo grande (Max 500KB).";
+                errBox.classList.remove('hidden'); return;
+            }
+            try {
+                base64Logo = await convertBase64(logoFile);
+            } catch (error) {
+                errBox.innerText = "Errore lettura file immagine.";
+                errBox.classList.remove('hidden'); return;
+            }
+        }
+
+        errBox.classList.add('hidden');
+        confirmBtn.innerText = "Elaborazione...";
+        confirmBtn.disabled = true;
+
+        let secondaryApp = null;
+        try {
+            secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
+            const secondaryAuth = getAuth(secondaryApp);
+            const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+            const newUid = userCred.user.uid;
+
+            await setDoc(doc(db, 'opticians_registry', newUid), {
+                uid: newUid, 
+                email: email, 
+                store_name: storeName, 
+                piva: piva, 
+                address: address, 
+                phone: phone, 
+                logo_base64: base64Logo, // Salvataggio logo
+                created_at: new Date()
+            });
+
+            document.getElementById('generated-uid').innerText = newUid;
+            successBox.classList.remove('hidden');
+            confirmBtn.classList.add('hidden');
+            opticiansMap[newUid] = storeName; 
+
+        } catch (error) {
+            console.error("Creation error:", error);
+            let msg = error.message;
+            if(error.code === 'auth/email-already-in-use') msg = "Email già registrata.";
+            errBox.innerText = msg;
+            errBox.classList.remove('hidden');
+            confirmBtn.innerText = "Crea Partner";
+            confirmBtn.disabled = false;
+        } finally {
+            if (secondaryApp) deleteApp(secondaryApp); 
+        }
+    });
+    
+    // --- CATALOG LOGIC ---
+    async function loadMasterCatalog() {
+        const docRef = doc(db, "catalogs", "master");
+        try {
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                globalCatalogData = docSnap.data().data || {};
+            } else {
+                globalCatalogData = defaultLensData;
+                await saveMasterCatalog(true); 
+            }
+        } catch (e) {
+            globalCatalogData = defaultLensData;
+        }
+        renderCatalogUI();
+    }
+
+    window.saveMasterCatalog = async (silent = false) => {
+        const btn = document.getElementById('btn-save-catalog');
+        if(!silent) { btn.innerText = "Salvataggio..."; btn.disabled = true; }
+        try {
+            await setDoc(doc(db, "catalogs", "master"), { data: globalCatalogData });
+            if(!silent) alert("Catalogo aggiornato!");
+        } catch(e) {
+            alert("Errore salvataggio: " + e.message);
+        } finally {
+            if(!silent) { btn.innerText = "Salva Modifiche Globali"; btn.disabled = false; }
+            renderCatalogUI();
+        }
+    };
+
+    function renderCatalogUI() {
+        const listDiv = document.getElementById('catalog-list-container');
+        listDiv.innerHTML = '';
+        const manufSelectModel = document.getElementById('manufacturer-select-for-model');
+        const manufSelectType = document.getElementById('manufacturer-select-for-type');
+        let ops = '<option value="">Seleziona...</option>';
+        Object.keys(globalCatalogData).sort().forEach(m => ops += `<option value="${m}">${m}</option>`);
+        manufSelectModel.innerHTML = ops; manufSelectType.innerHTML = ops;
+
+        for (const manufacturer in globalCatalogData) {
+            let modelsHtml = '';
+            for (const model in globalCatalogData[manufacturer]) {
+                const types = globalCatalogData[manufacturer][model];
+                modelsHtml += `
+                    <div class="ml-2 mt-2 border-l-2 border-gray-200 pl-2">
+                        <div class="flex justify-between text-sm font-medium text-gray-700">
+                            <span>${model}</span>
+                            <button class="text-red-400 hover:text-red-600 text-xs" onclick="deleteItem('${manufacturer}', '${model}')">&times; Modello</button>
+                        </div>
+                        <div class="flex flex-wrap gap-1 mt-1">
+                            ${types.map(t => `<span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded border border-blue-100 flex items-center gap-1">${t} <span class="cursor-pointer font-bold hover:text-red-500" onclick="deleteItem('${manufacturer}', '${model}', '${t}')">&times;</span></span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            const card = document.createElement('div');
+            card.className = "bg-white border border-gray-200 rounded-lg p-4 shadow-sm";
+            card.innerHTML = `
+                <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
+                    <h4 class="font-bold text-indigo-700">${manufacturer}</h4>
+                    <button class="text-red-400 hover:text-red-600 text-xs" onclick="deleteItem('${manufacturer}')">Elimina</button>
+                </div>
+                ${modelsHtml}
+            `;
+            listDiv.appendChild(card);
+        }
+    }
+    
+    window.deleteItem = async (manuf, model, type) => {
+        if(type) {
+            if(!confirm(`Eliminare tipo ${type}?`)) return;
+            const idx = globalCatalogData[manuf][model].indexOf(type);
+            if(idx > -1) globalCatalogData[manuf][model].splice(idx, 1);
+        } else if (model) {
+            if(!confirm(`Eliminare modello ${model}?`)) return;
+            delete globalCatalogData[manuf][model];
+        } else {
+            if(!confirm(`Eliminare produttore ${manuf}?`)) return;
+            delete globalCatalogData[manuf];
+        }
+        renderCatalogUI(); 
+    };
+
+    document.getElementById('add-manufacturer-button').onclick = () => {
+        const val = document.getElementById('new-manufacturer-name').value.trim();
+        if(val && !globalCatalogData[val]) { globalCatalogData[val] = {}; renderCatalogUI(); }
+    };
+    document.getElementById('add-model-button').onclick = () => {
+        const m = document.getElementById('manufacturer-select-for-model').value;
+        const val = document.getElementById('new-model-name').value.trim();
+        if(m && val && !globalCatalogData[m][val]) { globalCatalogData[m][val] = []; renderCatalogUI(); }
+    };
+    document.getElementById('manufacturer-select-for-type').onchange = (e) => {
+        const m = e.target.value;
+        const modSel = document.getElementById('model-select-for-type');
+        modSel.innerHTML = '<option value="">Seleziona...</option>'; modSel.disabled = true;
+        if(m && globalCatalogData[m]) {
+            Object.keys(globalCatalogData[m]).forEach(k => modSel.innerHTML += `<option value="${k}">${k}</option>`);
+            modSel.disabled = false;
+        }
+    };
+    document.getElementById('add-type-button').onclick = () => {
+        const m = document.getElementById('manufacturer-select-for-type').value;
+        const mo = document.getElementById('model-select-for-type').value;
+        const val = document.getElementById('new-type-name').value.trim();
+        if(m && mo && val && !globalCatalogData[m][mo].includes(val)) { globalCatalogData[m][mo].push(val); renderCatalogUI(); }
+    };
 
   </script>
 </body>
