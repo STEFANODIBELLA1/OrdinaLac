@@ -156,20 +156,22 @@
   </div>
 
   <div id="supply-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-6 hidden z-50">
-    <div class="bg-white w-full max-w-md rounded-lg shadow-xl relative p-6">
-        <h3 class="text-lg font-bold text-gray-900 mb-2">Richiesta Fornitura Lenti</h3>
-        <p class="text-sm text-gray-600 mb-6">Dove vuoi che il fornitore spedisca la merce per questo ordine?</p>
+    <div class="bg-white w-full max-w-md rounded-xl shadow-2xl relative p-6 border-t-4 border-indigo-500">
+        <h3 class="text-xl font-bold text-gray-900 mb-2">Richiesta Fornitura Lenti</h3>
+        <p class="text-sm text-gray-600 mb-6">Seleziona la destinazione della merce per questo ordine.</p>
         
         <div class="space-y-3">
-            <button id="btn-supply-client" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition">
-                <span>🚚 Spedisci al Cliente (Drop-shipping)</span>
+            <button id="btn-supply-client" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition shadow-md transform hover:-translate-y-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                <span>Spedisci al Cliente (Drop-shipping)</span>
             </button>
             
-            <button id="btn-supply-store" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition">
-                <span>🏬 Spedisci in Negozio (Rifornimento)</span>
+            <button id="btn-supply-store" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition shadow-md transform hover:-translate-y-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                <span>Spedisci in Negozio (Rifornimento)</span>
             </button>
             
-            <button onclick="document.getElementById('supply-modal').classList.add('hidden')" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-lg mt-2 transition">
+            <button onclick="document.getElementById('supply-modal').classList.add('hidden')" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg mt-4 transition border border-gray-300">
                 Annulla
             </button>
         </div>
@@ -180,7 +182,7 @@
     <div class="bg-white w-full max-w-md rounded-lg shadow-xl relative p-6">
         <button id="close-pwd-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">&times;</button>
         <h3 class="text-lg font-bold text-gray-900 mb-4">Modifica Password</h3>
-        
+        <p class="text-sm text-gray-500 mb-4">Per sicurezza, inserisci una nuova password personale.</p>
         <div class="space-y-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700">Nuova Password</label>
@@ -194,12 +196,10 @@
 
   <div id="client-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 hidden z-50">
     <div class="bg-white w-full max-w-3xl rounded-lg shadow-xl modal-content relative flex flex-col max-h-[95vh]">
-      
       <div class="p-6 border-b">
           <h2 class="text-xl font-bold text-gray-800">Configurazione Cliente</h2>
           <p class="text-sm text-gray-600">Compila i dati per generare il QR Code. Il cliente completerà i mancanti nell'App.</p>
       </div>
-
       <div class="p-6 overflow-y-auto" id="client-form-container">
         <h4 class="font-bold text-gray-800 mb-3 border-b pb-1 text-sm uppercase tracking-wide">1. Dati Anagrafici & Contatto</h4>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -210,7 +210,6 @@
              <div><label class="block text-sm font-medium text-gray-700 mb-1">Email</label><input type="email" id="client-email" class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
             <div><label class="block text-sm font-medium text-gray-700 mb-1">Telefono</label><input type="tel" id="client-phone" class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
         </div>
-
         <h4 class="font-bold text-gray-800 mb-3 border-b pb-1 text-sm uppercase tracking-wide">2. Indirizzo Spedizione</h4>
         <div class="mb-3"><label class="block text-sm font-medium text-gray-700 mb-1">Indirizzo</label><input type="text" id="client-address" class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
         <div class="grid grid-cols-6 gap-3 mb-6">
@@ -218,54 +217,33 @@
              <div class="col-span-2"><label class="block text-sm font-medium text-gray-700 mb-1">CAP</label><input type="text" id="client-zip" class="w-full px-3 py-2 border border-gray-300 rounded-md"></div>
              <div class="col-span-1"><label class="block text-sm font-medium text-gray-700 mb-1">Prov</label><input type="text" id="client-province" class="w-full px-3 py-2 border border-gray-300 rounded-md uppercase" maxlength="2"></div>
         </div>
-
         <h4 class="font-bold text-gray-800 mb-3 border-b pb-1 text-sm uppercase tracking-wide">3. Configurazione Lente</h4>
         <div class="bg-gray-50 p-4 rounded border border-gray-200 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div><label class="block text-sm font-medium text-gray-700">Produttore</label><select id="client-lens-manufacturer" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm"><option value="">-- Seleziona --</option></select></div>
             <div><label class="block text-sm font-medium text-gray-700">Modello</label><select id="client-lens-model" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm" disabled><option value="">-- --</option></select></div>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="border rounded p-3">
                 <h4 class="font-bold text-center text-gray-700 mb-2 border-b pb-1 text-xs">Occhio Destro (OD)</h4>
                 <select id="client-lens-type-od" class="block w-full text-sm border-gray-300 rounded mb-2" disabled><option value="">--</option></select>
-                <div id="client-params-od" class="space-y-2 hidden">
-                    <input type="text" id="client-pwr-od" placeholder="PWR" class="block w-full text-sm border-gray-300 rounded">
-                    <input type="text" id="client-cyl-od" placeholder="CYL" class="block w-full text-sm border-gray-300 rounded hidden">
-                    <input type="text" id="client-axis-od" placeholder="AXIS" class="block w-full text-sm border-gray-300 rounded hidden">
-                    <input type="text" id="client-add-od" placeholder="ADD" class="block w-full text-sm border-gray-300 rounded hidden">
-                </div>
+                <div id="client-params-od" class="space-y-2 hidden"><input type="text" id="client-pwr-od" placeholder="PWR" class="block w-full text-sm border-gray-300 rounded"><input type="text" id="client-cyl-od" placeholder="CYL" class="block w-full text-sm border-gray-300 rounded hidden"><input type="text" id="client-axis-od" placeholder="AXIS" class="block w-full text-sm border-gray-300 rounded hidden"><input type="text" id="client-add-od" placeholder="ADD" class="block w-full text-sm border-gray-300 rounded hidden"></div>
             </div>
             <div class="border rounded p-3">
                 <h4 class="font-bold text-center text-gray-700 mb-2 border-b pb-1 text-xs">Occhio Sinistro (OS)</h4>
                 <select id="client-lens-type-os" class="block w-full text-sm border-gray-300 rounded mb-2" disabled><option value="">--</option></select>
-                <div id="client-params-os" class="space-y-2 hidden">
-                    <input type="text" id="client-pwr-os" placeholder="PWR" class="block w-full text-sm border-gray-300 rounded">
-                    <input type="text" id="client-cyl-os" placeholder="CYL" class="block w-full text-sm border-gray-300 rounded hidden">
-                    <input type="text" id="client-axis-os" placeholder="AXIS" class="block w-full text-sm border-gray-300 rounded hidden">
-                    <input type="text" id="client-add-os" placeholder="ADD" class="block w-full text-sm border-gray-300 rounded hidden">
-                </div>
+                <div id="client-params-os" class="space-y-2 hidden"><input type="text" id="client-pwr-os" placeholder="PWR" class="block w-full text-sm border-gray-300 rounded"><input type="text" id="client-cyl-os" placeholder="CYL" class="block w-full text-sm border-gray-300 rounded hidden"><input type="text" id="client-axis-os" placeholder="AXIS" class="block w-full text-sm border-gray-300 rounded hidden"><input type="text" id="client-add-os" placeholder="ADD" class="block w-full text-sm border-gray-300 rounded hidden"></div>
             </div>
         </div>
       </div>
-
       <div id="client-qr-container" class="hidden p-6 flex-col items-center justify-center text-center h-full">
          <h3 class="text-2xl font-bold text-gray-800 mb-2">QR Code Cliente</h3>
          <p class="text-gray-500 mb-4">Il cliente troverà l'app pre-compilata scansionando questo codice.</p>
          <div id="qr-code-display" class="bg-white p-4 border rounded-lg shadow-sm mb-6"></div>
-         <div class="flex gap-4 w-full max-w-xs">
-             <button id="print-qr-button" class="flex-1 bg-blue-100 text-blue-700 py-2 rounded font-bold hover:bg-blue-200">Stampa</button>
-             <button id="close-qr-button" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded font-bold hover:bg-gray-300">Chiudi</button>
-         </div>
+         <div class="flex gap-4 w-full max-w-xs"><button id="print-qr-button" class="flex-1 bg-blue-100 text-blue-700 py-2 rounded font-bold hover:bg-blue-200">Stampa</button><button id="close-qr-button" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded font-bold hover:bg-gray-300">Chiudi</button></div>
       </div>
-
-      <div id="client-form-actions" class="p-6 border-t bg-gray-50 flex justify-end gap-3">
-          <button id="close-modal-button" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded shadow-sm hover:bg-gray-100 font-medium">Annulla</button>
-          <button id="generate-qr-button" class="px-4 py-2 bg-green-600 text-white rounded shadow-sm hover:bg-green-700 font-bold">Genera QR</button>
-      </div>
+      <div id="client-form-actions" class="p-6 border-t bg-gray-50 flex justify-end gap-3"><button id="close-modal-button" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded shadow-sm hover:bg-gray-100 font-medium">Annulla</button><button id="generate-qr-button" class="px-4 py-2 bg-green-600 text-white rounded shadow-sm hover:bg-green-700 font-bold">Genera QR</button></div>
     </div>
   </div>
-
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -288,7 +266,7 @@
     let myPricingConfig = {}; 
     let myLensData = {}; 
     let allOrdersCache = [];
-    let currentSupplyOrderId = null; // Stores the ID of the order being processed for supply
+    let currentSupplyOrderId = null; 
 
     try {
       const app = initializeApp(firebaseConfig);
@@ -338,32 +316,16 @@
     const userMenuDropdown = document.getElementById('user-menu-dropdown');
 
     if(userMenuBtn && userMenuDropdown) {
-        userMenuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            userMenuDropdown.classList.toggle('hidden');
-        });
-        document.addEventListener('click', (e) => {
-            if (!userMenuDropdown.classList.contains('hidden')) {
-                if (!userMenuDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
-                    userMenuDropdown.classList.add('hidden');
-                }
-            }
-        });
+        userMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); userMenuDropdown.classList.toggle('hidden'); });
+        document.addEventListener('click', (e) => { if (!userMenuDropdown.classList.contains('hidden')) { if (!userMenuDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) { userMenuDropdown.classList.add('hidden'); } } });
     }
 
     // --- AUTHENTICATION ---
     loginButton.addEventListener('click', async () => {
       try {
-        loginError.classList.add('hidden');
-        loginButton.innerText = "Accesso...";
-        loginButton.disabled = true;
+        loginError.classList.add('hidden'); loginButton.innerText = "Accesso..."; loginButton.disabled = true;
         await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
-      } catch (error) {
-        loginError.innerText = "Credenziali non valide.";
-        loginError.classList.remove('hidden');
-        loginButton.innerText = "Accedi";
-        loginButton.disabled = false;
-      }
+      } catch (error) { loginError.innerText = "Credenziali non valide."; loginError.classList.remove('hidden'); loginButton.innerText = "Accedi"; loginButton.disabled = false; }
     });
 
     logoutButton.addEventListener('click', () => signOut(auth));
@@ -371,56 +333,32 @@
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentOpticianUid = user.uid;
-        loginView.classList.add('hidden');
-        dashboardView.classList.remove('hidden');
-        userEmailDisplay.innerText = user.email;
-        opticianIdCode.innerText = user.uid;
-        
-        const end = new Date();
-        const start = new Date();
-        start.setDate(end.getDate() - 30);
-        dateEndInput.valueAsDate = end;
-        dateStartInput.valueAsDate = start;
-
-        loadOrders(user.uid);
-        await Promise.all([loadMasterCatalog(), loadMyConfig()]);
-        
+        loginView.classList.add('hidden'); dashboardView.classList.remove('hidden');
+        userEmailDisplay.innerText = user.email; opticianIdCode.innerText = user.uid;
+        const end = new Date(); const start = new Date(); start.setDate(end.getDate() - 30);
+        dateEndInput.valueAsDate = end; dateStartInput.valueAsDate = start;
+        loadOrders(user.uid); await Promise.all([loadMasterCatalog(), loadMyConfig()]);
       } else {
-        currentOpticianUid = null;
-        loginView.classList.remove('hidden');
-        dashboardView.classList.add('hidden');
-        loginButton.innerText = "Accedi";
-        loginButton.disabled = false;
+        currentOpticianUid = null; loginView.classList.remove('hidden'); dashboardView.classList.add('hidden');
+        loginButton.innerText = "Accedi"; loginButton.disabled = false;
         if (unsubscribeOrders) unsubscribeOrders();
       }
     });
 
-    // --- TABS LOGIC ---
+    // --- TABS ---
     function switchTab(tab) {
-        if(tab === 'orders') {
-            tabOrders.classList.add('active'); tabConfig.classList.remove('active');
-            viewOrders.classList.remove('hidden'); viewConfig.classList.add('hidden');
-        } else {
-            tabConfig.classList.add('active'); tabOrders.classList.remove('active');
-            viewConfig.classList.remove('hidden'); viewOrders.classList.add('hidden');
-            renderCatalogUI();
-        }
+        if(tab === 'orders') { tabOrders.classList.add('active'); tabConfig.classList.remove('active'); viewOrders.classList.remove('hidden'); viewConfig.classList.add('hidden'); }
+        else { tabConfig.classList.add('active'); tabOrders.classList.remove('active'); viewConfig.classList.remove('hidden'); viewOrders.classList.add('hidden'); renderCatalogUI(); }
     }
-    tabOrders.onclick = () => switchTab('orders');
-    tabConfig.onclick = () => switchTab('config');
+    tabOrders.onclick = () => switchTab('orders'); tabConfig.onclick = () => switchTab('config');
 
     // --- PASSWORD ---
     profileButton.onclick = () => { newPasswordInput.value = ''; pwdMsg.classList.add('hidden'); passwordModal.classList.remove('hidden'); userMenuDropdown.classList.add('hidden'); };
     closePwdModal.onclick = () => passwordModal.classList.add('hidden');
     savePasswordBtn.onclick = async () => {
-        const newPwd = newPasswordInput.value;
-        if(newPwd.length < 6) { pwdMsg.innerText = "La password deve avere almeno 6 caratteri."; pwdMsg.classList.remove('hidden'); return; }
-        try {
-            savePasswordBtn.disabled = true;
-            await updatePassword(auth.currentUser, newPwd);
-            pwdMsg.innerText = "Password aggiornata!"; pwdMsg.className = "text-sm text-green-600 font-bold"; pwdMsg.classList.remove('hidden');
-            setTimeout(() => { passwordModal.classList.add('hidden'); savePasswordBtn.disabled = false; }, 1500);
-        } catch(e) { pwdMsg.innerText = "Errore: " + e.message; pwdMsg.className = "text-sm text-red-600"; pwdMsg.classList.remove('hidden'); savePasswordBtn.disabled = false; }
+        const newPwd = newPasswordInput.value; if(newPwd.length < 6) { pwdMsg.innerText = "La password deve avere almeno 6 caratteri."; pwdMsg.classList.remove('hidden'); return; }
+        try { savePasswordBtn.disabled = true; await updatePassword(auth.currentUser, newPwd); pwdMsg.innerText = "Password aggiornata!"; pwdMsg.className = "text-sm text-green-600 font-bold"; pwdMsg.classList.remove('hidden'); setTimeout(() => { passwordModal.classList.add('hidden'); savePasswordBtn.disabled = false; }, 1500); }
+        catch(e) { pwdMsg.innerText = "Errore: " + e.message; pwdMsg.className = "text-sm text-red-600"; pwdMsg.classList.remove('hidden'); savePasswordBtn.disabled = false; }
     };
 
     // --- ORDERS LOGIC ---
@@ -428,22 +366,10 @@
 
     function loadOrders(opticianUid) {
       if(!opticianUid) return;
-      loadingOrders.classList.remove('hidden');
-      ordersContainer.innerHTML = '';
-      const startDate = new Date(dateStartInput.value);
-      const endDate = new Date(dateEndInput.value);
-      startDate.setHours(0,0,0,0);
-      endDate.setHours(23,59,59,999);
-
-      const q = query(
-        collection(db, `artifacts/${appId}/public/data/orders`),
-        where("optician_id", "==", opticianUid),
-        where("timestamp", ">=", startDate),
-        where("timestamp", "<=", endDate)
-      );
-      
+      loadingOrders.classList.remove('hidden'); ordersContainer.innerHTML = '';
+      const startDate = new Date(dateStartInput.value); const endDate = new Date(dateEndInput.value); startDate.setHours(0,0,0,0); endDate.setHours(23,59,59,999);
+      const q = query(collection(db, `artifacts/${appId}/public/data/orders`), where("optician_id", "==", opticianUid), where("timestamp", ">=", startDate), where("timestamp", "<=", endDate));
       if(unsubscribeOrders) unsubscribeOrders();
-
       unsubscribeOrders = onSnapshot(q, (snapshot) => {
         loadingOrders.classList.add('hidden');
         allOrdersCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -455,34 +381,21 @@
     function renderOrders(orders) {
       const searchTerm = searchPatientInput.value.toLowerCase();
       const filtered = orders.filter(o => (o.patient_name || '').toLowerCase().includes(searchTerm));
-
       ordersContainer.innerHTML = '';
-      if (filtered.length === 0) {
-        ordersContainer.innerHTML = '<div class="text-center p-10 bg-white rounded shadow-sm"><p class="text-gray-500">Nessun ordine trovato.</p></div>';
-        return;
-      }
+      if (filtered.length === 0) { ordersContainer.innerHTML = '<div class="text-center p-10 bg-white rounded shadow-sm"><p class="text-gray-500">Nessun ordine trovato.</p></div>'; return; }
       
-      const statusConfig = {
-        'new': { label: 'Nuovo', bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-500' },
-        'processing': { label: 'In Lav.', bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-500' },
-        'ready': { label: 'Pronto', bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-500' },
-        'completed': { label: 'Chiuso', bg: 'bg-gray-100', text: 'text-gray-600', border: 'border-gray-300' },
-        'cancelled': { label: 'Annullato', bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-500' }
-      };
+      const statusConfig = { 'new': { label: 'Nuovo', bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-500' }, 'processing': { label: 'In Lav.', bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-500' }, 'ready': { label: 'Pronto', bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-500' }, 'completed': { label: 'Chiuso', bg: 'bg-gray-100', text: 'text-gray-600', border: 'border-gray-300' }, 'cancelled': { label: 'Annullato', bg: 'bg-red-100', text: 'text-red-800', border: 'border-red-500' } };
 
       filtered.forEach(order => {
         const status = order.status || 'new';
         const conf = statusConfig[status] || statusConfig['new'];
         const date = order.timestamp?.seconds ? new Date(order.timestamp.seconds * 1000).toLocaleString('it-IT', { day:'numeric', month:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
-        
         const isDel = order.delivery?.mode === 'delivery';
-        const delIcon = isDel ? '🚚' : '🏬';
-        const delText = isDel ? 'Domicilio' : 'Ritiro in Sede';
+        const delIcon = isDel ? '🚚' : '🏬'; const delText = isDel ? 'Domicilio' : 'Ritiro in Sede';
         
-        // Supply Button Logic
+        // SUPPLY BUTTON & BADGE LOGIC
         let supplyBtn = '';
         if (order.supply_request && order.supply_request.status === 'pending') {
-            // BADGE COLORATO IN BASE ALLA DESTINAZIONE
             if (order.supply_request.destination === 'client') {
                 supplyBtn = `<span class="ml-2 px-2 py-1 bg-purple-100 text-purple-700 border border-purple-200 rounded text-xs font-bold flex items-center gap-1">🟣 Fornitura: CLIENTE</span>`;
             } else {
@@ -493,14 +406,7 @@
         }
 
         const l = order.lens_order || {};
-        const getP = (eye) => {
-            if(!eye) return '';
-            let s = `<b>${eye.type || '-'}</b>`;
-            if(eye.pwr) s += ` <span class="bg-gray-100 px-1 rounded border">SF: ${eye.pwr}</span>`;
-            if(eye.cyl) s += ` <span class="bg-gray-100 px-1 rounded border">CYL: ${eye.cyl}</span>`;
-            if(eye.add) s += ` <span class="bg-gray-100 px-1 rounded border">ADD: ${eye.add}</span>`;
-            return s;
-        };
+        const getP = (eye) => { if(!eye) return ''; let s = `<b>${eye.type || '-'}</b>`; if(eye.pwr) s += ` <span class="bg-gray-100 px-1 rounded border">SF: ${eye.pwr}</span>`; if(eye.cyl) s += ` <span class="bg-gray-100 px-1 rounded border">CYL: ${eye.cyl}</span>`; if(eye.add) s += ` <span class="bg-gray-100 px-1 rounded border">ADD: ${eye.add}</span>`; return s; };
 
         const card = document.createElement('div');
         card.className = `bg-white rounded-lg shadow-sm border-l-4 ${conf.border} p-4 flex flex-col gap-3`;
@@ -508,14 +414,9 @@
            <div class="flex justify-between items-start">
               <div>
                   <h3 class="text-lg font-bold text-gray-900">${order.patient_name || 'Sconosciuto'}</h3>
-                  <div class="flex items-center text-xs text-gray-500 gap-2 mt-1">
-                     <span>📅 ${date}</span>
-                     <span class="flex items-center gap-1 border px-1 rounded bg-gray-50">${delIcon} ${delText}</span>
-                  </div>
+                  <div class="flex items-center text-xs text-gray-500 gap-2 mt-1"><span>📅 ${date}</span><span class="flex items-center gap-1 border px-1 rounded bg-gray-50">${delIcon} ${delText}</span></div>
               </div>
-              <div class="flex flex-col items-end gap-1">
-                 <span class="px-2 py-0.5 rounded text-xs font-bold uppercase ${conf.bg} ${conf.text}">${conf.label}</span>
-              </div>
+              <div class="flex flex-col items-end gap-1"><span class="px-2 py-0.5 rounded text-xs font-bold uppercase ${conf.bg} ${conf.text}">${conf.label}</span></div>
            </div>
            <div class="bg-gray-50 p-3 rounded border border-gray-100 text-sm">
                <div class="mb-2 text-gray-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -523,16 +424,8 @@
                    ${supplyBtn}
                </div>
                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                   <div class="flex justify-between items-center border-b border-gray-200 pb-1">
-                       <span class="font-bold text-blue-600 w-8">OD</span>
-                       <div class="flex-1 text-right truncate">${getP(l.od)}</div>
-                       <span class="font-bold ml-2 bg-white border px-1 rounded">${l.od?.qty || 1}pz</span>
-                   </div>
-                   <div class="flex justify-between items-center border-b border-gray-200 pb-1">
-                       <span class="font-bold text-blue-600 w-8">OS</span>
-                       <div class="flex-1 text-right truncate">${getP(l.os)}</div>
-                       <span class="font-bold ml-2 bg-white border px-1 rounded">${l.os?.qty || 1}pz</span>
-                   </div>
+                   <div class="flex justify-between items-center border-b border-gray-200 pb-1"><span class="font-bold text-blue-600 w-8">OD</span><div class="flex-1 text-right truncate">${getP(l.od)}</div><span class="font-bold ml-2 bg-white border px-1 rounded">${l.od?.qty || 1}pz</span></div>
+                   <div class="flex justify-between items-center border-b border-gray-200 pb-1"><span class="font-bold text-blue-600 w-8">OS</span><div class="flex-1 text-right truncate">${getP(l.os)}</div><span class="font-bold ml-2 bg-white border px-1 rounded">${l.os?.qty || 1}pz</span></div>
                </div>
            </div>
            ${order.client_info?.phone ? `<div class="text-xs text-gray-600">📞 ${order.client_info.phone}</div>` : ''}
@@ -540,17 +433,10 @@
            <div class="flex justify-between items-center pt-2 mt-1 border-t border-gray-100">
                <div class="flex gap-2">
                    <select class="status-select text-xs border-gray-300 rounded shadow-sm py-1 pr-8" data-id="${order.id}">
-                      <option value="new" ${status==='new'?'selected':''}>Nuovo</option>
-                      <option value="processing" ${status==='processing'?'selected':''}>In Lavorazione</option>
-                      <option value="ready" ${status==='ready'?'selected':''}>Pronto</option>
-                      <option value="completed" ${status==='completed'?'selected':''}>Consegnato</option>
-                      <option value="cancelled" ${status==='cancelled'?'selected':''}>Annullato</option>
+                      <option value="new" ${status==='new'?'selected':''}>Nuovo</option><option value="processing" ${status==='processing'?'selected':''}>In Lavorazione</option><option value="ready" ${status==='ready'?'selected':''}>Pronto</option><option value="completed" ${status==='completed'?'selected':''}>Consegnato</option><option value="cancelled" ${status==='cancelled'?'selected':''}>Annullato</option>
                    </select>
                </div>
-               <div class="flex gap-3">
-                   <button class="text-gray-400 hover:text-blue-600 print-btn" title="Stampa"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg></button>
-                   <button class="text-gray-400 hover:text-red-600 delete-btn" title="Elimina"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-               </div>
+               <div class="flex gap-3"><button class="text-gray-400 hover:text-blue-600 print-btn" title="Stampa"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg></button><button class="text-gray-400 hover:text-red-600 delete-btn" title="Elimina"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></div>
            </div>
         `;
         ordersContainer.appendChild(card);
@@ -561,14 +447,14 @@
     }
     searchPatientInput.addEventListener('input', () => renderOrders(allOrdersCache));
 
-    // --- LOGICA RICHIESTA FORNITURA (MODALE) ---
+    // --- LOGICA MODALE SUPPLY (AGGIORNATA) ---
     window.openSupplyModal = (orderId) => {
         const order = allOrdersCache.find(o => o.id === orderId);
         if (!order) return;
         
         currentSupplyOrderId = orderId;
         
-        // Logica: Se è consegna a domicilio, abilita tasto cliente. Altrimenti nascondi.
+        // Controllo modalità di spedizione
         const isHomeDelivery = (order.delivery && order.delivery.mode === 'delivery');
         
         if (isHomeDelivery) {
@@ -582,169 +468,69 @@
 
     const confirmSupplyRequest = async (destination) => {
         if (!currentSupplyOrderId) return;
-        
         try {
             await updateDoc(doc(db, `artifacts/${appId}/public/data/orders`, currentSupplyOrderId), {
-                supply_request: {
-                    status: 'pending',
-                    destination: destination,
-                    requested_at: new Date()
-                }
+                supply_request: { status: 'pending', destination: destination, requested_at: new Date() }
             });
             supplyModal.classList.add('hidden');
             currentSupplyOrderId = null;
-        } catch (e) {
-            alert("Errore richiesta fornitura: " + e.message);
-        }
+        } catch (e) { alert("Errore: " + e.message); }
     };
 
     btnSupplyClient.onclick = () => confirmSupplyRequest('client');
     btnSupplyStore.onclick = () => confirmSupplyRequest('store');
 
-    // --- UPDATE STATUS WITH NOTIFICATION ---
+    // --- UPDATE STATUS ---
     async function updateOrderStatus(orderId, newStatus) {
-      try {
-        await updateDoc(doc(db, `artifacts/${appId}/public/data/orders`, orderId), { status: newStatus });
-      } catch (e) { alert("Errore aggiornamento: " + e.message); return; }
-
-      const order = allOrdersCache.find(o => o.id === orderId);
-      if (!order) return;
-
-      const clientPhone = order.client_info?.phone;
-      const clientEmail = order.client_info?.email;
-      const clientName = order.patient_name || "Cliente";
+      try { await updateDoc(doc(db, `artifacts/${appId}/public/data/orders`, orderId), { status: newStatus }); } catch (e) { alert("Errore: " + e.message); return; }
+      const order = allOrdersCache.find(o => o.id === orderId); if (!order) return;
+      const clientPhone = order.client_info?.phone; const clientEmail = order.client_info?.email; const clientName = order.patient_name || "Cliente";
       let msgBody = "", subject = "";
-
-      if (newStatus === 'ready') {
-          subject = `Il tuo ordine è pronto! 👓`;
-          msgBody = `Ciao ${clientName}, le tue lenti sono pronte per il ritiro (o in spedizione). Ti aspettiamo!`;
-      } else if (newStatus === 'processing') {
-          subject = `Ordine in lavorazione`;
-          msgBody = `Ciao ${clientName}, abbiamo preso in carico il tuo ordine e stiamo preparando le tue lenti.`;
-      } else { return; }
-
+      if (newStatus === 'ready') { subject = `Il tuo ordine è pronto! 👓`; msgBody = `Ciao ${clientName}, le tue lenti sono pronte per il ritiro (o in spedizione). Ti aspettiamo!`; }
+      else if (newStatus === 'processing') { subject = `Ordine in lavorazione`; msgBody = `Ciao ${clientName}, abbiamo preso in carico il tuo ordine e stiamo preparando le tue lenti.`; }
+      else { return; }
       if (confirm(`Stato aggiornato a "${newStatus}". Vuoi inviare una notifica al cliente?`)) {
-          if (clientPhone) {
-              let cleanPhone = clientPhone.replace(/[^0-9]/g, '');
-              if (!cleanPhone.startsWith('39')) cleanPhone = '39' + cleanPhone; 
-              const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msgBody)}`;
-              window.open(waUrl, '_blank');
-          } else if (clientEmail) {
-              const mailUrl = `mailto:${clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msgBody)}`;
-              window.open(mailUrl, '_blank');
-          } else {
-              alert("Nessun contatto (telefono o email) trovato per questo cliente.");
-          }
+          if (clientPhone) { let cleanPhone = clientPhone.replace(/[^0-9]/g, ''); if (!cleanPhone.startsWith('39')) cleanPhone = '39' + cleanPhone; const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msgBody)}`; window.open(waUrl, '_blank'); }
+          else if (clientEmail) { const mailUrl = `mailto:${clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msgBody)}`; window.open(mailUrl, '_blank'); }
+          else { alert("Nessun contatto trovato."); }
       }
     }
     
-    function printOrder(order) {
-        const w = window.open('', '_blank', 'height=600,width=800');
-        w.document.write(`<html><head><title>Ordine</title><style>body{font-family:sans-serif;padding:20px;}</style></head><body><h2>Ordine: ${order.patient_name}</h2><p>${JSON.stringify(order.lens_order || order.message, null, 2)}</p><script>window.print();window.close();<\/script></body></html>`);
-        w.document.close();
-    }
-    
-    async function deleteOrder(id) {
-        if(confirm("Eliminare definitivamente l'ordine?")) {
-            await deleteDoc(doc(db, `artifacts/${appId}/public/data/orders`, id));
-        }
-    }
+    function printOrder(order) { const w = window.open('', '_blank', 'height=600,width=800'); w.document.write(`<html><head><title>Ordine</title><style>body{font-family:sans-serif;padding:20px;}</style></head><body><h2>Ordine: ${order.patient_name}</h2><p>${JSON.stringify(order.lens_order || order.message, null, 2)}</p><script>window.print();window.close();<\/script></body></html>`); w.document.close(); }
+    async function deleteOrder(id) { if(confirm("Eliminare ordine?")) { await deleteDoc(doc(db, `artifacts/${appId}/public/data/orders`, id)); } }
 
     // --- CONFIG ---
-    async function loadMasterCatalog() {
-        try {
-            const docRef = doc(db, "catalogs", "master");
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) masterCatalog = docSnap.data().data || {};
-        } catch (e) {}
-    }
-
-    async function loadMyConfig() {
-        if (!currentOpticianUid) return;
-        try {
-            const docRef = doc(db, "optician_config", currentOpticianUid, "lenses", "main");
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                const d = docSnap.data();
-                myPricingConfig = d.pricing_config || {};
-                myLensData = d.data || {}; 
-            }
-        } catch(e) {}
-    }
-
+    async function loadMasterCatalog() { try { const docRef = doc(db, "catalogs", "master"); const docSnap = await getDoc(docRef); if (docSnap.exists()) masterCatalog = docSnap.data().data || {}; } catch (e) {} }
+    async function loadMyConfig() { if (!currentOpticianUid) return; try { const docRef = doc(db, "optician_config", currentOpticianUid, "lenses", "main"); const docSnap = await getDoc(docRef); if (docSnap.exists()) { const d = docSnap.data(); myPricingConfig = d.pricing_config || {}; myLensData = d.data || {}; } } catch(e) {} }
     function renderCatalogUI() {
         catalogContainer.innerHTML = '';
         if (Object.keys(masterCatalog).length === 0) { catalogContainer.innerHTML = '<p class="text-gray-500 p-4">Il catalogo Master è vuoto.</p>'; return; }
         Object.keys(masterCatalog).sort().forEach(manuf => {
-            const manufDiv = document.createElement('div');
-            manufDiv.className = "bg-white border border-gray-200 rounded-lg p-4 shadow-sm";
-            manufDiv.innerHTML = `<h3 class="text-lg font-bold text-indigo-800 mb-4 pb-2 border-b border-gray-100">${manuf}</h3>`;
+            const manufDiv = document.createElement('div'); manufDiv.className = "bg-white border border-gray-200 rounded-lg p-4 shadow-sm"; manufDiv.innerHTML = `<h3 class="text-lg font-bold text-indigo-800 mb-4 pb-2 border-b border-gray-100">${manuf}</h3>`;
             const models = masterCatalog[manuf];
             Object.keys(models).forEach(model => {
-                const types = models[model];
-                const modelDiv = document.createElement('div');
-                modelDiv.className = "mb-4 pl-2 border-l-2 border-indigo-100";
-                modelDiv.innerHTML = `<h4 class="text-md font-bold text-gray-700 mb-2">${model}</h4>`;
-                const typesContainer = document.createElement('div');
-                typesContainer.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3";
+                const types = models[model]; const modelDiv = document.createElement('div'); modelDiv.className = "mb-4 pl-2 border-l-2 border-indigo-100"; modelDiv.innerHTML = `<h4 class="text-md font-bold text-gray-700 mb-2">${model}</h4>`;
+                const typesContainer = document.createElement('div'); typesContainer.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3";
                 types.forEach(type => {
-                    const key = `${manuf}::${model}::${type}`;
-                    const config = myPricingConfig[key] || { enabled: false, price: '' };
-                    const domId = `toggle-${key}`;
-                    const typeCard = document.createElement('div');
-                    typeCard.className = "bg-gray-50 p-2 rounded border border-gray-200 flex items-center justify-between";
-                    typeCard.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                                <input type="checkbox" name="toggle" id="${domId}" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300" ${config.enabled ? 'checked' : ''}/>
-                                <label for="${domId}" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label>
-                            </div>
-                            <span class="text-sm font-medium text-gray-700">${type}</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <span class="text-xs text-gray-400">€</span>
-                            <input type="number" step="0.01" id="price-${key}" value="${config.price || ''}" placeholder="0.00" class="w-20 text-sm border-gray-300 rounded px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500" ${!config.enabled ? 'disabled' : ''}>
-                        </div>
-                    `;
-                    const toggle = typeCard.querySelector(`[id='${domId}']`); 
-                    const priceInput = typeCard.querySelector(`[id='price-${key}']`);
+                    const key = `${manuf}::${model}::${type}`; const config = myPricingConfig[key] || { enabled: false, price: '' }; const domId = `toggle-${key}`;
+                    const typeCard = document.createElement('div'); typeCard.className = "bg-gray-50 p-2 rounded border border-gray-200 flex items-center justify-between";
+                    typeCard.innerHTML = `<div class="flex items-center gap-3"><div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in"><input type="checkbox" name="toggle" id="${domId}" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300" ${config.enabled ? 'checked' : ''}/><label for="${domId}" class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer"></label></div><span class="text-sm font-medium text-gray-700">${type}</span></div><div class="flex items-center gap-1"><span class="text-xs text-gray-400">€</span><input type="number" step="0.01" id="price-${key}" value="${config.price || ''}" placeholder="0.00" class="w-20 text-sm border-gray-300 rounded px-2 py-1 focus:ring-indigo-500 focus:border-indigo-500" ${!config.enabled ? 'disabled' : ''}></div>`;
+                    const toggle = typeCard.querySelector(`[id='${domId}']`); const priceInput = typeCard.querySelector(`[id='price-${key}']`);
                     toggle.addEventListener('change', (e) => { priceInput.disabled = !e.target.checked; });
                     typesContainer.appendChild(typeCard);
                 });
-                modelDiv.appendChild(typesContainer);
-                manufDiv.appendChild(modelDiv);
+                modelDiv.appendChild(typesContainer); manufDiv.appendChild(modelDiv);
             });
             catalogContainer.appendChild(manufDiv);
         });
     }
-
     saveCatalogBtn.onclick = async () => {
-        saveCatalogBtn.innerText = "Salvataggio...";
-        saveCatalogBtn.disabled = true;
-        const newPricingConfig = {};
-        const newLensData = {}; 
+        saveCatalogBtn.innerText = "Salvataggio..."; saveCatalogBtn.disabled = true;
+        const newPricingConfig = {}; const newLensData = {}; 
         try {
-            Object.keys(masterCatalog).forEach(manuf => {
-                Object.keys(masterCatalog[manuf]).forEach(model => {
-                    masterCatalog[manuf][model].forEach(type => {
-                        const key = `${manuf}::${model}::${type}`;
-                        const domId = `toggle-${key}`;
-                        const toggle = document.getElementById(domId);
-                        const priceIn = document.getElementById(`price-${key}`);
-                        if (toggle && toggle.checked) {
-                            newPricingConfig[key] = { enabled: true, price: priceIn.value };
-                            if (!newLensData[manuf]) newLensData[manuf] = {};
-                            if (!newLensData[manuf][model]) newLensData[manuf][model] = [];
-                            newLensData[manuf][model].push(type);
-                        }
-                    });
-                });
-            });
-            await setDoc(doc(db, "optician_config", currentOpticianUid, "lenses", "main"), { pricing_config: newPricingConfig, data: newLensData });
-            myPricingConfig = newPricingConfig; myLensData = newLensData;
-            alert("Listino salvato!");
-        } catch(e) { alert("Errore salvataggio: " + e.message); } 
-        finally { saveCatalogBtn.innerText = "Salva Listino"; saveCatalogBtn.disabled = false; }
+            Object.keys(masterCatalog).forEach(manuf => { Object.keys(masterCatalog[manuf]).forEach(model => { masterCatalog[manuf][model].forEach(type => { const key = `${manuf}::${model}::${type}`; const domId = `toggle-${key}`; const toggle = document.getElementById(domId); const priceIn = document.getElementById(`price-${key}`); if (toggle && toggle.checked) { newPricingConfig[key] = { enabled: true, price: priceIn.value }; if (!newLensData[manuf]) newLensData[manuf] = {}; if (!newLensData[manuf][model]) newLensData[manuf][model] = []; newLensData[manuf][model].push(type); } }); }); });
+            await setDoc(doc(db, "optician_config", currentOpticianUid, "lenses", "main"), { pricing_config: newPricingConfig, data: newLensData }); myPricingConfig = newPricingConfig; myLensData = newLensData; alert("Listino salvato!");
+        } catch(e) { alert("Errore salvataggio: " + e.message); } finally { saveCatalogBtn.innerText = "Salva Listino"; saveCatalogBtn.disabled = false; }
     };
 
     // --- CLIENT QR ---
@@ -755,100 +541,15 @@
     document.getElementById('add-client-button').onclick = showClientModal;
     document.getElementById('close-modal-button').onclick = () => clientModal.classList.add('hidden');
     closeQrButton.onclick = () => clientModal.classList.add('hidden');
-
-    const cManuf = document.getElementById('client-lens-manufacturer');
-    const cModel = document.getElementById('client-lens-model');
-    const cTypeOD = document.getElementById('client-lens-type-od');
-    const cTypeOS = document.getElementById('client-lens-type-os');
-    
-    function clientPopulateManufacturers() {
-        if(!myLensData) return;
-        cManuf.innerHTML = '<option value="">-- Seleziona --</option>';
-        Object.keys(myLensData).forEach(m => cManuf.innerHTML += `<option value="${m}">${m}</option>`);
-    }
-    cManuf.onchange = () => {
-        cModel.innerHTML = '<option value="">-- --</option>'; cModel.disabled = true;
-        if(cManuf.value && myLensData[cManuf.value]) {
-            Object.keys(myLensData[cManuf.value]).forEach(m => cModel.innerHTML += `<option value="${m}">${m}</option>`);
-            cModel.disabled = false;
-        }
-    };
-    cModel.onchange = () => {
-        if(cManuf.value && cModel.value && myLensData[cManuf.value][cModel.value]) {
-            const types = myLensData[cManuf.value][cModel.value];
-            const ops = '<option value="">-- --</option>' + types.map(t => `<option value="${t}">${t}</option>`).join('');
-            cTypeOD.innerHTML = ops; cTypeOD.disabled = false;
-            cTypeOS.innerHTML = ops; cTypeOS.disabled = false;
-        }
-    };
-    
-    const toggleParams = (eye) => {
-        const type = document.getElementById(`client-lens-type-${eye}`).value.toLowerCase();
-        const div = document.getElementById(`client-params-${eye}`);
-        const cyl = document.getElementById(`client-cyl-${eye}`);
-        const axis = document.getElementById(`client-axis-${eye}`);
-        const add = document.getElementById(`client-add-${eye}`);
-        div.classList.remove('hidden');
-        cyl.classList.add('hidden'); axis.classList.add('hidden'); add.classList.add('hidden');
-        if(type.includes('toric') || type.includes('astigmatismo')) { cyl.classList.remove('hidden'); axis.classList.remove('hidden'); }
-        if(type.includes('multifocal') || type.includes('presbiopia')) { add.classList.remove('hidden'); }
-    };
-    cTypeOD.onchange = () => toggleParams('od');
-    cTypeOS.onchange = () => toggleParams('os');
-
-    function showClientModal() {
-        clientPopulateManufacturers();
-        // Reset
-        ['client-name', 'client-email', 'client-phone', 'client-fiscal-code', 'client-address', 'client-city', 'client-zip', 'client-province'].forEach(id => document.getElementById(id).value = '');
-        cManuf.value = ''; cModel.value = ''; cModel.disabled = true; cTypeOD.disabled = true; cTypeOS.disabled = true;
-        document.getElementById('client-form-container').classList.remove('hidden');
-        clientFormActions.classList.remove('hidden');
-        clientQrContainer.classList.add('hidden');
-        clientModal.classList.remove('hidden');
-    }
-
-    document.getElementById('generate-qr-button').onclick = () => {
-        const data = {
-            n: document.getElementById('client-name').value,
-            e: document.getElementById('client-email').value,
-            ph: document.getElementById('client-phone').value,
-            cf: document.getElementById('client-fiscal-code').value, 
-            sa: document.getElementById('client-address').value,
-            sc: document.getElementById('client-city').value,
-            sz: document.getElementById('client-zip').value,
-            sp: document.getElementById('client-province').value,
-            oid: currentOpticianUid,
-            m: cManuf.value, md: cModel.value,
-            tod: cTypeOD.value, pod: document.getElementById('client-pwr-od').value, cod: document.getElementById('client-cyl-od').value, aod: document.getElementById('client-axis-od').value, addod: document.getElementById('client-add-od').value,
-            tos: cTypeOS.value, pos: document.getElementById('client-pwr-os').value, cos: document.getElementById('client-cyl-os').value, aos: document.getElementById('client-axis-os').value, addos: document.getElementById('client-add-os').value
-        };
-        
-        const baseUrl = window.location.origin + '/'; 
-        const params = new URLSearchParams();
-        Object.entries(data).forEach(([k,v]) => { if(v) params.set(k,v); });
-        const fullUrl = baseUrl + '?' + params.toString();
-        
-        document.getElementById('qr-code-display').innerHTML = '';
-        new QRCode(document.getElementById('qr-code-display'), { text: fullUrl, width: 200, height: 200 });
-        
-        document.getElementById('client-form-container').classList.add('hidden');
-        clientFormActions.classList.add('hidden');
-        clientQrContainer.classList.remove('hidden');
-    };
-    
-    document.getElementById('print-qr-button').onclick = () => {
-        const img = document.querySelector('#qr-code-display img');
-        const name = document.getElementById('client-name').value;
-        const cf = document.getElementById('client-fiscal-code').value;
-        const addr = document.getElementById('client-address').value;
-        const city = document.getElementById('client-city').value;
-        const lens = `${cManuf.value} ${cModel.value}`;
-        if(!img) return;
-        const w = window.open('');
-        w.document.write(`<html><body style="text-align:center;font-family:sans-serif;padding:50px;"><h1>Scansiona per App</h1><p>Configurazione cliente.</p><img src="${img.src}" style="width:300px;margin:20px 0;"><br><div style="text-align:left;max-width:400px;margin:0 auto;border:1px solid #ddd;padding:20px;border-radius:8px;"><h3>Riepilogo</h3><p><strong>Cliente:</strong> ${name}</p><p><strong>CF:</strong> ${cf}</p><p><strong>Indirizzo:</strong> ${addr} ${city ? ',' + city : ''}</p><hr><p><strong>Lente:</strong> ${lens}</p></div><script>window.print();<\/script></body></html>`);
-        w.document.close();
-    };
-
+    const cManuf = document.getElementById('client-lens-manufacturer'); const cModel = document.getElementById('client-lens-model'); const cTypeOD = document.getElementById('client-lens-type-od'); const cTypeOS = document.getElementById('client-lens-type-os');
+    function clientPopulateManufacturers() { if(!myLensData) return; cManuf.innerHTML = '<option value="">-- Seleziona --</option>'; Object.keys(myLensData).forEach(m => cManuf.innerHTML += `<option value="${m}">${m}</option>`); }
+    cManuf.onchange = () => { cModel.innerHTML = '<option value="">-- --</option>'; cModel.disabled = true; if(cManuf.value && myLensData[cManuf.value]) { Object.keys(myLensData[cManuf.value]).forEach(m => cModel.innerHTML += `<option value="${m}">${m}</option>`); cModel.disabled = false; } };
+    cModel.onchange = () => { if(cManuf.value && cModel.value && myLensData[cManuf.value][cModel.value]) { const types = myLensData[cManuf.value][cModel.value]; const ops = '<option value="">-- --</option>' + types.map(t => `<option value="${t}">${t}</option>`).join(''); cTypeOD.innerHTML = ops; cTypeOD.disabled = false; cTypeOS.innerHTML = ops; cTypeOS.disabled = false; } };
+    const toggleParams = (eye) => { const type = document.getElementById(`client-lens-type-${eye}`).value.toLowerCase(); const div = document.getElementById(`client-params-${eye}`); const cyl = document.getElementById(`client-cyl-${eye}`); const axis = document.getElementById(`client-axis-${eye}`); const add = document.getElementById(`client-add-${eye}`); div.classList.remove('hidden'); cyl.classList.add('hidden'); axis.classList.add('hidden'); add.classList.add('hidden'); if(type.includes('toric') || type.includes('astigmatismo')) { cyl.classList.remove('hidden'); axis.classList.remove('hidden'); } if(type.includes('multifocal') || type.includes('presbiopia')) { add.classList.remove('hidden'); } };
+    cTypeOD.onchange = () => toggleParams('od'); cTypeOS.onchange = () => toggleParams('os');
+    function showClientModal() { clientPopulateManufacturers(); ['client-name', 'client-email', 'client-phone', 'client-fiscal-code', 'client-address', 'client-city', 'client-zip', 'client-province'].forEach(id => document.getElementById(id).value = ''); cManuf.value = ''; cModel.value = ''; cModel.disabled = true; cTypeOD.disabled = true; cTypeOS.disabled = true; document.getElementById('client-form-container').classList.remove('hidden'); clientFormActions.classList.remove('hidden'); clientQrContainer.classList.add('hidden'); clientModal.classList.remove('hidden'); }
+    document.getElementById('generate-qr-button').onclick = () => { const data = { n: document.getElementById('client-name').value, e: document.getElementById('client-email').value, ph: document.getElementById('client-phone').value, cf: document.getElementById('client-fiscal-code').value, sa: document.getElementById('client-address').value, sc: document.getElementById('client-city').value, sz: document.getElementById('client-zip').value, sp: document.getElementById('client-province').value, oid: currentOpticianUid, m: cManuf.value, md: cModel.value, tod: cTypeOD.value, pod: document.getElementById('client-pwr-od').value, cod: document.getElementById('client-cyl-od').value, aod: document.getElementById('client-axis-od').value, addod: document.getElementById('client-add-od').value, tos: cTypeOS.value, pos: document.getElementById('client-pwr-os').value, cos: document.getElementById('client-cyl-os').value, aos: document.getElementById('client-axis-os').value, addos: document.getElementById('client-add-os').value }; const baseUrl = window.location.origin + '/'; const params = new URLSearchParams(); Object.entries(data).forEach(([k,v]) => { if(v) params.set(k,v); }); const fullUrl = baseUrl + '?' + params.toString(); document.getElementById('qr-code-display').innerHTML = ''; new QRCode(document.getElementById('qr-code-display'), { text: fullUrl, width: 200, height: 200 }); document.getElementById('client-form-container').classList.add('hidden'); clientFormActions.classList.add('hidden'); clientQrContainer.classList.remove('hidden'); };
+    document.getElementById('print-qr-button').onclick = () => { const img = document.querySelector('#qr-code-display img'); const name = document.getElementById('client-name').value; const cf = document.getElementById('client-fiscal-code').value; const addr = document.getElementById('client-address').value; const city = document.getElementById('client-city').value; const lens = `${cManuf.value} ${cModel.value}`; if(!img) return; const w = window.open(''); w.document.write(`<html><body style="text-align:center;font-family:sans-serif;padding:50px;"><h1>Scansiona per App</h1><p>Configurazione cliente.</p><img src="${img.src}" style="width:300px;margin:20px 0;"><br><div style="text-align:left;max-width:400px;margin:0 auto;border:1px solid #ddd;padding:20px;border-radius:8px;"><h3>Riepilogo</h3><p><strong>Cliente:</strong> ${name}</p><p><strong>CF:</strong> ${cf}</p><p><strong>Indirizzo:</strong> ${addr} ${city ? ',' + city : ''}</p><hr><p><strong>Lente:</strong> ${lens}</p></div><script>window.print();<\/script></body></html>`); w.document.close(); };
   </script>
 </body>
 </html>
