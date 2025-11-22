@@ -845,7 +845,7 @@
         localStorage.setItem(KEY_NAME, nameInput.value.trim());
         localStorage.setItem(KEY_PHONE, phoneInput.value.trim());
         localStorage.setItem(KEY_EMAIL, emailInput.value.trim());
-        localStorage.setItem(KEY_CF, cfInput.value.trim());
+        localStorage.setItem(KEY_CF, cfInput.value.trim()); // Salvataggio input raw
         
         localStorage.setItem(KEY_ADDR_STREET, street);
         localStorage.setItem(KEY_ADDR_NUM, num);
@@ -935,6 +935,10 @@
         const opticianId = localStorage.getItem(KEY_OPTICIAN_ID); 
         const message = localStorage.getItem(KEY_MESSAGE); 
         
+        // SANITIZZAZIONE DATI CRITICI PER ARCHIVIO
+        const cleanPhone = (localStorage.getItem(KEY_PHONE) || '').replace(/[\s\-\(\)]/g, '');
+        const cleanCf = (localStorage.getItem(KEY_CF) || '').toUpperCase();
+
         const fullOrderData = {
             patient_name: patientName,
             optician_id: opticianId,
@@ -943,9 +947,9 @@
             timestamp: serverTimestamp(),
             
             client_info: {
-                phone: localStorage.getItem(KEY_PHONE) || '',
+                phone: cleanPhone,
                 email: localStorage.getItem(KEY_EMAIL) || '',
-                cf: localStorage.getItem(KEY_CF) || '',
+                cf: cleanCf,
                 privacy_accepted: true
             },
             
@@ -1007,7 +1011,7 @@
 
           actionTitle.innerText = 'Grazie!'; 
           actionLoader.classList.add('hidden'); 
-          actionMessage.innerHTML = 'Il tuo ordine è stato inviato.<br>Ti aspettiamo!'; 
+          actionMessage.innerHTML = 'Il tuo ordine è stato inviato.<br>Riceverai una notifica quando sarà pronto!'; 
           actionMessage.classList.remove('hidden'); 
           setTimeout(() => { 
             actionTitle.innerText = "Un'offerta per te!"; 
