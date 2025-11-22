@@ -178,6 +178,26 @@
     </div>
   </div>
 
+  <div id="notification-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-6 hidden z-50">
+    <div class="bg-white w-full max-w-md rounded-xl shadow-2xl relative p-6 border-t-4 border-green-500">
+        <h3 class="text-xl font-bold text-gray-900 mb-2">Notifica Cliente</h3>
+        <p class="text-sm text-gray-600 mb-6" id="notification-modal-text">Lo stato dell'ordine è stato aggiornato. Vuoi inviare una notifica WhatsApp o Email al cliente?</p>
+        
+        <div class="space-y-3">
+            <button id="btn-send-notification" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                </svg>
+                <span>Sì, invia notifica</span>
+            </button>
+            
+            <button onclick="document.getElementById('notification-modal').classList.add('hidden')" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg transition border border-gray-300">
+                No, grazie
+            </button>
+        </div>
+    </div>
+  </div>
+
   <div id="password-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-6 hidden z-50">
     <div class="bg-white w-full max-w-md rounded-lg shadow-xl relative p-6">
         <button id="close-pwd-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">&times;</button>
@@ -266,7 +286,10 @@
     let myPricingConfig = {}; 
     let myLensData = {}; 
     let allOrdersCache = [];
+    
+    // Stato variabili per i modali
     let currentSupplyOrderId = null; 
+    let pendingNotificationData = null; // Dati per la notifica in sospeso
 
     try {
       const app = initializeApp(firebaseConfig);
@@ -307,9 +330,14 @@
     const catalogContainer = document.getElementById('catalog-container');
     const saveCatalogBtn = document.getElementById('save-catalog-btn');
     
+    // Modali Custom
     const supplyModal = document.getElementById('supply-modal');
     const btnSupplyClient = document.getElementById('btn-supply-client');
     const btnSupplyStore = document.getElementById('btn-supply-store');
+    
+    const notificationModal = document.getElementById('notification-modal');
+    const btnSendNotification = document.getElementById('btn-send-notification');
+    const notificationModalText = document.getElementById('notification-modal-text');
 
     // --- MENU USER ---
     const userMenuBtn = document.getElementById('user-menu-btn');
@@ -393,7 +421,7 @@
         const isDel = order.delivery?.mode === 'delivery';
         const delIcon = isDel ? '🚚' : '🏬'; const delText = isDel ? 'Domicilio' : 'Ritiro in Sede';
         
-        // SUPPLY BUTTON & BADGE LOGIC
+        // SUPPLY BUTTON & BADGE LOGIC (AGGIORNATA)
         let supplyBtn = '';
         if (order.supply_request && order.supply_request.status === 'pending') {
             if (order.supply_request.destination === 'client') {
@@ -480,21 +508,61 @@
     btnSupplyClient.onclick = () => confirmSupplyRequest('client');
     btnSupplyStore.onclick = () => confirmSupplyRequest('store');
 
-    // --- UPDATE STATUS ---
+    // --- UPDATE STATUS WITH NOTIFICATION (MODAL) ---
     async function updateOrderStatus(orderId, newStatus) {
-      try { await updateDoc(doc(db, `artifacts/${appId}/public/data/orders`, orderId), { status: newStatus }); } catch (e) { alert("Errore: " + e.message); return; }
-      const order = allOrdersCache.find(o => o.id === orderId); if (!order) return;
-      const clientPhone = order.client_info?.phone; const clientEmail = order.client_info?.email; const clientName = order.patient_name || "Cliente";
+      try { 
+          await updateDoc(doc(db, `artifacts/${appId}/public/data/orders`, orderId), { status: newStatus }); 
+      } catch (e) { alert("Errore: " + e.message); return; }
+
+      const order = allOrdersCache.find(o => o.id === orderId);
+      if (!order) return;
+
+      if (newStatus !== 'ready' && newStatus !== 'processing') return;
+
+      const clientName = order.patient_name || "Cliente";
+      const clientPhone = order.client_info?.phone;
+      const clientEmail = order.client_info?.email;
+      
       let msgBody = "", subject = "";
-      if (newStatus === 'ready') { subject = `Il tuo ordine è pronto! 👓`; msgBody = `Ciao ${clientName}, le tue lenti sono pronte per il ritiro (o in spedizione). Ti aspettiamo!`; }
-      else if (newStatus === 'processing') { subject = `Ordine in lavorazione`; msgBody = `Ciao ${clientName}, abbiamo preso in carico il tuo ordine e stiamo preparando le tue lenti.`; }
-      else { return; }
-      if (confirm(`Stato aggiornato a "${newStatus}". Vuoi inviare una notifica al cliente?`)) {
-          if (clientPhone) { let cleanPhone = clientPhone.replace(/[^0-9]/g, ''); if (!cleanPhone.startsWith('39')) cleanPhone = '39' + cleanPhone; const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msgBody)}`; window.open(waUrl, '_blank'); }
-          else if (clientEmail) { const mailUrl = `mailto:${clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msgBody)}`; window.open(mailUrl, '_blank'); }
-          else { alert("Nessun contatto trovato."); }
+      if (newStatus === 'ready') { 
+          subject = `Il tuo ordine è pronto! 👓`; 
+          msgBody = `Ciao ${clientName}, le tue lenti sono pronte per il ritiro (o in spedizione). Ti aspettiamo!`; 
+      } else { 
+          subject = `Ordine in lavorazione`; 
+          msgBody = `Ciao ${clientName}, abbiamo preso in carico il tuo ordine e stiamo preparando le tue lenti.`; 
       }
+
+      // Salviamo i dati per il modale
+      pendingNotificationData = { phone: clientPhone, email: clientEmail, body: msgBody, subject: subject };
+      
+      // Mostra modale notifica
+      notificationModalText.innerText = `Stato aggiornato a "${newStatus}". Vuoi inviare una notifica al cliente?`;
+      notificationModal.classList.remove('hidden');
     }
+
+    // Gestione Click su "Sì, invia notifica"
+    btnSendNotification.onclick = () => {
+        if(!pendingNotificationData) return;
+        
+        const { phone, email, body, subject } = pendingNotificationData;
+        
+        if (phone) { 
+            let cleanPhone = phone.replace(/[^0-9]/g, ''); 
+            if (!cleanPhone.startsWith('39')) cleanPhone = '39' + cleanPhone; 
+            const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(body)}`; 
+            window.open(waUrl, '_blank'); 
+        }
+        else if (email) { 
+            const mailUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; 
+            window.open(mailUrl, '_blank'); 
+        }
+        else { 
+            alert("Nessun contatto trovato."); 
+        }
+        
+        notificationModal.classList.add('hidden');
+        pendingNotificationData = null;
+    };
     
     function printOrder(order) { const w = window.open('', '_blank', 'height=600,width=800'); w.document.write(`<html><head><title>Ordine</title><style>body{font-family:sans-serif;padding:20px;}</style></head><body><h2>Ordine: ${order.patient_name}</h2><p>${JSON.stringify(order.lens_order || order.message, null, 2)}</p><script>window.print();window.close();<\/script></body></html>`); w.document.close(); }
     async function deleteOrder(id) { if(confirm("Eliminare ordine?")) { await deleteDoc(doc(db, `artifacts/${appId}/public/data/orders`, id)); } }
