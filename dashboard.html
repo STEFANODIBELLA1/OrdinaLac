@@ -222,10 +222,17 @@
               <h2 class="text-2xl font-bold text-white tracking-tight">Nuovo Cliente</h2>
               <p class="text-indigo-200 text-sm mt-1">Compila la scheda per generare il QR Code personale.</p>
           </div>
-          <div class="bg-gray-700 p-2 rounded-lg text-white opacity-50">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-              </svg>
+          <div class="flex items-center gap-4">
+              <div class="bg-gray-700 p-2 rounded-lg text-white opacity-50 hidden sm:block">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                  </svg>
+              </div>
+              <button id="close-modal-x" class="text-gray-400 hover:text-white transition transform hover:scale-110">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+              </button>
           </div>
       </div>
 
@@ -713,9 +720,16 @@
     const clientFormActions = document.getElementById('client-form-actions');
     const clientQrContainer = document.getElementById('client-qr-container');
     const closeQrButton = document.getElementById('close-qr-button');
+    const closeModalX = document.getElementById('close-modal-x');
+    const closeModalButton = document.getElementById('close-modal-button');
+
     document.getElementById('add-client-button').onclick = showClientModal;
-    document.getElementById('close-modal-button').onclick = () => clientModal.classList.add('hidden');
-    closeQrButton.onclick = () => clientModal.classList.add('hidden');
+    
+    const hideModal = () => clientModal.classList.add('hidden');
+    closeQrButton.onclick = hideModal;
+    closeModalX.onclick = hideModal;
+    closeModalButton.onclick = hideModal;
+
     const cManuf = document.getElementById('client-lens-manufacturer'); const cModel = document.getElementById('client-lens-model'); const cTypeOD = document.getElementById('client-lens-type-od'); const cTypeOS = document.getElementById('client-lens-type-os');
     function clientPopulateManufacturers() { if(!myLensData) return; cManuf.innerHTML = '<option value="">-- Seleziona --</option>'; Object.keys(myLensData).forEach(m => cManuf.innerHTML += `<option value="${m}">${m}</option>`); }
     cManuf.onchange = () => { cModel.innerHTML = '<option value="">-- --</option>'; cModel.disabled = true; if(cManuf.value && myLensData[cManuf.value]) { Object.keys(myLensData[cManuf.value]).forEach(m => cModel.innerHTML += `<option value="${m}">${m}</option>`); cModel.disabled = false; } };
