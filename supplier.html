@@ -166,7 +166,8 @@
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Data</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider text-indigo-600">Ottico</th>
                                 <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Cliente</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Stato</th> <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Azioni</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider text-purple-600">Fornitura</th> <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Stato</th>
+                                <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Azioni</th>
                             </tr>
                         </thead>
                         <tbody id="orders-table-body" class="bg-white divide-y divide-gray-200 text-sm"></tbody>
@@ -893,12 +894,21 @@
             const date = o.timestamp ? new Date(o.timestamp.seconds * 1000).toLocaleDateString() : '-';
             const optName = opticiansMap[o.optician_id] || o.optician_id;
             const badgeClass = statusColors[o.status] || 'bg-gray-100';
+            
+            // Supply Badge Logic
+            let supplyBadge = '-';
+            if (o.supply_request && o.supply_request.status === 'pending') {
+                const dest = o.supply_request.destination === 'client' ? 'CLIENTE' : 'STORE';
+                supplyBadge = `<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-bold border border-purple-200">DA SPEDIRE: ${dest}</span>`;
+            }
+
             const tr = document.createElement('tr');
             tr.className = "hover:bg-gray-50 border-b border-gray-100";
             tr.innerHTML = `
                 <td class="px-6 py-4 text-gray-500 text-xs font-mono">${date}</td>
                 <td class="px-6 py-4 text-indigo-700 font-bold text-sm">${optName}</td>
                 <td class="px-6 py-4 text-gray-900 font-medium text-sm">${o.patient_name || '-'}</td>
+                <td class="px-6 py-4">${supplyBadge}</td>
                 <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-bold ${badgeClass}">${o.status || 'new'}</span></td>
                 <td class="px-6 py-4 text-center">
                     <button onclick="showOrderDetails('${o.id}')" class="text-indigo-600 hover:text-indigo-900 bg-white border p-1 rounded-full">
