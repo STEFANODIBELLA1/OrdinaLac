@@ -9,6 +9,7 @@
   <style>
     .hidden { display: none; }
     .modal-overlay { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); }
+    
     /* Scrollbar personalizzata */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -736,9 +737,70 @@
     cModel.onchange = () => { if(cManuf.value && cModel.value && myLensData[cManuf.value][cModel.value]) { const types = myLensData[cManuf.value][cModel.value]; const ops = '<option value="">-- --</option>' + types.map(t => `<option value="${t}">${t}</option>`).join(''); cTypeOD.innerHTML = ops; cTypeOD.disabled = false; cTypeOS.innerHTML = ops; cTypeOS.disabled = false; } };
     const toggleParams = (eye) => { const type = document.getElementById(`client-lens-type-${eye}`).value.toLowerCase(); const div = document.getElementById(`client-params-${eye}`); const cyl = document.getElementById(`client-cyl-${eye}`); const axis = document.getElementById(`client-axis-${eye}`); const add = document.getElementById(`client-add-${eye}`); div.classList.remove('hidden'); cyl.classList.add('hidden'); axis.classList.add('hidden'); add.classList.add('hidden'); if(type.includes('toric') || type.includes('astigmatismo')) { cyl.classList.remove('hidden'); axis.classList.remove('hidden'); } if(type.includes('multifocal') || type.includes('presbiopia')) { add.classList.remove('hidden'); } };
     cTypeOD.onchange = () => toggleParams('od'); cTypeOS.onchange = () => toggleParams('os');
-    function showClientModal() { clientPopulateManufacturers(); ['client-name', 'client-email', 'client-phone', 'client-fiscal-code', 'client-address', 'client-city', 'client-zip', 'client-province'].forEach(id => document.getElementById(id).value = ''); cManuf.value = ''; cModel.value = ''; cModel.disabled = true; cTypeOD.disabled = true; cTypeOS.disabled = true; document.getElementById('client-form-container').classList.remove('hidden'); clientFormActions.classList.remove('hidden'); clientQrContainer.classList.add('hidden'); clientModal.classList.remove('hidden'); }
-    document.getElementById('generate-qr-button').onclick = () => { const data = { n: document.getElementById('client-name').value, e: document.getElementById('client-email').value, ph: document.getElementById('client-phone').value, cf: document.getElementById('client-fiscal-code').value, sa: document.getElementById('client-address').value, sc: document.getElementById('client-city').value, sz: document.getElementById('client-zip').value, sp: document.getElementById('client-province').value, oid: currentOpticianUid, m: cManuf.value, md: cModel.value, tod: cTypeOD.value, pod: document.getElementById('client-pwr-od').value, cod: document.getElementById('client-cyl-od').value, aod: document.getElementById('client-axis-od').value, addod: document.getElementById('client-add-od').value, tos: cTypeOS.value, pos: document.getElementById('client-pwr-os').value, cos: document.getElementById('client-cyl-os').value, aos: document.getElementById('client-axis-os').value, addos: document.getElementById('client-add-os').value }; const baseUrl = window.location.origin + '/'; const params = new URLSearchParams(); Object.entries(data).forEach(([k,v]) => { if(v) params.set(k,v); }); const fullUrl = baseUrl + '?' + params.toString(); document.getElementById('qr-code-display').innerHTML = ''; new QRCode(document.getElementById('qr-code-display'), { text: fullUrl, width: 200, height: 200 }); document.getElementById('client-form-container').classList.add('hidden'); clientFormActions.classList.add('hidden'); clientQrContainer.classList.remove('hidden'); };
-    document.getElementById('print-qr-button').onclick = () => { const img = document.querySelector('#qr-code-display img'); const name = document.getElementById('client-name').value; const cf = document.getElementById('client-fiscal-code').value; const addr = document.getElementById('client-address').value; const city = document.getElementById('client-city').value; const lens = `${cManuf.value} ${cModel.value}`; if(!img) return; const w = window.open(''); w.document.write(`<html><body style="text-align:center;font-family:sans-serif;padding:50px;"><h1>Scansiona per App</h1><p>Configurazione cliente.</p><img src="${img.src}" style="width:300px;margin:20px 0;"><br><div style="text-align:left;max-width:400px;margin:0 auto;border:1px solid #ddd;padding:20px;border-radius:8px;"><h3>Riepilogo</h3><p><strong>Cliente:</strong> ${name}</p><p><strong>CF:</strong> ${cf}</p><p><strong>Indirizzo:</strong> ${addr} ${city ? ',' + city : ''}</p><hr><p><strong>Lente:</strong> ${lens}</p></div><script>window.print();<\/script></body></html>`); w.document.close(); };
+    
+    function showClientModal() { 
+        clientPopulateManufacturers(); 
+        ['client-name', 'client-email', 'client-phone', 'client-fiscal-code', 'client-address', 'client-city', 'client-zip', 'client-province'].forEach(id => document.getElementById(id).value = ''); 
+        cManuf.value = ''; cModel.value = ''; cModel.disabled = true; cTypeOD.disabled = true; cTypeOS.disabled = true; 
+        document.getElementById('client-form-container').classList.remove('hidden'); 
+        clientFormActions.classList.remove('hidden'); 
+        clientQrContainer.classList.add('hidden'); 
+        clientModal.classList.remove('hidden'); 
+    }
+    
+    // Validazione e Generazione QR
+    document.getElementById('generate-qr-button').onclick = () => { 
+        const n = document.getElementById('client-name').value.trim();
+        const e = document.getElementById('client-email').value.trim();
+        const ph = document.getElementById('client-phone').value.trim();
+        const cf = document.getElementById('client-fiscal-code').value.trim();
+        const sa = document.getElementById('client-address').value.trim();
+        const sc = document.getElementById('client-city').value.trim();
+        const sz = document.getElementById('client-zip').value.trim();
+        const sp = document.getElementById('client-province').value.trim();
+        const m = cManuf.value;
+        const md = cModel.value;
+        const tod = cTypeOD.value;
+        const tos = cTypeOS.value;
+
+        if (!n || !e || !ph || !cf || !sa || !sc || !sz || !sp || !m || !md || !tod || !tos) {
+            alert("Attenzione: Compila TUTTI i campi (Anagrafica, Indirizzo, Marca, Modello e Tipi Lente) per generare il QR.");
+            return;
+        }
+
+        const data = { 
+            n: n, e: e, ph: ph, cf: cf, 
+            sa: sa, sc: sc, sz: sz, sp: sp, 
+            oid: currentOpticianUid, 
+            m: m, md: md, 
+            tod: tod, pod: document.getElementById('client-pwr-od').value, cod: document.getElementById('client-cyl-od').value, aod: document.getElementById('client-axis-od').value, addod: document.getElementById('client-add-od').value, 
+            tos: tos, pos: document.getElementById('client-pwr-os').value, cos: document.getElementById('client-cyl-os').value, aos: document.getElementById('client-axis-os').value, addos: document.getElementById('client-add-os').value 
+        }; 
+        
+        const baseUrl = window.location.origin + '/'; 
+        const params = new URLSearchParams(); 
+        Object.entries(data).forEach(([k,v]) => { if(v) params.set(k,v); }); 
+        const fullUrl = baseUrl + '?' + params.toString(); 
+        
+        document.getElementById('qr-code-display').innerHTML = ''; 
+        new QRCode(document.getElementById('qr-code-display'), { text: fullUrl, width: 200, height: 200 }); 
+        document.getElementById('client-form-container').classList.add('hidden'); 
+        clientFormActions.classList.add('hidden'); 
+        clientQrContainer.classList.remove('hidden'); 
+    };
+
+    document.getElementById('print-qr-button').onclick = () => { 
+        const img = document.querySelector('#qr-code-display img'); 
+        const name = document.getElementById('client-name').value; 
+        const cf = document.getElementById('client-fiscal-code').value; 
+        const addr = document.getElementById('client-address').value; 
+        const city = document.getElementById('client-city').value; 
+        const lens = `${cManuf.value} ${cModel.value}`; 
+        if(!img) return; 
+        const w = window.open(''); 
+        w.document.write(`<html><body style="text-align:center;font-family:sans-serif;padding:50px;"><h1>Scansiona per App</h1><p>Configurazione cliente.</p><img src="${img.src}" style="width:300px;margin:20px 0;"><br><div style="text-align:left;max-width:400px;margin:0 auto;border:1px solid #ddd;padding:20px;border-radius:8px;"><h3>Riepilogo</h3><p><strong>Cliente:</strong> ${name}</p><p><strong>CF:</strong> ${cf}</p><p><strong>Indirizzo:</strong> ${addr} ${city ? ',' + city : ''}</p><hr><p><strong>Lente:</strong> ${lens}</p></div><script>window.print();<\/script></body></html>`); 
+        w.document.close(); 
+    };
   </script>
 </body>
 </html>
