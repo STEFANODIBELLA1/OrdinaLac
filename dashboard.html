@@ -466,7 +466,7 @@
         }
     };
 
-    // --- ORDERS LOGIC ---
+    // --- ORDERS LOGIC (UPDATED) ---
     refreshOrdersBtn.onclick = () => loadOrders(currentOpticianUid);
 
     function loadOrders(opticianUid) {
@@ -525,6 +525,14 @@
         const delIcon = isDel ? '🚚' : '🏬';
         const delText = isDel ? 'Domicilio' : 'Ritiro in Sede';
         
+        // Supply Button Logic
+        let supplyBtn = '';
+        if (order.supply_request && order.supply_request.status === 'pending') {
+            supplyBtn = `<span class="ml-2 px-2 py-1 bg-green-100 text-green-700 border border-green-200 rounded text-xs font-bold flex items-center gap-1">✅ Fornitura Richiesta (${order.supply_request.destination === 'client' ? 'Cliente' : 'Negozio'})</span>`;
+        } else if (status !== 'cancelled' && status !== 'completed') {
+            supplyBtn = `<button onclick="requestSupply('${order.id}')" class="ml-2 px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded text-xs font-bold transition flex items-center gap-1">📦 Ordina Lenti al Fornitore</button>`;
+        }
+
         const l = order.lens_order || {};
         const getP = (eye) => {
             if(!eye) return '';
@@ -551,7 +559,10 @@
               </div>
            </div>
            <div class="bg-gray-50 p-3 rounded border border-gray-100 text-sm">
-               <p class="mb-2 text-gray-700"><span class="font-bold">${l.manufacturer || '-'}</span> ${l.model || ''}</p>
+               <p class="mb-2 text-gray-700 flex justify-between items-center">
+                   <span><span class="font-bold">${l.manufacturer || '-'}</span> ${l.model || ''}</span>
+                   ${supplyBtn}
+               </p>
                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                    <div class="flex justify-between items-center border-b border-gray-200 pb-1">
                        <span class="font-bold text-blue-600 w-8">OD</span>
@@ -591,7 +602,7 @@
     }
     searchPatientInput.addEventListener('input', () => renderOrders(allOrdersCache));
 
-    // --- UPDATE STATUS WITH NOTIFICATION (NEW) ---
+    // --- UPDATE STATUS WITH NOTIFICATION ---
     async function updateOrderStatus(orderId, newStatus) {
       try {
         await updateDoc(doc(db, `artifacts/${appId}/public/data/orders`, orderId), { status: newStatus });
@@ -637,6 +648,25 @@
           }
       }
     }
+    
+    // --- REQUEST SUPPLY FUNCTION (NEW) ---
+    window.requestSupply = async (orderId) => {
+        const choice = confirm("Inviare richiesta al fornitore?\n\nOK = Spedisci al CLIENTE\nANNULLA = Spedisci in NEGOZIO");
+        const destination = choice ? 'client' : 'store';
+        
+        try {
+            await updateDoc(doc(db, `artifacts/${appId}/public/data/orders`, orderId), {
+                supply_request: {
+                    status: 'pending',
+                    destination: destination,
+                    requested_at: new Date()
+                }
+            });
+            // No need to alert, snapshot will update UI
+        } catch (e) {
+            alert("Errore richiesta fornitura: " + e.message);
+        }
+    };
     
     function printOrder(order) {
         const w = window.open('', '_blank', 'height=600,width=800');
@@ -756,7 +786,7 @@
     };
 
 
-    // --- CLIENT QR MODAL LOGIC ---
+    // --- CLIENT QR MODAL LOGIC (AGGIORNATA CON NUOVI CAMPI) ---
     const clientModal = document.getElementById('client-modal');
     const clientFormActions = document.getElementById('client-form-actions');
     const clientQrContainer = document.getElementById('client-qr-container');
@@ -808,7 +838,7 @@
 
     function showClientModal() {
         clientPopulateManufacturers();
-        // Reset campi
+        // Reset campi (Inclusi i nuovi)
         document.getElementById('client-name').value = '';
         document.getElementById('client-email').value = '';
         document.getElementById('client-phone').value = '';
@@ -828,13 +858,13 @@
     }
 
     document.getElementById('generate-qr-button').onclick = () => {
-        // Costruzione dati
+        // Costruzione dati completi (usando chiavi corte per URL)
         const data = {
             n: document.getElementById('client-name').value,
             e: document.getElementById('client-email').value,
             ph: document.getElementById('client-phone').value,
-            cf: document.getElementById('client-fiscal-code').value, 
-            // Spedizione
+            cf: document.getElementById('client-fiscal-code').value, // Nuovo CF
+            // Spedizione (Short keys)
             sa: document.getElementById('client-address').value,
             sc: document.getElementById('client-city').value,
             sz: document.getElementById('client-zip').value,
