@@ -214,7 +214,7 @@
     </div>
   </div>
 
- <div id="client-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 hidden z-50 backdrop-blur-sm transition-opacity">
+  <div id="client-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 hidden z-50 backdrop-blur-sm transition-opacity">
     <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl modal-content relative flex flex-col max-h-[90vh] overflow-hidden">
       
       <div class="bg-gradient-to-r from-gray-900 to-gray-800 p-6 border-b border-gray-700 flex justify-between items-center">
@@ -413,9 +413,9 @@
     let myLensData = {}; 
     let allOrdersCache = [];
     
-    // Stato variabili per i modali
+    // Variabili per i modali
     let currentSupplyOrderId = null; 
-    let pendingNotificationData = null; // Dati per la notifica in sospeso
+    let pendingNotificationData = null; 
 
     try {
       const app = initializeApp(firebaseConfig);
@@ -456,7 +456,7 @@
     const catalogContainer = document.getElementById('catalog-container');
     const saveCatalogBtn = document.getElementById('save-catalog-btn');
     
-    // Modali Custom
+    // MODALI CUSTOM
     const supplyModal = document.getElementById('supply-modal');
     const btnSupplyClient = document.getElementById('btn-supply-client');
     const btnSupplyStore = document.getElementById('btn-supply-store');
@@ -547,7 +547,7 @@
         const isDel = order.delivery?.mode === 'delivery';
         const delIcon = isDel ? '🚚' : '🏬'; const delText = isDel ? 'Domicilio' : 'Ritiro in Sede';
         
-        // SUPPLY BUTTON & BADGE LOGIC (AGGIORNATA)
+        // SUPPLY BUTTON & BADGE LOGIC
         let supplyBtn = '';
         if (order.supply_request && order.supply_request.status === 'pending') {
             if (order.supply_request.destination === 'client') {
@@ -601,21 +601,16 @@
     }
     searchPatientInput.addEventListener('input', () => renderOrders(allOrdersCache));
 
-    // --- LOGICA MODALE SUPPLY (AGGIORNATA) ---
+    // --- LOGICA MODALE SUPPLY ---
     window.openSupplyModal = (orderId) => {
         const order = allOrdersCache.find(o => o.id === orderId);
         if (!order) return;
         
         currentSupplyOrderId = orderId;
-        
-        // Controllo modalità di spedizione
         const isHomeDelivery = (order.delivery && order.delivery.mode === 'delivery');
         
-        if (isHomeDelivery) {
-            btnSupplyClient.classList.remove('hidden');
-        } else {
-            btnSupplyClient.classList.add('hidden');
-        }
+        if (isHomeDelivery) btnSupplyClient.classList.remove('hidden');
+        else btnSupplyClient.classList.add('hidden');
         
         supplyModal.classList.remove('hidden');
     };
@@ -634,15 +629,12 @@
     btnSupplyClient.onclick = () => confirmSupplyRequest('client');
     btnSupplyStore.onclick = () => confirmSupplyRequest('store');
 
-    // --- UPDATE STATUS WITH NOTIFICATION (MODAL) ---
+    // --- UPDATE STATUS WITH NOTIFICATION (MODALE) ---
     async function updateOrderStatus(orderId, newStatus) {
-      try { 
-          await updateDoc(doc(db, `artifacts/${appId}/public/data/orders`, orderId), { status: newStatus }); 
-      } catch (e) { alert("Errore: " + e.message); return; }
-
-      const order = allOrdersCache.find(o => o.id === orderId);
-      if (!order) return;
-
+      try { await updateDoc(doc(db, `artifacts/${appId}/public/data/orders`, orderId), { status: newStatus }); } catch (e) { alert("Errore: " + e.message); return; }
+      const order = allOrdersCache.find(o => o.id === orderId); if (!order) return;
+      
+      // Mostra modale solo per stati rilevanti
       if (newStatus !== 'ready' && newStatus !== 'processing') return;
 
       const clientName = order.patient_name || "Cliente";
@@ -658,34 +650,23 @@
           msgBody = `Ciao ${clientName}, abbiamo preso in carico il tuo ordine e stiamo preparando le tue lenti.`; 
       }
 
-      // Salviamo i dati per il modale
       pendingNotificationData = { phone: clientPhone, email: clientEmail, body: msgBody, subject: subject };
-      
-      // Mostra modale notifica
       notificationModalText.innerText = `Stato aggiornato a "${newStatus}". Vuoi inviare una notifica al cliente?`;
       notificationModal.classList.remove('hidden');
     }
 
-    // Gestione Click su "Sì, invia notifica"
     btnSendNotification.onclick = () => {
         if(!pendingNotificationData) return;
-        
         const { phone, email, body, subject } = pendingNotificationData;
-        
         if (phone) { 
             let cleanPhone = phone.replace(/[^0-9]/g, ''); 
             if (!cleanPhone.startsWith('39')) cleanPhone = '39' + cleanPhone; 
-            const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(body)}`; 
-            window.open(waUrl, '_blank'); 
-        }
-        else if (email) { 
-            const mailUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; 
-            window.open(mailUrl, '_blank'); 
-        }
-        else { 
+            window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(body)}`, '_blank'); 
+        } else if (email) { 
+            window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank'); 
+        } else { 
             alert("Nessun contatto trovato."); 
         }
-        
         notificationModal.classList.add('hidden');
         pendingNotificationData = null;
     };
