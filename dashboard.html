@@ -9,7 +9,6 @@
   <style>
     .hidden { display: none; }
     .modal-overlay { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); }
-    
     /* Scrollbar personalizzata */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -228,7 +227,7 @@
     </div>
   </div>
 
-  <!-- 4. CLIENT MODAL (CONFIGURAZIONE CLIENTE - VALIDAZIONE AGGIUNTA) -->
+  <!-- 4. CLIENT MODAL (CONFIGURAZIONE CLIENTE - ALLARGATO) -->
   <div id="client-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 hidden z-50 backdrop-blur-sm transition-opacity">
     <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl modal-content relative flex flex-col max-h-[90vh] overflow-hidden">
       
@@ -239,11 +238,6 @@
               <p class="text-indigo-200 text-sm mt-1">Compila la scheda per generare il QR Code personale.</p>
           </div>
           <div class="flex items-center gap-4">
-              <div class="bg-gray-700 p-2 rounded-lg text-white opacity-50 hidden sm:block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                  </svg>
-              </div>
               <!-- TASTO X CHIUSURA -->
               <button id="close-modal-x" class="text-gray-400 hover:text-white transition transform hover:scale-110">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -387,7 +381,6 @@
                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                  Stampa
              </button>
-             <!-- TASTO CHIUDI RI-AGGIUNTO QUI -->
              <button id="close-qr-button" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition">Chiudi</button>
          </div>
       </div>
@@ -423,12 +416,13 @@
 
     let db, auth, unsubscribeOrders;
     let currentOpticianUid = null; 
+    
+    // Global Vars for Data
     let masterCatalog = {}; 
     let myPricingConfig = {}; 
     let myLensData = {}; 
+
     let allOrdersCache = [];
-    
-    // Variabili per i modali
     let currentSupplyOrderId = null; 
     let pendingNotificationData = null; 
 
@@ -785,9 +779,14 @@
         // VALIDAZIONE PARAMETRI LENTI (NUOVA)
         const checkVisibleInput = (id) => {
             const el = document.getElementById(id);
-            // Se l'elemento non è nascosto (cioè richiesto per quel tipo di lente) deve avere un valore
-            if (!el.parentElement.classList.contains('hidden') && !el.value.trim()) return false;
-            return true;
+            if (!el) return true; // Should not happen
+            // Se l'input ha la classe hidden, non è richiesto
+            if (el.classList.contains('hidden')) return true;
+            // Se il contenitore dei parametri è nascosto, non è richiesto
+            if (el.closest('[id^="client-params-"]').classList.contains('hidden')) return true;
+            
+            // Se è visibile, deve avere un valore
+            return el.value.trim() !== '';
         };
 
         const validOD = checkVisibleInput('client-pwr-od') && checkVisibleInput('client-cyl-od') && checkVisibleInput('client-axis-od') && checkVisibleInput('client-add-od');
