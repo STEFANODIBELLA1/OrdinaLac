@@ -232,7 +232,7 @@
     <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl modal-content relative flex flex-col max-h-[90vh] overflow-hidden">
       
       <!-- Header con tasto X -->
-      <div class="bg-gradient-to-r from-gray-900 to-gray-800 p-6 border-b border-gray-700 flex justify-between items-center">
+      <div class="flex-none bg-gradient-to-r from-gray-900 to-gray-800 p-6 border-b border-gray-700 flex justify-between items-center">
           <div>
               <h2 class="text-2xl font-bold text-white tracking-tight" id="client-modal-title">Nuovo Cliente</h2>
               <p class="text-indigo-200 text-sm mt-1">Compila la scheda per generare il QR Code personale.</p>
@@ -248,7 +248,7 @@
       </div>
 
       <!-- Body Scrollable -->
-      <div class="p-6 overflow-y-auto bg-gray-50 space-y-6" id="client-form-container">
+      <div class="flex-1 p-6 overflow-y-auto bg-gray-50 space-y-6" id="client-form-container">
         
         <!-- Sezione 1: Anagrafica -->
         <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
@@ -336,10 +336,11 @@
                     </div>
 
                     <div id="client-params-od" class="grid grid-cols-2 gap-2 hidden">
-                        <div class="col-span-2"><input type="text" id="client-pwr-od" placeholder="PWR (Sfera)" class="w-full text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 pl-2"></div>
-                        <div><input type="text" id="client-cyl-od" placeholder="CYL" class="w-full text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 pl-2 hidden"></div>
-                        <div><input type="text" id="client-axis-od" placeholder="AXIS" class="w-full text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 pl-2 hidden"></div>
-                        <div class="col-span-2"><input type="text" id="client-add-od" placeholder="ADD" class="w-full text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 pl-2 hidden"></div>
+                        <!-- WRAPPER DIVS per evitare buchi nella griglia -->
+                        <div class="col-span-2" id="wrap-pwr-od"><input type="text" id="client-pwr-od" placeholder="PWR (Sfera)" class="w-full text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 pl-2"></div>
+                        <div id="wrap-cyl-od" class="hidden"><input type="text" id="client-cyl-od" placeholder="CYL" class="w-full text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 pl-2"></div>
+                        <div id="wrap-axis-od" class="hidden"><input type="text" id="client-axis-od" placeholder="AXIS" class="w-full text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 pl-2"></div>
+                        <div class="col-span-2 hidden" id="wrap-add-od"><input type="text" id="client-add-od" placeholder="ADD" class="w-full text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 pl-2"></div>
                     </div>
                 </div>
 
@@ -353,10 +354,11 @@
                     </div>
 
                     <div id="client-params-os" class="grid grid-cols-2 gap-2 hidden">
-                        <div class="col-span-2"><input type="text" id="client-pwr-os" placeholder="PWR (Sfera)" class="w-full text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 pl-2"></div>
-                        <div><input type="text" id="client-cyl-os" placeholder="CYL" class="w-full text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 pl-2 hidden"></div>
-                        <div><input type="text" id="client-axis-os" placeholder="AXIS" class="w-full text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 pl-2 hidden"></div>
-                        <div class="col-span-2"><input type="text" id="client-add-os" placeholder="ADD" class="w-full text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 pl-2 hidden"></div>
+                        <!-- WRAPPER DIVS per evitare buchi nella griglia -->
+                        <div class="col-span-2" id="wrap-pwr-os"><input type="text" id="client-pwr-os" placeholder="PWR (Sfera)" class="w-full text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 pl-2"></div>
+                        <div id="wrap-cyl-os" class="hidden"><input type="text" id="client-cyl-os" placeholder="CYL" class="w-full text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 pl-2"></div>
+                        <div id="wrap-axis-os" class="hidden"><input type="text" id="client-axis-os" placeholder="AXIS" class="w-full text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 pl-2"></div>
+                        <div class="col-span-2 hidden" id="wrap-add-os"><input type="text" id="client-add-os" placeholder="ADD" class="w-full text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 pl-2"></div>
                     </div>
                 </div>
             </div>
@@ -387,7 +389,7 @@
       </div>
 
       <!-- Footer Actions -->
-      <div id="client-form-actions" class="p-5 border-t border-gray-200 bg-white flex justify-end gap-4 sticky bottom-0 z-10">
+      <div id="client-form-actions" class="flex-none p-5 border-t border-gray-200 bg-white flex justify-end gap-4 z-10">
           <button id="close-modal-button" class="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 font-bold transition">
               Annulla
           </button>
@@ -741,7 +743,25 @@
     function clientPopulateManufacturers() { if(!myLensData) return; cManuf.innerHTML = '<option value="">-- Seleziona --</option>'; Object.keys(myLensData).forEach(m => cManuf.innerHTML += `<option value="${m}">${m}</option>`); }
     cManuf.onchange = () => { cModel.innerHTML = '<option value="">-- --</option>'; cModel.disabled = true; if(cManuf.value && myLensData[cManuf.value]) { Object.keys(myLensData[cManuf.value]).forEach(m => cModel.innerHTML += `<option value="${m}">${m}</option>`); cModel.disabled = false; } };
     cModel.onchange = () => { if(cManuf.value && cModel.value && myLensData[cManuf.value][cModel.value]) { const types = myLensData[cManuf.value][cModel.value]; const ops = '<option value="">-- --</option>' + types.map(t => `<option value="${t}">${t}</option>`).join(''); cTypeOD.innerHTML = ops; cTypeOD.disabled = false; cTypeOS.innerHTML = ops; cTypeOS.disabled = false; } };
-    const toggleParams = (eye) => { const type = document.getElementById(`client-lens-type-${eye}`).value.toLowerCase(); const div = document.getElementById(`client-params-${eye}`); const cyl = document.getElementById(`client-cyl-${eye}`); const axis = document.getElementById(`client-axis-${eye}`); const add = document.getElementById(`client-add-${eye}`); div.classList.remove('hidden'); cyl.classList.add('hidden'); axis.classList.add('hidden'); add.classList.add('hidden'); if(type.includes('toric') || type.includes('astigmatismo')) { cyl.classList.remove('hidden'); axis.classList.remove('hidden'); } if(type.includes('multifocal') || type.includes('presbiopia')) { add.classList.remove('hidden'); } };
+    
+    // NUOVA LOGICA TOGGLE PARAMETRI (usa wrapper invece di input diretti)
+    const toggleParams = (eye) => { 
+        const type = document.getElementById(`client-lens-type-${eye}`).value.toLowerCase(); 
+        const div = document.getElementById(`client-params-${eye}`); 
+        
+        // Seleziona i wrapper
+        const wrapCyl = document.getElementById(`wrap-cyl-${eye}`); 
+        const wrapAxis = document.getElementById(`wrap-axis-${eye}`); 
+        const wrapAdd = document.getElementById(`wrap-add-${eye}`); 
+        
+        div.classList.remove('hidden'); 
+        wrapCyl.classList.add('hidden'); 
+        wrapAxis.classList.add('hidden'); 
+        wrapAdd.classList.add('hidden'); 
+        
+        if(type.includes('toric') || type.includes('astigmatismo')) { wrapCyl.classList.remove('hidden'); wrapAxis.classList.remove('hidden'); } 
+        if(type.includes('multifocal') || type.includes('presbiopia')) { wrapAdd.classList.remove('hidden'); } 
+    };
     cTypeOD.onchange = () => toggleParams('od'); cTypeOS.onchange = () => toggleParams('os');
     
     function showClientModal() { 
@@ -750,6 +770,9 @@
         cManuf.value = ''; cModel.value = ''; cModel.disabled = true; cTypeOD.disabled = true; cTypeOS.disabled = true; 
         // Reset params inputs
         document.querySelectorAll('#client-params-od input, #client-params-os input').forEach(i => i.value = '');
+        // Nascondi contenitori parametri
+        document.getElementById('client-params-od').classList.add('hidden');
+        document.getElementById('client-params-os').classList.add('hidden');
         
         document.getElementById('client-form-container').classList.remove('hidden'); 
         clientFormActions.classList.remove('hidden'); 
@@ -772,21 +795,22 @@
         const tod = cTypeOD.value;
         const tos = cTypeOS.value;
 
+        if (!currentOpticianUid) {
+            alert("Errore: ID Ottico non trovato. Effettua nuovamente il login.");
+            return;
+        }
+
         if (!n || !e || !ph || !cf || !sa || !sc || !sz || !sp || !m || !md || !tod || !tos) {
             alert("Attenzione: Compila TUTTI i campi anagrafici, indirizzo e seleziona i tipi di lente.");
             return;
         }
         
-        // VALIDAZIONE PARAMETRI LENTI (NUOVA)
+        // VALIDAZIONE PARAMETRI LENTI MIGLIORATA
         const checkVisibleInput = (id) => {
             const el = document.getElementById(id);
-            if (!el) return true; // Should not happen
-            // Se l'input ha la classe hidden, non è richiesto
-            if (el.classList.contains('hidden')) return true;
-            // Se il contenitore dei parametri è nascosto, non è richiesto
-            if (el.closest('[id^="client-params-"]').classList.contains('hidden')) return true;
-            
-            // Se è visibile, deve avere un valore
+            if (!el) return true; 
+            // Se l'elemento o un suo genitore è nascosto (offsetParent è null)
+            if (el.offsetParent === null) return true;
             return el.value.trim() !== '';
         };
 
@@ -803,11 +827,23 @@
             sa: sa, sc: sc, sz: sz, sp: sp, 
             oid: currentOpticianUid, 
             m: m, md: md, 
-            tod: tod, pod: document.getElementById('client-pwr-od').value, cod: document.getElementById('client-cyl-od').value, aod: document.getElementById('client-axis-od').value, addod: document.getElementById('client-add-od').value, 
-            tos: tos, pos: document.getElementById('client-pwr-os').value, cos: document.getElementById('client-cyl-os').value, aos: document.getElementById('client-axis-os').value, addos: document.getElementById('client-add-os').value 
+            tod: tod, pod: document.getElementById('client-pwr-od').value.trim(), cod: document.getElementById('client-cyl-od').value.trim(), aod: document.getElementById('client-axis-od').value.trim(), addod: document.getElementById('client-add-od').value.trim(), 
+            tos: tos, pos: document.getElementById('client-pwr-os').value.trim(), cos: document.getElementById('client-cyl-os').value.trim(), aos: document.getElementById('client-axis-os').value.trim(), addos: document.getElementById('client-add-os').value.trim() 
         }; 
         
-        const baseUrl = window.location.origin + '/'; 
+        // FIX URL: Punta a index.html esplicitamente
+        // Se siamo su .../dashboard.html, vogliamo .../index.html
+        // Se siamo su .../ (root), vogliamo .../index.html
+        let baseUrl = window.location.origin + window.location.pathname;
+        if (baseUrl.endsWith('dashboard.html')) {
+            baseUrl = baseUrl.replace('dashboard.html', 'index.html');
+        } else if (baseUrl.endsWith('/')) {
+            baseUrl += 'index.html';
+        } else {
+             // Fallback generico
+            baseUrl = window.location.origin + '/index.html';
+        }
+
         const params = new URLSearchParams(); 
         Object.entries(data).forEach(([k,v]) => { if(v) params.set(k,v); }); 
         const fullUrl = baseUrl + '?' + params.toString(); 
