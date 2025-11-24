@@ -9,7 +9,6 @@
   <style>
     .hidden { display: none; }
     .modal-overlay { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); }
-    
     /* Scrollbar personalizzata */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -33,6 +32,7 @@
 </head>
 <body class="bg-gray-100 font-sans text-gray-800">
 
+  <!-- VISTA LOGIN -->
   <div id="login-view" class="min-h-screen flex items-center justify-center bg-white">
     <div class="max-w-sm w-full space-y-8 p-8">
       <div class="text-center">
@@ -62,6 +62,7 @@
     </div>
   </div>
 
+  <!-- DASHBOARD VIEW -->
   <div id="dashboard-view" class="hidden min-h-screen flex flex-col">
     
     <nav class="bg-white shadow-sm sticky top-0 z-20">
@@ -100,6 +101,7 @@
 
     <main class="flex-1 bg-gray-50 p-4 sm:p-6 overflow-hidden h-[calc(100vh-64px)]">
       
+      <!-- TAB: GESTIONE ORDINI -->
       <div id="view-orders" class="max-w-7xl mx-auto h-full flex flex-col">
         
         <div class="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -135,6 +137,7 @@
         </div>
       </div>
 
+      <!-- TAB: CONFIGURAZIONE -->
       <div id="view-config" class="hidden max-w-7xl mx-auto h-full flex flex-col">
          <div class="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col h-full">
             <div class="p-6 border-b border-gray-200 bg-gray-50 rounded-t-lg flex justify-between items-center">
@@ -156,17 +159,24 @@
     </main>
   </div>
 
+  <!-- ================================== -->
+  <!-- MODALI -->
+  <!-- ================================== -->
+
+  <!-- 1. MODALE RICHIESTA FORNITURA -->
   <div id="supply-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-6 hidden z-50">
     <div class="bg-white w-full max-w-md rounded-xl shadow-2xl relative p-6 border-t-4 border-indigo-500">
         <h3 class="text-xl font-bold text-gray-900 mb-2">Richiesta Fornitura Lenti</h3>
         <p class="text-sm text-gray-600 mb-6">Seleziona la destinazione della merce per questo ordine.</p>
         
         <div class="space-y-3">
+            <!-- Tasto Cliente (Viola) -->
             <button id="btn-supply-client" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition shadow-md transform hover:-translate-y-0.5">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 <span>Spedisci al Cliente (Drop-shipping)</span>
             </button>
             
+            <!-- Tasto Store (Arancione) -->
             <button id="btn-supply-store" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition shadow-md transform hover:-translate-y-0.5">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
                 <span>Spedisci in Negozio (Rifornimento)</span>
@@ -179,6 +189,7 @@
     </div>
   </div>
 
+  <!-- 2. MODALE NOTIFICA CLIENTE -->
   <div id="notification-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-6 hidden z-50">
     <div class="bg-white w-full max-w-md rounded-xl shadow-2xl relative p-6 border-t-4 border-green-500">
         <h3 class="text-xl font-bold text-gray-900 mb-2">Notifica Cliente</h3>
@@ -199,6 +210,7 @@
     </div>
   </div>
 
+  <!-- 3. PASSWORD MODAL -->
   <div id="password-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-6 hidden z-50">
     <div class="bg-white w-full max-w-md rounded-lg shadow-xl relative p-6">
         <button id="close-pwd-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">&times;</button>
@@ -215,9 +227,11 @@
     </div>
   </div>
 
+  <!-- 4. CLIENT MODAL (CONFIGURAZIONE CLIENTE) -->
   <div id="client-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-4 hidden z-50 backdrop-blur-sm transition-opacity">
     <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl modal-content relative flex flex-col max-h-[90vh] overflow-hidden">
       
+      <!-- Header con tasto X -->
       <div class="bg-gradient-to-r from-gray-900 to-gray-800 p-6 border-b border-gray-700 flex justify-between items-center">
           <div>
               <h2 class="text-2xl font-bold text-white tracking-tight">Nuovo Cliente</h2>
@@ -229,6 +243,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                   </svg>
               </div>
+              <!-- TASTO X CHIUSURA -->
               <button id="close-modal-x" class="text-gray-400 hover:text-white transition transform hover:scale-110">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -237,8 +252,10 @@
           </div>
       </div>
 
+      <!-- Body Scrollable -->
       <div class="p-6 overflow-y-auto bg-gray-50 space-y-6" id="client-form-container">
         
+        <!-- Sezione 1: Anagrafica -->
         <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
             <h4 class="text-sm font-bold text-indigo-600 uppercase tracking-wide mb-4 flex items-center gap-2">
                 <span class="bg-indigo-100 text-indigo-600 w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
@@ -284,6 +301,7 @@
             </div>
         </div>
 
+        <!-- Sezione 2: Spedizione -->
         <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
             <h4 class="text-sm font-bold text-indigo-600 uppercase tracking-wide mb-4 flex items-center gap-2">
                 <span class="bg-indigo-100 text-indigo-600 w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
@@ -311,12 +329,14 @@
             </div>
         </div>
 
+        <!-- Sezione 3: Lenti -->
         <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
             <h4 class="text-sm font-bold text-indigo-600 uppercase tracking-wide mb-4 flex items-center gap-2">
                 <span class="bg-indigo-100 text-indigo-600 w-6 h-6 rounded-full flex items-center justify-center text-xs">3</span>
                 Prescrizione Lenti
             </h4>
             
+            <!-- Selezione Marca -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-lg border border-gray-100">
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Produttore</label>
@@ -328,8 +348,10 @@
                 </div>
             </div>
 
+            <!-- Occhi Side-by-Side -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
+                <!-- OD -->
                 <div class="relative border border-blue-100 rounded-xl p-4 bg-blue-50/50">
                     <div class="absolute -top-3 left-4 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded shadow-sm">OCCHIO DESTRO (OD)</div>
                     
@@ -346,6 +368,7 @@
                     </div>
                 </div>
 
+                <!-- OS -->
                 <div class="relative border border-green-100 rounded-xl p-4 bg-green-50/50">
                     <div class="absolute -top-3 left-4 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded shadow-sm">OCCHIO SINISTRO (OS)</div>
                     
@@ -366,6 +389,7 @@
 
       </div>
 
+      <!-- QR Container (Nascosto) -->
       <div id="client-qr-container" class="hidden flex-1 flex flex-col items-center justify-center text-center p-10 bg-white">
          <div class="bg-green-50 rounded-full p-4 mb-4">
              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -382,10 +406,12 @@
                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                  Stampa
              </button>
+             <!-- TASTO CHIUDI RI-AGGIUNTO QUI -->
              <button id="close-qr-button" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-200 transition">Chiudi</button>
          </div>
       </div>
 
+      <!-- Footer Actions -->
       <div id="client-form-actions" class="p-5 border-t border-gray-200 bg-white flex justify-end gap-4 sticky bottom-0 z-10">
           <button id="close-modal-button" class="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 font-bold transition">
               Annulla
@@ -783,7 +809,8 @@
         const fullUrl = baseUrl + '?' + params.toString(); 
         
         document.getElementById('qr-code-display').innerHTML = ''; 
-        new QRCode(document.getElementById('qr-code-display'), { text: fullUrl, width: 200, height: 200 }); 
+        // QR SIZE INCREASED TO 300x300
+        new QRCode(document.getElementById('qr-code-display'), { text: fullUrl, width: 300, height: 300 }); 
         document.getElementById('client-form-container').classList.add('hidden'); 
         clientFormActions.classList.add('hidden'); 
         clientQrContainer.classList.remove('hidden'); 
@@ -795,10 +822,39 @@
         const cf = document.getElementById('client-fiscal-code').value; 
         const addr = document.getElementById('client-address').value; 
         const city = document.getElementById('client-city').value; 
-        const lens = `${cManuf.value} ${cModel.value}`; 
+        const lens = `${cManuf.value} ${cModel.value}`;
+        
+        // Detailed Lens Info for Print
+        const odInfo = `OD: ${cTypeOD.value} ${document.getElementById('client-pwr-od').value} ${document.getElementById('client-cyl-od').value} ${document.getElementById('client-axis-od').value} ${document.getElementById('client-add-od').value}`;
+        const osInfo = `OS: ${cTypeOS.value} ${document.getElementById('client-pwr-os').value} ${document.getElementById('client-cyl-os').value} ${document.getElementById('client-axis-os').value} ${document.getElementById('client-add-os').value}`;
+
         if(!img) return; 
         const w = window.open(''); 
-        w.document.write(`<html><body style="text-align:center;font-family:sans-serif;padding:50px;"><h1>Scansiona per App</h1><p>Configurazione cliente.</p><img src="${img.src}" style="width:300px;margin:20px 0;"><br><div style="text-align:left;max-width:400px;margin:0 auto;border:1px solid #ddd;padding:20px;border-radius:8px;"><h3>Riepilogo</h3><p><strong>Cliente:</strong> ${name}</p><p><strong>CF:</strong> ${cf}</p><p><strong>Indirizzo:</strong> ${addr} ${city ? ',' + city : ''}</p><hr><p><strong>Lente:</strong> ${lens}</p></div><script>window.print();<\/script></body></html>`); 
+        w.document.write(`
+            <html>
+            <head><style>body{font-family:sans-serif;text-align:center;padding:40px;} table{width:100%;border-collapse:collapse;margin-top:10px;} th,td{border:1px solid #ddd;padding:8px;text-align:left;} th{background-color:#f2f2f2;}</style></head>
+            <body>
+                <h1>Scansiona per App</h1>
+                <p>Configurazione cliente pronta.</p>
+                <img src="${img.src}" style="width:300px;margin:20px 0;">
+                <br>
+                <div style="text-align:left;max-width:500px;margin:0 auto;border:1px solid #ddd;padding:20px;border-radius:8px;">
+                    <h3>Riepilogo Dati</h3>
+                    <p><strong>Cliente:</strong> ${name}</p>
+                    <p><strong>CF:</strong> ${cf}</p>
+                    <p><strong>Indirizzo:</strong> ${addr} ${city}</p>
+                    <hr style="margin:15px 0;">
+                    <p><strong>Lente:</strong> ${lens}</p>
+                    <table>
+                        <tr><th>Occhio</th><th>Dettagli</th></tr>
+                        <tr><td><strong>Destro (OD)</strong></td><td>${odInfo}</td></tr>
+                        <tr><td><strong>Sinistro (OS)</strong></td><td>${osInfo}</td></tr>
+                    </table>
+                </div>
+                <script>window.print();<\/script>
+            </body>
+            </html>
+        `); 
         w.document.close(); 
     };
   </script>
