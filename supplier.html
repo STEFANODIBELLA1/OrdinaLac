@@ -533,6 +533,7 @@
     const appId = "ordinalac-app";
     
     // --- IMPORTANTE: Sostituisci QUESTA email con la tua per il primo accesso ---
+    // Dopo il primo accesso, usa il pulsante "Gest. Admin" per crearne altri.
     const EMERGENCY_ADMIN = "stefanodibella1@gmail.com"; 
 
     const defaultLensData = { "Alcon": { "Dailies Total 1": ["Standard", "Multifocal"] } };
@@ -542,6 +543,7 @@
     let opticiansMap = {}; 
     let allOpticiansCache = [];
 
+    // UI Elements
     const loginView = document.getElementById('login-view');
     const dashboardView = document.getElementById('dashboard-view');
     const loadingOverlay = document.getElementById('loading-overlay');
@@ -551,6 +553,7 @@
     const logoutButton = document.getElementById('logout-button');
     const loginError = document.getElementById('login-error');
     const userEmailDisplay = document.getElementById('user-email-display');
+    
     const viewMonitor = document.getElementById('view-monitor');
     const viewCatalog = document.getElementById('view-catalog');
     const viewClients = document.getElementById('view-clients');
@@ -559,10 +562,13 @@
     const navCatalog = document.getElementById('nav-catalog');
     const navClients = document.getElementById('nav-clients');
     const navOpticians = document.getElementById('nav-opticians');
+
     const orderModal = document.getElementById('order-modal');
     const historyModal = document.getElementById('client-history-modal');
     const registerModal = document.getElementById('register-modal');
     const opticianEditModal = document.getElementById('optician-edit-modal');
+    
+    // Search & Date inputs
     const searchInput = document.getElementById('search-input');
     const dateStartInput = document.getElementById('date-start');
     const dateEndInput = document.getElementById('date-end');
@@ -570,7 +576,8 @@
     const ordersTableBody = document.getElementById('orders-table-body');
 
     try {
-        app = initializeApp(firebaseConfig);
+        // --- FIX CONFLITTO: INIZIALIZZAZIONE CON NOME SPECIFICO ---
+        app = initializeApp(firebaseConfig, "SupplierApp");
         auth = getAuth(app);
         db = getFirestore(app);
     } catch(e) { console.error("Firebase init error:", e); }
@@ -580,6 +587,7 @@
         else loadingOverlay.classList.add('hidden');
     };
     
+    // Window Globals for HTML calls
     window.closeModal = () => orderModal.classList.add('hidden');
     window.closeHistoryModal = () => historyModal.classList.add('hidden');
     window.closeRegisterModal = () => registerModal.classList.add('hidden');
@@ -613,10 +621,12 @@
         viewCatalog.classList.add('hidden');
         viewClients.classList.add('hidden');
         viewOpticians.classList.add('hidden');
+        
         navMonitor.classList.remove('active');
         navCatalog.classList.remove('active');
         navClients.classList.remove('active');
         navOpticians.classList.remove('active');
+
         if(tabName === 'monitor') {
             viewMonitor.classList.remove('hidden');
             navMonitor.classList.add('active');
@@ -635,6 +645,7 @@
         }
     };
 
+    // --- AUTH ---
     loginButton.addEventListener('click', async () => {
       try {
         loginError.classList.add('hidden');
@@ -649,19 +660,24 @@
     logoutButton.addEventListener('click', doLogout);
     document.getElementById('force-logout-btn').addEventListener('click', doLogout);
 
+    // --- NEW SECURITY: DYNAMIC WHITELIST (FIRESTORE) ---
     onAuthStateChanged(auth, async (user) => {
       if (user) {
          if (user.isAnonymous) {
             document.getElementById('anon-warning').classList.remove('hidden');
             await signOut(auth); return;
         }
+
+        // 1. Fetch Admin Whitelist from Firestore
         const adminDocRef = doc(db, "config", "admins");
         let allowedEmails = [];
+        
         try {
             const docSnap = await getDoc(adminDocRef);
             if (docSnap.exists()) {
                 allowedEmails = docSnap.data().emails || [];
             } else {
+                // PRIMO AVVIO (Bootstrap): Se il doc non esiste, usa EMERGENCY_ADMIN e crea il doc
                 if (user.email === EMERGENCY_ADMIN) {
                     await setDoc(adminDocRef, { emails: [EMERGENCY_ADMIN] });
                     allowedEmails = [EMERGENCY_ADMIN];
@@ -673,11 +689,15 @@
             await signOut(auth);
             return;
         }
+
+        // 2. Check Permission
         if (!allowedEmails.includes(user.email)) {
             alert("ACCESSO NEGATO: Non sei un amministratore autorizzato.");
             await signOut(auth);
             return;
         }
+
+        // 3. Logged in
         loginView.classList.add('hidden');
         dashboardView.classList.remove('hidden');
         userEmailDisplay.innerText = user.email;
@@ -690,32 +710,41 @@
       }
     });
     
+    // --- CREATE ADMIN LOGIC ---
     document.getElementById('btn-create-admin-confirm').addEventListener('click', async () => {
         const email = document.getElementById('new-admin-email').value.trim();
         const pass = document.getElementById('new-admin-password').value.trim();
         const msgBox = document.getElementById('admin-create-msg');
+        
         if (!email || pass.length < 6) {
             msgBox.innerText = "Email valida e password (min 6 car.) richieste.";
             msgBox.className = "text-xs text-center p-2 rounded bg-red-100 text-red-700";
             msgBox.classList.remove('hidden');
             return;
         }
+
         msgBox.innerText = "Creazione in corso...";
         msgBox.className = "text-xs text-center p-2 rounded bg-yellow-100 text-yellow-700";
         msgBox.classList.remove('hidden');
+        
         let secondaryApp = null;
         try {
+            // 1. Create Auth User (using Secondary App to avoid logging out current admin)
             secondaryApp = initializeApp(firebaseConfig, "SecondaryAdminApp");
             const secondaryAuth = getAuth(secondaryApp);
             await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+            
+            // 2. Add to Firestore Whitelist
             await updateDoc(doc(db, "config", "admins"), {
                 emails: arrayUnion(email)
             });
+
             msgBox.innerText = "Admin creato con successo!";
             msgBox.className = "text-xs text-center p-2 rounded bg-green-100 text-green-700";
             setTimeout(() => {
                 document.getElementById('admin-create-modal').classList.add('hidden');
             }, 1500);
+
         } catch (error) {
             msgBox.innerText = "Errore: " + error.message;
             msgBox.className = "text-xs text-center p-2 rounded bg-red-100 text-red-700";
@@ -732,6 +761,7 @@
         dateStartInput.valueAsDate = start;
     };
 
+    // --- DATA FETCHING (Full Implementation) ---
     async function fetchOpticianRegistry() {
         try {
             const q = query(collection(db, 'opticians_registry'));
@@ -747,14 +777,19 @@
       const endDate = new Date(dateEndInput.value);
       startDate.setHours(0,0,0,0);
       endDate.setHours(23,59,59,999);
+
       await fetchOpticianRegistry();
       const q = query(collection(db, `artifacts/${appId}/public/data/orders`), where('timestamp', '>=', startDate), where('timestamp', '<=', endDate));
+
       try {
         const snapshot = await getDocs(q);
         globalOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         globalOrders.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+        
         processAndRenderMonitor(globalOrders);
+        
         if(!viewClients.classList.contains('hidden')) renderGlobalClients(globalOrders);
+        
       } catch (e) { console.error(e); } finally { showLoading(false); }
     }
     refreshBtn.onclick = fetchAllData;
@@ -780,15 +815,18 @@
         const tbody = document.getElementById('opticians-table-body');
         tbody.innerHTML = '';
         const search = (document.getElementById('search-optician').value || '').toLowerCase();
+        
         const filtered = opticians.filter(o => 
             (o.store_name || '').toLowerCase().includes(search) ||
             (o.email || '').toLowerCase().includes(search) ||
             (o.uid || '').toLowerCase().includes(search)
         );
+
         filtered.forEach(opt => {
             const logoHtml = opt.logo_base64 
                 ? `<img src="${opt.logo_base64}" class="h-10 w-10 rounded-full object-cover border">`
                 : `<div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">Logo</div>`;
+
             const tr = document.createElement('tr');
             tr.className = "hover:bg-gray-50 transition border-b border-gray-100";
             tr.innerHTML = `
@@ -816,18 +854,21 @@
     window.openEditOptician = (uid) => {
         const opt = allOpticiansCache.find(o => o.uid === uid);
         if(!opt) return;
+        
         document.getElementById('edit-opt-uid').value = uid;
         document.getElementById('edit-opt-name').value = opt.store_name || '';
         document.getElementById('edit-opt-piva').value = opt.piva || '';
         document.getElementById('edit-opt-address').value = opt.address || '';
         document.getElementById('edit-opt-phone').value = opt.phone || '';
         document.getElementById('edit-opt-logo').value = ''; 
+        
         const prevContainer = document.getElementById('current-logo-preview');
         if(opt.logo_base64) {
             prevContainer.innerHTML = `<p class="text-xs text-gray-500 mb-1">Logo Attuale:</p><img src="${opt.logo_base64}" class="h-16 w-auto border rounded">`;
         } else {
             prevContainer.innerHTML = `<p class="text-xs text-gray-400 italic">Nessun logo caricato</p>`;
         }
+        
         opticianEditModal.classList.remove('hidden');
     };
 
@@ -838,8 +879,10 @@
         const addr = document.getElementById('edit-opt-address').value;
         const phone = document.getElementById('edit-opt-phone').value;
         const logoFile = document.getElementById('edit-opt-logo').files[0];
+        
         const btn = document.getElementById('btn-save-opt-changes');
         btn.disabled = true; btn.innerText = "Salvataggio...";
+        
         try {
             const updates = {
                 store_name: name,
@@ -847,14 +890,18 @@
                 address: addr,
                 phone: phone
             };
+            
             if (logoFile) {
                 if (logoFile.size > 500 * 1024) throw new Error("Logo troppo grande (Max 500KB).");
                 updates.logo_base64 = await convertBase64(logoFile);
             }
+            
             await updateDoc(doc(db, 'opticians_registry', uid), updates);
+            
             alert("Dati aggiornati correttamente!");
             closeOpticianEditModal();
             loadOpticiansRegistry(); 
+            
         } catch (e) {
             alert("Errore: " + e.message);
         } finally {
@@ -862,19 +909,23 @@
         }
     });
 
+    // --- MONITOR & CHARTS ---
     function processAndRenderMonitor(orders) {
         const kpiTotal = document.getElementById('kpi-total-orders');
         const kpiActiveOpt = document.getElementById('kpi-active-opticians');
         const kpiDelPerc = document.getElementById('kpi-delivery-perc');
         const kpiTopBrand = document.getElementById('kpi-top-brand');
+        
         kpiTotal.innerText = orders.length;
         kpiActiveOpt.innerText = new Set(orders.map(o => o.optician_id)).size;
         const dC = orders.filter(o => o.delivery?.mode === 'delivery').length;
         kpiDelPerc.innerText = (orders.length > 0 ? Math.round((dC / orders.length) * 100) : 0) + "%";
+        
         const bC = {};
         orders.forEach(o => { const b = o.lens_order?.manufacturer || '-'; bC[b] = (bC[b]||0)+1; });
         const sortedB = Object.entries(bC).sort((a,b) => b[1]-a[1]);
         kpiTopBrand.innerText = sortedB.length > 0 ? sortedB[0][0] : '-';
+        
         renderBrandChart(bC); 
         renderTopOpticians(orders); 
         renderTableMonitor(orders);
@@ -890,6 +941,7 @@
         const labels = top5.map(e => e[0]);
         const data = top5.map(e => e[1]);
         if(others > 0) { labels.push('Altri'); data.push(others); }
+        
         charts.brands = new Chart(ctx, {
             type: 'doughnut',
             data: { 
@@ -942,15 +994,18 @@
     function renderTableMonitor(orders) {
         ordersTableBody.innerHTML = '';
         const statusColors = { 'new': 'bg-blue-100 text-blue-800', 'processing': 'bg-yellow-100 text-yellow-800', 'ready': 'bg-green-100 text-green-800', 'completed': 'bg-gray-100 text-gray-600', 'cancelled': 'bg-red-100 text-red-800' };
+        
         orders.slice(0, 100).forEach(o => {
             const date = o.timestamp ? new Date(o.timestamp.seconds * 1000).toLocaleDateString() : '-';
             const optName = opticiansMap[o.optician_id] || o.optician_id;
             const badgeClass = statusColors[o.status] || 'bg-gray-100';
+            
             let supplyBadge = '-';
             if (o.supply_request && o.supply_request.status === 'pending') {
                 const dest = o.supply_request.destination === 'client' ? 'CLIENTE' : 'STORE';
                 supplyBadge = `<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-bold border border-purple-200">DA SPEDIRE: ${dest}</span>`;
             }
+
             const tr = document.createElement('tr');
             tr.className = "hover:bg-gray-50 border-b border-gray-100";
             tr.innerHTML = `
@@ -972,24 +1027,30 @@
     window.showOrderDetails = (id) => {
         const order = globalOrders.find(x => x.id === id);
         if(!order) return;
+        
         const optName = opticiansMap[order.optician_id] || order.optician_id;
         document.getElementById('modal-opt-id').innerText = optName;
+        
         const statusColors = { 'new': 'bg-blue-100 text-blue-800', 'processing': 'bg-yellow-100 text-yellow-800', 'ready': 'bg-green-100 text-green-800', 'completed': 'bg-gray-100 text-gray-600', 'cancelled': 'bg-red-100 text-red-800' };
         const statusBadge = document.getElementById('modal-status-badge');
         statusBadge.className = `px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wide ${statusColors[order.status || 'new']}`;
         statusBadge.innerText = order.status || 'Nuovo';
+
         const info = order.client_info || {};
         document.getElementById('modal-pat-name').innerText = order.patient_name || 'N/D';
+        
         let contact = [];
         if(info.phone) contact.push(info.phone);
         if(info.email) contact.push(info.email);
         document.getElementById('modal-pat-contact').innerText = contact.join(' | ') || '-';
         document.getElementById('modal-pat-cf').innerText = info.cf || '-';
+        
         const del = order.delivery || {};
         const isDel = del.mode === 'delivery';
         const delModeEl = document.getElementById('modal-delivery-mode');
         delModeEl.innerText = isDel ? 'Consegna a Domicilio' : 'Ritiro in Negozio';
         delModeEl.className = `text-sm font-bold mb-2 ${isDel ? 'text-blue-600' : 'text-green-600'}`;
+        
         const addrBox = document.getElementById('modal-address-box');
         if (isDel && del.address_details) {
             const a = del.address_details;
@@ -1001,9 +1062,11 @@
         } else {
             addrBox.classList.add('hidden');
         }
+        
         const l = order.lens_order || {};
         document.getElementById('modal-lens-manuf').innerText = l.manufacturer || '-';
         document.getElementById('modal-lens-model').innerText = l.model || '-';
+        
         const renderParams = (eye) => {
             if (!eye) return '<span class="text-gray-400 italic">Nessun dato</span>';
             let html = `<div class="font-semibold text-indigo-900 border-b border-indigo-100 pb-1 mb-1">${eye.type || '-'}</div>`;
@@ -1020,6 +1083,7 @@
         orderModal.classList.remove('hidden');
     };
 
+    // --- CLIENTS & PDF ---
     function extractUniqueClients(orders) {
         const clients = {};
         orders.forEach(o => {
@@ -1047,24 +1111,30 @@
         const tbody = document.getElementById('clients-table-body');
         tbody.innerHTML = '';
         uniqueClientsCache = extractUniqueClients(orders);
+        
         const filterOpt = document.getElementById('filter-client-optician');
         const filterBrand = document.getElementById('filter-client-brand');
         const currentOpt = filterOpt.value;
         const currentBrand = filterBrand.value;
+        
         const opts = new Set(uniqueClientsCache.map(c => c.opticianId));
         filterOpt.innerHTML = '<option value="">Tutti gli Ottici</option>';
         Array.from(opts).forEach(id => { filterOpt.innerHTML += `<option value="${id}" ${id===currentOpt?'selected':''}>${opticiansMap[id] || id}</option>`; });
+
         const brands = new Set();
         uniqueClientsCache.forEach(c => c.brandSet.forEach(b => brands.add(b)));
         filterBrand.innerHTML = '<option value="">Tutti i Brand</option>';
         Array.from(brands).sort().forEach(b => { filterBrand.innerHTML += `<option value="${b}" ${b===currentBrand?'selected':''}>${b}</option>`; });
+
         const searchTerm = (document.getElementById('search-client-global').value || '').toLowerCase();
+        
         const filtered = uniqueClientsCache.filter(c => {
             const matchesSearch = c.name.toLowerCase().includes(searchTerm) || c.cf.toLowerCase().includes(searchTerm) || c.email.toLowerCase().includes(searchTerm);
             const matchesOpt = currentOpt ? c.opticianId === currentOpt : true;
             const matchesBrand = currentBrand ? c.brandSet.has(currentBrand) : true;
             return matchesSearch && matchesOpt && matchesBrand;
         });
+
         filtered.forEach(c => {
             const lastDate = c.lastOrderDate ? new Date(c.lastOrderDate * 1000).toLocaleDateString() : '-';
             const row = document.createElement('tr');
@@ -1126,6 +1196,7 @@
         historyModal.classList.remove('hidden');
     };
 
+    // --- REGISTRATION LOGIC OPTICIAN ---
     const convertBase64 = (file) => {
         return new Promise((resolve, reject) => {
             const fileReader = new FileReader();
@@ -1143,32 +1214,40 @@
         const address = document.getElementById('reg-address').value;
         const phone = document.getElementById('reg-phone').value;
         const logoFile = document.getElementById('reg-logo').files[0]; 
+
         const errBox = document.getElementById('reg-error');
         const successBox = document.getElementById('reg-success');
         const confirmBtn = document.getElementById('btn-confirm-register');
+
         if(!email || !pass || !storeName) { errBox.innerText = "Compila almeno Email, Password e Nome Negozio."; errBox.classList.remove('hidden'); return; }
         if(pass.length < 6) { errBox.innerText = "La password deve essere di almeno 6 caratteri."; errBox.classList.remove('hidden'); return; }
+        
         let base64Logo = "";
         if (logoFile) {
             if (logoFile.size > 500 * 1024) { errBox.innerText = "L'immagine è troppo grande (Max 500KB)."; errBox.classList.remove('hidden'); return; }
             try { base64Logo = await convertBase64(logoFile); } catch (error) { errBox.innerText = "Errore lettura file immagine."; errBox.classList.remove('hidden'); return; }
         }
+
         errBox.classList.add('hidden');
         confirmBtn.innerText = "Elaborazione...";
         confirmBtn.disabled = true;
+
         let secondaryApp = null;
         try {
             secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
             const secondaryAuth = getAuth(secondaryApp);
             const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
             const newUid = userCred.user.uid;
+
             await setDoc(doc(db, 'opticians_registry', newUid), {
                 uid: newUid, email: email, store_name: storeName, piva: piva, address: address, phone: phone, logo_base64: base64Logo, created_at: new Date()
             });
+
             document.getElementById('generated-uid').innerText = newUid;
             successBox.classList.remove('hidden');
             confirmBtn.classList.add('hidden');
             opticiansMap[newUid] = storeName; 
+
         } catch (error) {
             console.error("Creation error:", error);
             let msg = error.message;
@@ -1179,6 +1258,7 @@
         }
     });
     
+    // --- CATALOG LOGIC ---
     async function loadMasterCatalog() {
         const docRef = doc(db, "catalogs", "master");
         try {
@@ -1207,7 +1287,10 @@
         let ops = '<option value="">Seleziona...</option>';
         Object.keys(globalCatalogData).sort().forEach(m => ops += `<option value="${m}">${m}</option>`);
         manufSelectModel.innerHTML = ops; manufSelectType.innerHTML = ops;
+
+        // Funzione helper per evitare che gli apostrofi rompano l'HTML
         const escapeStr = (str) => str.replace(/'/g, "\\'");
+
         for (const manufacturer in globalCatalogData) {
             let modelsHtml = '';
             for (const model in globalCatalogData[manufacturer]) {
@@ -1224,6 +1307,7 @@
                     </div>
                 `;
             }
+            
             const card = document.createElement('div');
             card.className = "bg-white border border-gray-200 rounded-lg p-4 shadow-sm";
             card.innerHTML = `

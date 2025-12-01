@@ -28,7 +28,7 @@
         <h2 class="mt-6 text-3xl font-extrabold text-gray-900">Portale Ottico</h2>
         <p class="mt-2 text-sm text-gray-600">Accedi con le credenziali fornite dal distributore.</p>
       </div>
-      <div class="mt-8 space-y-6">
+      <form id="login-form" class="mt-8 space-y-6">
         <div class="rounded-md shadow-sm -space-y-px">
           <div>
             <label for="email" class="sr-only">Email</label>
@@ -41,9 +41,9 @@
         </div>
         <div id="login-error" class="text-red-500 text-sm text-center hidden bg-red-50 p-2 rounded border border-red-200"></div>
         <div>
-          <button id="login-button" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">Accedi</button>
+          <button type="submit" id="login-button" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">Accedi</button>
         </div>
-      </div>
+      </form>
     </div>
   </div>
 
@@ -289,13 +289,15 @@
     let pendingNotificationData = null; 
 
     try {
-      const app = initializeApp(firebaseConfig);
+      // --- FIX CONFLITTO: INIZIALIZZAZIONE CON NOME SPECIFICO ---
+      const app = initializeApp(firebaseConfig, "OpticianApp");
       auth = getAuth(app);
       db = getFirestore(app);
     } catch (e) { console.error("Firebase init error:", e); }
 
     const loginView = document.getElementById('login-view');
     const dashboardView = document.getElementById('dashboard-view');
+    const loginForm = document.getElementById('login-form');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
     const loginButton = document.getElementById('login-button');
@@ -335,7 +337,9 @@
         document.addEventListener('click', (e) => { if (!userMenuDropdown.classList.contains('hidden')) { if (!userMenuDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) { userMenuDropdown.classList.add('hidden'); } } });
     }
 
-    loginButton.addEventListener('click', async () => {
+    // --- GESTIONE LOGIN CORRETTA ---
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
       try {
         loginError.classList.add('hidden'); loginButton.innerText = "Accesso..."; loginButton.disabled = true;
         await signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value);
@@ -346,6 +350,11 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
+        // --- BLOCCO UTENTI ANONIMI ---
+        if (user.isAnonymous) {
+            await signOut(auth);
+            return;
+        }
         currentOpticianUid = user.uid;
         loginView.classList.add('hidden'); dashboardView.classList.remove('hidden');
         userEmailDisplay.innerText = user.email; opticianIdCode.innerText = user.uid;
@@ -631,6 +640,7 @@
         }
     };
 
+    // --- CLIENT QR ---
     const clientModal = document.getElementById('client-modal');
     const clientFormActions = document.getElementById('client-form-actions');
     const clientQrContainer = document.getElementById('client-qr-container');
@@ -642,7 +652,7 @@
     
     function hideModal() {
          clientModal.classList.add('hidden');
-         document.getElementById('client-modal-title').innerText = "Nuovo Cliente"; 
+         document.getElementById('client-modal-title').innerText = "Nuovo Cliente"; // Reset title
     }
     
     closeQrButton.onclick = hideModal;
@@ -660,13 +670,16 @@
         clientPopulateManufacturers(); 
         ['client-name', 'client-email', 'client-phone', 'client-fiscal-code', 'client-address', 'client-city', 'client-zip', 'client-province'].forEach(id => document.getElementById(id).value = ''); 
         cManuf.value = ''; cModel.value = ''; cModel.disabled = true; cTypeOD.disabled = true; cTypeOS.disabled = true; 
+        // Reset params inputs
         document.querySelectorAll('#client-params-od input, #client-params-os input').forEach(i => i.value = '');
+        
         document.getElementById('client-form-container').classList.remove('hidden'); 
         clientFormActions.classList.remove('hidden'); 
         clientQrContainer.classList.add('hidden'); 
         clientModal.classList.remove('hidden'); 
     }
     
+    // --- VALIDAZIONE GENERAZIONE QR ---
     document.getElementById('generate-qr-button').onclick = () => { 
         const n = document.getElementById('client-name').value.trim();
         const e = document.getElementById('client-email').value.trim();
@@ -686,6 +699,7 @@
             return;
         }
         
+        // VALIDAZIONE PARAMETRI LENTI
         const checkVisibleInput = (id) => {
             const el = document.getElementById(id);
             if (!el) return true; 
