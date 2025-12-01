@@ -518,7 +518,7 @@
   <script type="module">
     import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, getDocs, query, doc, setDoc, updateDoc, getDoc, where, orderBy, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, doc, setDoc, updateDoc, getDoc, where, orderBy, deleteDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDMRWXipp7VCMQiezOZSSZAhSQo8MWVgKs",
@@ -771,6 +771,9 @@
         } catch (e) {}
     }
 
+    // --- REAL-TIME LISTENER FOR ORDERS ---
+    let unsubscribeOrders = null;
+
     async function fetchAllData() {
       showLoading(true);
       const startDate = new Date(dateStartInput.value);
@@ -779,19 +782,30 @@
       endDate.setHours(23,59,59,999);
 
       await fetchOpticianRegistry();
+      
       const q = query(collection(db, `artifacts/${appId}/public/data/orders`), where('timestamp', '>=', startDate), where('timestamp', '<=', endDate));
 
-      try {
-        const snapshot = await getDocs(q);
-        globalOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        globalOrders.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-        
-        processAndRenderMonitor(globalOrders);
-        
-        if(!viewClients.classList.contains('hidden')) renderGlobalClients(globalOrders);
-        
-      } catch (e) { console.error(e); } finally { showLoading(false); }
+      // Detach previous listener if exists
+      if (unsubscribeOrders) {
+          unsubscribeOrders();
+      }
+
+      // Attach new real-time listener
+      unsubscribeOrders = onSnapshot(q, (snapshot) => {
+          globalOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          globalOrders.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+          
+          processAndRenderMonitor(globalOrders);
+          
+          if(!viewClients.classList.contains('hidden')) renderGlobalClients(globalOrders);
+          
+          showLoading(false);
+      }, (error) => {
+          console.error("Error fetching orders:", error);
+          showLoading(false);
+      });
     }
+    
     refreshBtn.onclick = fetchAllData;
 
     async function loadOpticiansRegistry() {
