@@ -425,7 +425,16 @@
         }
 
         const l = order.lens_order || {};
-        const getP = (eye) => { if(!eye) return ''; let s = `<b>${eye.type || '-'}</b>`; if(eye.pwr) s += ` <span class="bg-gray-100 px-1 rounded border">SF: ${eye.pwr}</span>`; if(eye.cyl) s += ` <span class="bg-gray-100 px-1 rounded border">CYL: ${eye.cyl}</span>`; if(eye.add) s += ` <span class="bg-gray-100 px-1 rounded border">ADD: ${eye.add}</span>`; return s; };
+        // FIX: Aggiunto AXIS alla visualizzazione
+        const getP = (eye) => { 
+            if(!eye) return ''; 
+            let s = `<b>${eye.type || '-'}</b>`; 
+            if(eye.pwr) s += ` <span class="bg-gray-100 px-1 rounded border">SF: ${eye.pwr}</span>`; 
+            if(eye.cyl) s += ` <span class="bg-gray-100 px-1 rounded border">CYL: ${eye.cyl}</span>`; 
+            if(eye.axis) s += ` <span class="bg-gray-100 px-1 rounded border">AX: ${eye.axis}</span>`; 
+            if(eye.add) s += ` <span class="bg-gray-100 px-1 rounded border">ADD: ${eye.add}</span>`; 
+            return s; 
+        };
 
         const card = document.createElement('div');
         card.className = `bg-white rounded-lg shadow-sm border-l-4 ${conf.border} p-4 flex flex-col gap-3`;
@@ -527,7 +536,17 @@
     };
     
     function printOrder(order) { const w = window.open('', '_blank', 'height=600,width=800'); w.document.write(`<html><head><title>Ordine</title><style>body{font-family:sans-serif;padding:20px;}</style></head><body><h2>Ordine: ${order.patient_name}</h2><p>${JSON.stringify(order.lens_order || order.message, null, 2)}</p><script>window.print();window.close();<\/script></body></html>`); w.document.close(); }
-    async function deleteOrder(id) { if(confirm("Eliminare ordine?")) { await deleteDoc(doc(db, `artifacts/${appId}/public/data/orders`, id)); } }
+    
+    // FIX: Funzione di eliminazione con gestione errori
+    async function deleteOrder(id) { 
+        if(!confirm("Sei sicuro di voler eliminare questo ordine?")) return;
+        try {
+            await deleteDoc(doc(db, `artifacts/${appId}/public/data/orders`, id));
+        } catch (e) {
+            console.error(e);
+            alert("Impossibile eliminare l'ordine. Verifica i permessi o la connessione.");
+        }
+    }
 
     async function loadMasterCatalog() { try { const docRef = doc(db, "catalogs", "master"); const docSnap = await getDoc(docRef); if (docSnap.exists()) masterCatalog = docSnap.data().data || {}; } catch (e) {} }
     async function loadMyConfig() { if (!currentOpticianUid) return; try { const docRef = doc(db, "optician_config", currentOpticianUid, "lenses", "main"); const docSnap = await getDoc(docRef); if (docSnap.exists()) { const d = docSnap.data(); myPricingConfig = d.pricing_config || {}; myLensData = d.data || {}; } } catch(e) {} }
@@ -640,7 +659,6 @@
         }
     };
 
-    // --- CLIENT QR ---
     const clientModal = document.getElementById('client-modal');
     const clientFormActions = document.getElementById('client-form-actions');
     const clientQrContainer = document.getElementById('client-qr-container');
@@ -652,7 +670,7 @@
     
     function hideModal() {
          clientModal.classList.add('hidden');
-         document.getElementById('client-modal-title').innerText = "Nuovo Cliente"; // Reset title
+         document.getElementById('client-modal-title').innerText = "Nuovo Cliente"; 
     }
     
     closeQrButton.onclick = hideModal;
@@ -670,16 +688,13 @@
         clientPopulateManufacturers(); 
         ['client-name', 'client-email', 'client-phone', 'client-fiscal-code', 'client-address', 'client-city', 'client-zip', 'client-province'].forEach(id => document.getElementById(id).value = ''); 
         cManuf.value = ''; cModel.value = ''; cModel.disabled = true; cTypeOD.disabled = true; cTypeOS.disabled = true; 
-        // Reset params inputs
         document.querySelectorAll('#client-params-od input, #client-params-os input').forEach(i => i.value = '');
-        
         document.getElementById('client-form-container').classList.remove('hidden'); 
         clientFormActions.classList.remove('hidden'); 
         clientQrContainer.classList.add('hidden'); 
         clientModal.classList.remove('hidden'); 
     }
     
-    // --- VALIDAZIONE GENERAZIONE QR ---
     document.getElementById('generate-qr-button').onclick = () => { 
         const n = document.getElementById('client-name').value.trim();
         const e = document.getElementById('client-email').value.trim();
@@ -699,7 +714,6 @@
             return;
         }
         
-        // VALIDAZIONE PARAMETRI LENTI
         const checkVisibleInput = (id) => {
             const el = document.getElementById(id);
             if (!el) return true; 

@@ -751,7 +751,7 @@
         const cleanPhone = (localStorage.getItem(KEY_PHONE) || '').replace(/[\s\-\(\)]/g, '');
         const cleanCf = (localStorage.getItem(KEY_CF) || '').toUpperCase();
 
-        // FIX: Lettura diretta dal DOM
+        // FIX: Lettura diretta dal DOM per TUTTI i parametri
         const finalQtyOD = document.getElementById('quick-qty-od').value || '1';
         const finalQtyOS = document.getElementById('quick-qty-os').value || '1';
 
@@ -779,18 +779,18 @@
                 od: {
                     qty: finalQtyOD,
                     type: localStorage.getItem(KEY_LENS_TYPE_OD),
-                    pwr: localStorage.getItem(KEY_PARAM_PWR_OD),
-                    cyl: localStorage.getItem(KEY_PARAM_CYL_OD),
-                    axis: localStorage.getItem(KEY_PARAM_AXIS_OD),
-                    add: localStorage.getItem(KEY_PARAM_ADD_OD)
+                    pwr: document.getElementById('param-pwr-od').value, // FIX: Lettura DOM
+                    cyl: document.getElementById('param-cyl-od').value, // FIX: Lettura DOM
+                    axis: document.getElementById('param-axis-od').value, // FIX: Lettura DOM
+                    add: document.getElementById('param-add-od').value    // FIX: Lettura DOM
                 },
                 os: {
                     qty: finalQtyOS,
                     type: localStorage.getItem(KEY_LENS_TYPE_OS),
-                    pwr: localStorage.getItem(KEY_PARAM_PWR_OS),
-                    cyl: localStorage.getItem(KEY_PARAM_CYL_OS),
-                    axis: localStorage.getItem(KEY_PARAM_AXIS_OS),
-                    add: localStorage.getItem(KEY_PARAM_ADD_OS)
+                    pwr: document.getElementById('param-pwr-os').value, // FIX: Lettura DOM
+                    cyl: document.getElementById('param-cyl-os').value, // FIX: Lettura DOM
+                    axis: document.getElementById('param-axis-os').value, // FIX: Lettura DOM
+                    add: document.getElementById('param-add-os').value    // FIX: Lettura DOM
                 }
             }
         };
