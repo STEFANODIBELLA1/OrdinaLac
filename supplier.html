@@ -75,14 +75,20 @@
              <div><span class="font-bold text-xl text-gray-900 tracking-tight">Portale<span class="text-indigo-600">Fornitore</span></span></div>
              
              <div class="hidden md:flex ml-10 space-x-8 h-full items-end">
-                 <div id="nav-monitor" class="nav-item active text-sm" onclick="switchTab('monitor')">Monitoraggio Ordini</div>
-                 <div id="nav-catalog" class="nav-item text-sm" onclick="switchTab('catalog')">Catalogo Master</div>
-                 <div id="nav-clients" class="nav-item text-sm" onclick="switchTab('clients')">Archivio Clienti</div>
-                 <div id="nav-opticians" class="nav-item text-sm" onclick="switchTab('opticians')">Archivio Ottici</div>
+                 <div id="nav-monitor" class="nav-item active text-sm" onclick="switchTab('monitor')">Monitoraggio</div>
+                 <div id="nav-catalog" class="nav-item text-sm" onclick="switchTab('catalog')">Catalogo</div>
+                 <div id="nav-clients" class="nav-item text-sm" onclick="switchTab('clients')">Clienti</div>
+                 <div id="nav-opticians" class="nav-item text-sm" onclick="switchTab('opticians')">Ottici</div>
              </div>
         </div>
 
         <div class="flex items-center gap-4">
+            <!-- Pulsante Gestione Admin (NUOVO) -->
+            <button onclick="openAdminModal()" class="bg-gray-800 hover:bg-gray-900 text-white py-1.5 px-3 rounded-md shadow flex items-center gap-2 text-xs font-bold transition uppercase tracking-wide">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
+                Gest. Admin
+            </button>
+
             <button onclick="openRegisterModal()" class="bg-green-600 hover:bg-green-700 text-white py-1.5 px-3 rounded-md shadow flex items-center gap-2 text-xs font-bold transition uppercase tracking-wide">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
@@ -100,11 +106,6 @@
       <div id="loading-overlay" class="hidden absolute inset-0 bg-white bg-opacity-80 z-50 flex flex-col items-center justify-center h-full">
         <div class="loader mb-2"></div>
         <p class="text-sm text-gray-500 font-medium">Elaborazione dati in corso...</p>
-      </div>
-
-      <div id="fetch-error-banner" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm" role="alert">
-        <p class="font-bold">Errore di comunicazione</p>
-        <p class="text-sm mt-1">Dettaglio: <span id="fetch-error-msg" class="font-mono bg-red-50 px-1"></span></p>
       </div>
 
       <div id="view-monitor">
@@ -177,9 +178,6 @@
                         <p>Nessun ordine trovato in questo periodo.</p>
                     </div>
                 </div>
-                <div class="p-2 border-t border-gray-200 bg-gray-50 text-right text-xs text-gray-400">
-                    Mostrati max 100 risultati recenti per il periodo.
-                </div>
             </div>
 
             <div class="flex flex-col gap-6">
@@ -199,7 +197,7 @@
       </div>
 
       <div id="view-clients" class="hidden">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col min-h-[600px]">
+         <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col min-h-[600px]">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div>
@@ -214,9 +212,6 @@
                              <option value="">Tutti i Brand</option>
                          </select>
                          <button onclick="printClientsPDF()" class="bg-gray-800 text-white px-3 py-2 rounded shadow hover:bg-gray-900 text-sm font-bold flex items-center gap-2 transition">
-                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                             </svg>
                              Stampa Elenco PDF
                          </button>
                     </div>
@@ -280,6 +275,7 @@
             
             <div class="flex-1 p-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Form aggiunta elementi -->
                     <div class="bg-indigo-50 p-4 rounded border border-indigo-100 space-y-3">
                         <h4 class="font-bold text-sm text-indigo-800">1. Nuovo Produttore</h4>
                         <div class="flex gap-2">
@@ -318,6 +314,7 @@
     </main>
   </div>
 
+  <!-- MODALS -->
   <div id="client-history-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
           <div class="fixed inset-0 bg-gray-900 bg-opacity-80 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeHistoryModal()"></div>
@@ -339,8 +336,8 @@
                             <tr>
                                 <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">Data</th>
                                 <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase">Prodotto</th>
-                                <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase text-indigo-700">Occhio Destro (OD)</th>
-                                <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase text-indigo-700">Occhio Sinistro (OS)</th>
+                                <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase text-indigo-700">OD</th>
+                                <th class="px-4 py-2 text-left text-xs font-bold text-gray-500 uppercase text-indigo-700">OS</th>
                             </tr>
                         </thead>
                         <tbody id="history-table-body" class="bg-white divide-y divide-gray-200 text-sm"></tbody>
@@ -354,81 +351,108 @@
       </div>
   </div>
 
-  <div id="register-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeRegisterModal()"></div>
-          <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-          <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border-t-4 border-green-500">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <h3 class="text-xl leading-6 font-bold text-gray-900 mb-4">Nuovo Partner Ottico</h3>
-                <p class="text-sm text-gray-500 mb-6">Genera credenziali e ID univoco per un nuovo punto vendita.</p>
-                <div class="space-y-4">
-                    <div class="bg-blue-50 p-3 rounded border border-blue-200 mb-2">
-                        <p class="text-xs font-bold text-blue-700 uppercase mb-1">Credenziali Dashboard</p>
-                        <input type="email" id="reg-email" placeholder="Email Login" class="block w-full mb-2 px-3 py-2 border border-blue-200 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500">
-                        <input type="password" id="reg-password" placeholder="Password (min 6 caratteri)" class="block w-full px-3 py-2 border border-blue-200 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div class="bg-gray-50 p-3 rounded border border-gray-200">
-                        <p class="text-xs font-bold text-gray-600 uppercase mb-1">Anagrafica Negozio</p>
-                        <input type="text" id="reg-store-name" placeholder="Insegna / Nome Negozio" class="block w-full mb-2 px-3 py-2 border border-gray-300 rounded-md text-sm">
-                        <input type="text" id="reg-piva" placeholder="Partita IVA" class="block w-full mb-2 px-3 py-2 border border-gray-300 rounded-md text-sm">
-                        <input type="text" id="reg-address" placeholder="Indirizzo Completo" class="block w-full mb-2 px-3 py-2 border border-gray-300 rounded-md text-sm">
-                        <input type="text" id="reg-phone" placeholder="Telefono Contatto" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
-                        
-                        <label class="block text-xs font-bold text-gray-600 uppercase mt-3 mb-1">Logo / Insegna (Max 500KB)</label>
-                        <input type="file" id="reg-logo" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
-                    </div>
-                    <div id="reg-error" class="text-red-600 text-xs bg-red-50 p-2 rounded hidden border border-red-200 font-bold"></div>
-                    <div id="reg-success" class="hidden bg-green-50 border border-green-400 text-green-800 px-4 py-3 rounded relative">
-                        <strong class="font-bold">✔ Ottico Creato!</strong>
-                        <p class="text-xs mt-1">ID Univoco:</p>
-                        <p id="generated-uid" class="text-lg font-mono font-bold select-all bg-white p-2 mt-1 text-center border border-green-200 rounded"></p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button id="btn-confirm-register" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm transition">Crea Partner</button>
-                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition" onclick="closeRegisterModal()">Chiudi</button>
-            </div>
+  <!-- NUOVO MODALE: CREAZIONE ADMIN -->
+  <div id="admin-create-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="document.getElementById('admin-create-modal').classList.add('hidden')"></div>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full border-t-4 border-gray-800">
+          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+              <h3 class="text-xl leading-6 font-bold text-gray-900 mb-4">Aggiungi Nuovo Admin</h3>
+              <p class="text-sm text-gray-500 mb-6">Crea un nuovo accesso amministrativo al portale. Questa persona avrà accesso completo a tutti i dati.</p>
+              <div class="space-y-4">
+                  <div>
+                      <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Email</label>
+                      <input type="email" id="new-admin-email" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 text-sm">
+                  </div>
+                  <div>
+                      <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Password</label>
+                      <input type="password" id="new-admin-password" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-gray-500 focus:border-gray-500 text-sm">
+                  </div>
+                  <div id="admin-create-msg" class="text-xs text-center p-2 rounded hidden"></div>
+              </div>
           </div>
-      </div>
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <button id="btn-create-admin-confirm" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-gray-800 text-base font-medium text-white hover:bg-gray-900 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm transition">Crea Admin</button>
+              <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition" onclick="document.getElementById('admin-create-modal').classList.add('hidden')">Annulla</button>
+          </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Register Modal -->
+  <div id="register-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeRegisterModal()"></div>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border-t-4 border-green-500">
+          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+              <h3 class="text-xl leading-6 font-bold text-gray-900 mb-4">Nuovo Partner Ottico</h3>
+              <p class="text-sm text-gray-500 mb-6">Genera credenziali e ID univoco per un nuovo punto vendita.</p>
+              <div class="space-y-4">
+                  <div class="bg-blue-50 p-3 rounded border border-blue-200 mb-2">
+                      <p class="text-xs font-bold text-blue-700 uppercase mb-1">Credenziali Dashboard</p>
+                      <input type="email" id="reg-email" placeholder="Email Login" class="block w-full mb-2 px-3 py-2 border border-blue-200 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500">
+                      <input type="password" id="reg-password" placeholder="Password (min 6 caratteri)" class="block w-full px-3 py-2 border border-blue-200 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500">
+                  </div>
+                  <div class="bg-gray-50 p-3 rounded border border-gray-200">
+                      <p class="text-xs font-bold text-gray-600 uppercase mb-1">Anagrafica Negozio</p>
+                      <input type="text" id="reg-store-name" placeholder="Insegna / Nome Negozio" class="block w-full mb-2 px-3 py-2 border border-gray-300 rounded-md text-sm">
+                      <input type="text" id="reg-piva" placeholder="Partita IVA" class="block w-full mb-2 px-3 py-2 border border-gray-300 rounded-md text-sm">
+                      <input type="text" id="reg-address" placeholder="Indirizzo Completo" class="block w-full mb-2 px-3 py-2 border border-gray-300 rounded-md text-sm">
+                      <input type="text" id="reg-phone" placeholder="Telefono Contatto" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                      
+                      <label class="block text-xs font-bold text-gray-600 uppercase mt-3 mb-1">Logo / Insegna (Max 500KB)</label>
+                      <input type="file" id="reg-logo" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
+                  </div>
+                  <div id="reg-error" class="text-red-600 text-xs bg-red-50 p-2 rounded hidden border border-red-200 font-bold"></div>
+                  <div id="reg-success" class="hidden bg-green-50 border border-green-400 text-green-800 px-4 py-3 rounded relative">
+                      <strong class="font-bold">✔ Ottico Creato!</strong>
+                      <p class="text-xs mt-1">ID Univoco:</p>
+                      <p id="generated-uid" class="text-lg font-mono font-bold select-all bg-white p-2 mt-1 text-center border border-green-200 rounded"></p>
+                  </div>
+              </div>
+          </div>
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <button id="btn-confirm-register" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm transition">Crea Partner</button>
+              <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition" onclick="closeRegisterModal()">Chiudi</button>
+          </div>
+        </div>
+    </div>
   </div>
 
   <div id="optician-edit-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-      <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeOpticianEditModal()"></div>
-          <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-          <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <h3 class="text-xl leading-6 font-bold text-gray-900 mb-4">Modifica Dati Ottico</h3>
-                <input type="hidden" id="edit-opt-uid">
-                <div class="space-y-4">
-                    <div class="bg-gray-50 p-3 rounded border border-gray-200">
-                        <p class="text-xs font-bold text-gray-600 uppercase mb-1">Dati Negozio</p>
-                        <label class="block text-xs text-gray-500 mt-2">Nome Negozio</label>
-                        <input type="text" id="edit-opt-name" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
-                        
-                        <label class="block text-xs text-gray-500 mt-2">Partita IVA</label>
-                        <input type="text" id="edit-opt-piva" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
-                        
-                        <label class="block text-xs text-gray-500 mt-2">Indirizzo</label>
-                        <input type="text" id="edit-opt-address" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
-                        
-                        <label class="block text-xs text-gray-500 mt-2">Telefono</label>
-                        <input type="text" id="edit-opt-phone" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
-                        
-                        <label class="block text-xs font-bold text-gray-600 uppercase mt-3 mb-1">Aggiorna Logo (Opzionale)</label>
-                        <input type="file" id="edit-opt-logo" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
-                        <div id="current-logo-preview" class="mt-2"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button id="btn-save-opt-changes" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm transition">Salva Modifiche</button>
-                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition" onclick="closeOpticianEditModal()">Annulla</button>
-            </div>
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeOpticianEditModal()"></div>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+              <h3 class="text-xl leading-6 font-bold text-gray-900 mb-4">Modifica Dati Ottico</h3>
+              <input type="hidden" id="edit-opt-uid">
+              <div class="space-y-4">
+                  <div class="bg-gray-50 p-3 rounded border border-gray-200">
+                      <p class="text-xs font-bold text-gray-600 uppercase mb-1">Dati Negozio</p>
+                      <label class="block text-xs text-gray-500 mt-2">Nome Negozio</label>
+                      <input type="text" id="edit-opt-name" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                      
+                      <label class="block text-xs text-gray-500 mt-2">Partita IVA</label>
+                      <input type="text" id="edit-opt-piva" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                      
+                      <label class="block text-xs text-gray-500 mt-2">Indirizzo</label>
+                      <input type="text" id="edit-opt-address" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                      
+                      <label class="block text-xs text-gray-500 mt-2">Telefono</label>
+                      <input type="text" id="edit-opt-phone" class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                      
+                      <label class="block text-xs font-bold text-gray-600 uppercase mt-3 mb-1">Aggiorna Logo (Opzionale)</label>
+                      <input type="file" id="edit-opt-logo" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
+                      <div id="current-logo-preview" class="mt-2"></div>
+                  </div>
+              </div>
           </div>
-      </div>
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+              <button id="btn-save-opt-changes" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm transition">Salva Modifiche</button>
+              <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition" onclick="closeOpticianEditModal()">Annulla</button>
+          </div>
+        </div>
+    </div>
   </div>
 
   <div id="order-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -494,7 +518,7 @@
   <script type="module">
     import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, getDocs, query, doc, setDoc, updateDoc, getDoc, where, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, doc, setDoc, updateDoc, getDoc, where, orderBy, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDMRWXipp7VCMQiezOZSSZAhSQo8MWVgKs",
@@ -508,14 +532,16 @@
     let app, auth, db;
     const appId = "ordinalac-app";
     
+    // --- IMPORTANTE: Sostituisci QUESTA email con la tua per il primo accesso ---
+    const EMERGENCY_ADMIN = "stefanodibella1@gmail.com"; 
+
     const defaultLensData = { "Alcon": { "Dailies Total 1": ["Standard", "Multifocal"] } };
     let globalCatalogData = {};
     let globalOrders = [];
     let uniqueClientsCache = []; 
     let opticiansMap = {}; 
-    let allOpticiansCache = []; // Cache per archivio ottici
+    let allOpticiansCache = [];
 
-    // UI Elements
     const loginView = document.getElementById('login-view');
     const dashboardView = document.getElementById('dashboard-view');
     const loadingOverlay = document.getElementById('loading-overlay');
@@ -525,29 +551,23 @@
     const logoutButton = document.getElementById('logout-button');
     const loginError = document.getElementById('login-error');
     const userEmailDisplay = document.getElementById('user-email-display');
-    
-    // Nav Items
     const viewMonitor = document.getElementById('view-monitor');
     const viewCatalog = document.getElementById('view-catalog');
     const viewClients = document.getElementById('view-clients');
-    const viewOpticians = document.getElementById('view-opticians'); // NUOVO
+    const viewOpticians = document.getElementById('view-opticians');
     const navMonitor = document.getElementById('nav-monitor');
     const navCatalog = document.getElementById('nav-catalog');
     const navClients = document.getElementById('nav-clients');
-    const navOpticians = document.getElementById('nav-opticians'); // NUOVO
-
-    // Monitor Elements
+    const navOpticians = document.getElementById('nav-opticians');
+    const orderModal = document.getElementById('order-modal');
+    const historyModal = document.getElementById('client-history-modal');
+    const registerModal = document.getElementById('register-modal');
+    const opticianEditModal = document.getElementById('optician-edit-modal');
     const searchInput = document.getElementById('search-input');
     const dateStartInput = document.getElementById('date-start');
     const dateEndInput = document.getElementById('date-end');
     const refreshBtn = document.getElementById('refresh-btn');
     const ordersTableBody = document.getElementById('orders-table-body');
-
-    // Modals
-    const orderModal = document.getElementById('order-modal');
-    const historyModal = document.getElementById('client-history-modal');
-    const registerModal = document.getElementById('register-modal');
-    const opticianEditModal = document.getElementById('optician-edit-modal'); // NUOVO
 
     try {
         app = initializeApp(firebaseConfig);
@@ -564,6 +584,12 @@
     window.closeHistoryModal = () => historyModal.classList.add('hidden');
     window.closeRegisterModal = () => registerModal.classList.add('hidden');
     window.closeOpticianEditModal = () => opticianEditModal.classList.add('hidden');
+    window.openAdminModal = () => {
+        document.getElementById('new-admin-email').value = '';
+        document.getElementById('new-admin-password').value = '';
+        document.getElementById('admin-create-msg').classList.add('hidden');
+        document.getElementById('admin-create-modal').classList.remove('hidden');
+    };
 
     window.openRegisterModal = () => {
         document.getElementById('reg-email').value = '';
@@ -587,12 +613,10 @@
         viewCatalog.classList.add('hidden');
         viewClients.classList.add('hidden');
         viewOpticians.classList.add('hidden');
-        
         navMonitor.classList.remove('active');
         navCatalog.classList.remove('active');
         navClients.classList.remove('active');
         navOpticians.classList.remove('active');
-
         if(tabName === 'monitor') {
             viewMonitor.classList.remove('hidden');
             navMonitor.classList.add('active');
@@ -611,7 +635,6 @@
         }
     };
 
-    // --- AUTH ---
     loginButton.addEventListener('click', async () => {
       try {
         loginError.classList.add('hidden');
@@ -626,10 +649,33 @@
     logoutButton.addEventListener('click', doLogout);
     document.getElementById('force-logout-btn').addEventListener('click', doLogout);
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
          if (user.isAnonymous) {
             document.getElementById('anon-warning').classList.remove('hidden');
+            await signOut(auth); return;
+        }
+        const adminDocRef = doc(db, "config", "admins");
+        let allowedEmails = [];
+        try {
+            const docSnap = await getDoc(adminDocRef);
+            if (docSnap.exists()) {
+                allowedEmails = docSnap.data().emails || [];
+            } else {
+                if (user.email === EMERGENCY_ADMIN) {
+                    await setDoc(adminDocRef, { emails: [EMERGENCY_ADMIN] });
+                    allowedEmails = [EMERGENCY_ADMIN];
+                }
+            }
+        } catch (e) {
+            console.error("Auth check failed:", e);
+            alert("Errore verifica permessi. Riprova.");
+            await signOut(auth);
+            return;
+        }
+        if (!allowedEmails.includes(user.email)) {
+            alert("ACCESSO NEGATO: Non sei un amministratore autorizzato.");
+            await signOut(auth);
             return;
         }
         loginView.classList.add('hidden');
@@ -644,6 +690,40 @@
       }
     });
     
+    document.getElementById('btn-create-admin-confirm').addEventListener('click', async () => {
+        const email = document.getElementById('new-admin-email').value.trim();
+        const pass = document.getElementById('new-admin-password').value.trim();
+        const msgBox = document.getElementById('admin-create-msg');
+        if (!email || pass.length < 6) {
+            msgBox.innerText = "Email valida e password (min 6 car.) richieste.";
+            msgBox.className = "text-xs text-center p-2 rounded bg-red-100 text-red-700";
+            msgBox.classList.remove('hidden');
+            return;
+        }
+        msgBox.innerText = "Creazione in corso...";
+        msgBox.className = "text-xs text-center p-2 rounded bg-yellow-100 text-yellow-700";
+        msgBox.classList.remove('hidden');
+        let secondaryApp = null;
+        try {
+            secondaryApp = initializeApp(firebaseConfig, "SecondaryAdminApp");
+            const secondaryAuth = getAuth(secondaryApp);
+            await createUserWithEmailAndPassword(secondaryAuth, email, pass);
+            await updateDoc(doc(db, "config", "admins"), {
+                emails: arrayUnion(email)
+            });
+            msgBox.innerText = "Admin creato con successo!";
+            msgBox.className = "text-xs text-center p-2 rounded bg-green-100 text-green-700";
+            setTimeout(() => {
+                document.getElementById('admin-create-modal').classList.add('hidden');
+            }, 1500);
+        } catch (error) {
+            msgBox.innerText = "Errore: " + error.message;
+            msgBox.className = "text-xs text-center p-2 rounded bg-red-100 text-red-700";
+        } finally {
+            if (secondaryApp) deleteApp(secondaryApp);
+        }
+    });
+
     const setDefaultDates = () => {
         const end = new Date();
         const start = new Date();
@@ -652,7 +732,6 @@
         dateStartInput.valueAsDate = start;
     };
 
-    // --- DATA FETCHING ---
     async function fetchOpticianRegistry() {
         try {
             const q = query(collection(db, 'opticians_registry'));
@@ -668,26 +747,18 @@
       const endDate = new Date(dateEndInput.value);
       startDate.setHours(0,0,0,0);
       endDate.setHours(23,59,59,999);
-
       await fetchOpticianRegistry();
       const q = query(collection(db, `artifacts/${appId}/public/data/orders`), where('timestamp', '>=', startDate), where('timestamp', '<=', endDate));
-
       try {
         const snapshot = await getDocs(q);
         globalOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         globalOrders.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-        
         processAndRenderMonitor(globalOrders);
-        
-        // Se siamo nella tab clienti, aggiorna
         if(!viewClients.classList.contains('hidden')) renderGlobalClients(globalOrders);
-        
       } catch (e) { console.error(e); } finally { showLoading(false); }
     }
     refreshBtn.onclick = fetchAllData;
 
-    // --- OPTICIANS ARCHIVE LOGIC ---
-    
     async function loadOpticiansRegistry() {
         showLoading(true);
         try {
@@ -709,18 +780,15 @@
         const tbody = document.getElementById('opticians-table-body');
         tbody.innerHTML = '';
         const search = (document.getElementById('search-optician').value || '').toLowerCase();
-        
         const filtered = opticians.filter(o => 
             (o.store_name || '').toLowerCase().includes(search) ||
             (o.email || '').toLowerCase().includes(search) ||
             (o.uid || '').toLowerCase().includes(search)
         );
-
         filtered.forEach(opt => {
             const logoHtml = opt.logo_base64 
                 ? `<img src="${opt.logo_base64}" class="h-10 w-10 rounded-full object-cover border">`
                 : `<div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">Logo</div>`;
-
             const tr = document.createElement('tr');
             tr.className = "hover:bg-gray-50 transition border-b border-gray-100";
             tr.innerHTML = `
@@ -748,21 +816,18 @@
     window.openEditOptician = (uid) => {
         const opt = allOpticiansCache.find(o => o.uid === uid);
         if(!opt) return;
-        
         document.getElementById('edit-opt-uid').value = uid;
         document.getElementById('edit-opt-name').value = opt.store_name || '';
         document.getElementById('edit-opt-piva').value = opt.piva || '';
         document.getElementById('edit-opt-address').value = opt.address || '';
         document.getElementById('edit-opt-phone').value = opt.phone || '';
-        document.getElementById('edit-opt-logo').value = ''; // Reset input file
-        
+        document.getElementById('edit-opt-logo').value = ''; 
         const prevContainer = document.getElementById('current-logo-preview');
         if(opt.logo_base64) {
             prevContainer.innerHTML = `<p class="text-xs text-gray-500 mb-1">Logo Attuale:</p><img src="${opt.logo_base64}" class="h-16 w-auto border rounded">`;
         } else {
             prevContainer.innerHTML = `<p class="text-xs text-gray-400 italic">Nessun logo caricato</p>`;
         }
-        
         opticianEditModal.classList.remove('hidden');
     };
 
@@ -773,10 +838,8 @@
         const addr = document.getElementById('edit-opt-address').value;
         const phone = document.getElementById('edit-opt-phone').value;
         const logoFile = document.getElementById('edit-opt-logo').files[0];
-        
         const btn = document.getElementById('btn-save-opt-changes');
         btn.disabled = true; btn.innerText = "Salvataggio...";
-        
         try {
             const updates = {
                 store_name: name,
@@ -784,18 +847,14 @@
                 address: addr,
                 phone: phone
             };
-            
             if (logoFile) {
                 if (logoFile.size > 500 * 1024) throw new Error("Logo troppo grande (Max 500KB).");
                 updates.logo_base64 = await convertBase64(logoFile);
             }
-            
             await updateDoc(doc(db, 'opticians_registry', uid), updates);
-            
             alert("Dati aggiornati correttamente!");
             closeOpticianEditModal();
-            loadOpticiansRegistry(); // Refresh list
-            
+            loadOpticiansRegistry(); 
         } catch (e) {
             alert("Errore: " + e.message);
         } finally {
@@ -803,29 +862,24 @@
         }
     });
 
-    // --- MONITOR LOGIC ---
     function processAndRenderMonitor(orders) {
         const kpiTotal = document.getElementById('kpi-total-orders');
         const kpiActiveOpt = document.getElementById('kpi-active-opticians');
         const kpiDelPerc = document.getElementById('kpi-delivery-perc');
         const kpiTopBrand = document.getElementById('kpi-top-brand');
-        
         kpiTotal.innerText = orders.length;
         kpiActiveOpt.innerText = new Set(orders.map(o => o.optician_id)).size;
         const dC = orders.filter(o => o.delivery?.mode === 'delivery').length;
         kpiDelPerc.innerText = (orders.length > 0 ? Math.round((dC / orders.length) * 100) : 0) + "%";
-        
         const bC = {};
         orders.forEach(o => { const b = o.lens_order?.manufacturer || '-'; bC[b] = (bC[b]||0)+1; });
         const sortedB = Object.entries(bC).sort((a,b) => b[1]-a[1]);
         kpiTopBrand.innerText = sortedB.length > 0 ? sortedB[0][0] : '-';
-        
         renderBrandChart(bC); 
         renderTopOpticians(orders); 
         renderTableMonitor(orders);
     }
     
-    // Chart Rendering (Monitor)
     let charts = {};
     function renderBrandChart(counts) {
         const ctx = document.getElementById('chart-brands').getContext('2d');
@@ -836,7 +890,6 @@
         const labels = top5.map(e => e[0]);
         const data = top5.map(e => e[1]);
         if(others > 0) { labels.push('Altri'); data.push(others); }
-        
         charts.brands = new Chart(ctx, {
             type: 'doughnut',
             data: { 
@@ -889,19 +942,15 @@
     function renderTableMonitor(orders) {
         ordersTableBody.innerHTML = '';
         const statusColors = { 'new': 'bg-blue-100 text-blue-800', 'processing': 'bg-yellow-100 text-yellow-800', 'ready': 'bg-green-100 text-green-800', 'completed': 'bg-gray-100 text-gray-600', 'cancelled': 'bg-red-100 text-red-800' };
-        
         orders.slice(0, 100).forEach(o => {
             const date = o.timestamp ? new Date(o.timestamp.seconds * 1000).toLocaleDateString() : '-';
             const optName = opticiansMap[o.optician_id] || o.optician_id;
             const badgeClass = statusColors[o.status] || 'bg-gray-100';
-            
-            // Supply Badge Logic
             let supplyBadge = '-';
             if (o.supply_request && o.supply_request.status === 'pending') {
                 const dest = o.supply_request.destination === 'client' ? 'CLIENTE' : 'STORE';
                 supplyBadge = `<span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-bold border border-purple-200">DA SPEDIRE: ${dest}</span>`;
             }
-
             const tr = document.createElement('tr');
             tr.className = "hover:bg-gray-50 border-b border-gray-100";
             tr.innerHTML = `
@@ -920,34 +969,27 @@
         });
     }
     
-    // Global exposure for button onclick
     window.showOrderDetails = (id) => {
         const order = globalOrders.find(x => x.id === id);
         if(!order) return;
-        
         const optName = opticiansMap[order.optician_id] || order.optician_id;
         document.getElementById('modal-opt-id').innerText = optName;
-        
         const statusColors = { 'new': 'bg-blue-100 text-blue-800', 'processing': 'bg-yellow-100 text-yellow-800', 'ready': 'bg-green-100 text-green-800', 'completed': 'bg-gray-100 text-gray-600', 'cancelled': 'bg-red-100 text-red-800' };
         const statusBadge = document.getElementById('modal-status-badge');
         statusBadge.className = `px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wide ${statusColors[order.status || 'new']}`;
         statusBadge.innerText = order.status || 'Nuovo';
-
         const info = order.client_info || {};
         document.getElementById('modal-pat-name').innerText = order.patient_name || 'N/D';
-        
         let contact = [];
         if(info.phone) contact.push(info.phone);
         if(info.email) contact.push(info.email);
         document.getElementById('modal-pat-contact').innerText = contact.join(' | ') || '-';
         document.getElementById('modal-pat-cf').innerText = info.cf || '-';
-        
         const del = order.delivery || {};
         const isDel = del.mode === 'delivery';
         const delModeEl = document.getElementById('modal-delivery-mode');
         delModeEl.innerText = isDel ? 'Consegna a Domicilio' : 'Ritiro in Negozio';
         delModeEl.className = `text-sm font-bold mb-2 ${isDel ? 'text-blue-600' : 'text-green-600'}`;
-        
         const addrBox = document.getElementById('modal-address-box');
         if (isDel && del.address_details) {
             const a = del.address_details;
@@ -959,11 +1001,9 @@
         } else {
             addrBox.classList.add('hidden');
         }
-        
         const l = order.lens_order || {};
         document.getElementById('modal-lens-manuf').innerText = l.manufacturer || '-';
         document.getElementById('modal-lens-model').innerText = l.model || '-';
-        
         const renderParams = (eye) => {
             if (!eye) return '<span class="text-gray-400 italic">Nessun dato</span>';
             let html = `<div class="font-semibold text-indigo-900 border-b border-indigo-100 pb-1 mb-1">${eye.type || '-'}</div>`;
@@ -980,250 +1020,112 @@
         orderModal.classList.remove('hidden');
     };
 
-
-    // --- CLIENT ARCHIVE LOGIC ---
-    
     function extractUniqueClients(orders) {
         const clients = {};
         orders.forEach(o => {
             const info = o.client_info || {};
-            // Chiave univoca: CF se presente, altrimenti Nome + Email
             const key = info.cf ? info.cf.toUpperCase() : (o.patient_name + (info.email || '')).replace(/\s/g, '');
-            
             if (!clients[key]) {
                 clients[key] = {
-                    key: key,
-                    name: o.patient_name,
-                    cf: info.cf || '-',
-                    email: info.email || '-',
-                    phone: info.phone || '-',
-                    opticianId: o.optician_id,
-                    opticianName: opticiansMap[o.optician_id] || 'N/D',
-                    address: o.delivery?.address_full || 'N/D', // Indirizzo
-                    lastOrderDate: 0,
-                    brandSet: new Set(), // Per i filtri
-                    history: [] // Storico ordini
+                    key: key, name: o.patient_name, cf: info.cf || '-', email: info.email || '-', phone: info.phone || '-',
+                    opticianId: o.optician_id, opticianName: opticiansMap[o.optician_id] || 'N/D', address: o.delivery?.address_full || 'N/D',
+                    lastOrderDate: 0, brandSet: new Set(), history: []
                 };
             }
-            
-            // Aggiorna dati se l'ordine è più recente
             const ts = o.timestamp?.seconds || 0;
             if (ts > clients[key].lastOrderDate) {
-                clients[key].lastOrderDate = ts;
-                clients[key].address = o.delivery?.address_full || clients[key].address; // Aggiorna indirizzo
-                clients[key].phone = info.phone || clients[key].phone;
+                clients[key].lastOrderDate = ts; clients[key].address = o.delivery?.address_full || clients[key].address; clients[key].phone = info.phone || clients[key].phone;
             }
-            
-            // Aggiungi allo storico
             if(o.lens_order?.manufacturer) clients[key].brandSet.add(o.lens_order.manufacturer);
-            
-            clients[key].history.push({
-                date: ts,
-                orderId: o.id, // Necessario per l'eliminazione
-                dateStr: new Date(ts * 1000).toLocaleDateString(),
-                manuf: o.lens_order?.manufacturer || '-',
-                model: o.lens_order?.model || '-',
-                od: o.lens_order?.od,
-                os: o.lens_order?.os
-            });
+            clients[key].history.push({ date: ts, orderId: o.id, dateStr: new Date(ts * 1000).toLocaleDateString(), manuf: o.lens_order?.manufacturer || '-', model: o.lens_order?.model || '-', od: o.lens_order?.od, os: o.lens_order?.os });
         });
-        
-        // Ordina lo storico per data desc
         Object.values(clients).forEach(c => c.history.sort((a,b) => b.date - a.date));
-        
         return Object.values(clients);
     }
 
     window.renderGlobalClients = (orders) => {
         const tbody = document.getElementById('clients-table-body');
         tbody.innerHTML = '';
-        
         uniqueClientsCache = extractUniqueClients(orders);
-        
-        // Popola filtri dinamici
         const filterOpt = document.getElementById('filter-client-optician');
         const filterBrand = document.getElementById('filter-client-brand');
         const currentOpt = filterOpt.value;
         const currentBrand = filterBrand.value;
-        
-        // Ottici unici
         const opts = new Set(uniqueClientsCache.map(c => c.opticianId));
         filterOpt.innerHTML = '<option value="">Tutti gli Ottici</option>';
-        Array.from(opts).forEach(id => {
-            filterOpt.innerHTML += `<option value="${id}" ${id===currentOpt?'selected':''}>${opticiansMap[id] || id}</option>`;
-        });
-
-        // Brand unici (da tutti gli ordini di tutti i clienti)
+        Array.from(opts).forEach(id => { filterOpt.innerHTML += `<option value="${id}" ${id===currentOpt?'selected':''}>${opticiansMap[id] || id}</option>`; });
         const brands = new Set();
         uniqueClientsCache.forEach(c => c.brandSet.forEach(b => brands.add(b)));
         filterBrand.innerHTML = '<option value="">Tutti i Brand</option>';
-        Array.from(brands).sort().forEach(b => {
-            filterBrand.innerHTML += `<option value="${b}" ${b===currentBrand?'selected':''}>${b}</option>`;
-        });
-
-        // Filtra tabella
+        Array.from(brands).sort().forEach(b => { filterBrand.innerHTML += `<option value="${b}" ${b===currentBrand?'selected':''}>${b}</option>`; });
         const searchTerm = (document.getElementById('search-client-global').value || '').toLowerCase();
-        
         const filtered = uniqueClientsCache.filter(c => {
-            const matchesSearch = c.name.toLowerCase().includes(searchTerm) || 
-                                  c.cf.toLowerCase().includes(searchTerm) || 
-                                  c.email.toLowerCase().includes(searchTerm);
+            const matchesSearch = c.name.toLowerCase().includes(searchTerm) || c.cf.toLowerCase().includes(searchTerm) || c.email.toLowerCase().includes(searchTerm);
             const matchesOpt = currentOpt ? c.opticianId === currentOpt : true;
             const matchesBrand = currentBrand ? c.brandSet.has(currentBrand) : true;
-            
             return matchesSearch && matchesOpt && matchesBrand;
         });
-
         filtered.forEach(c => {
             const lastDate = c.lastOrderDate ? new Date(c.lastOrderDate * 1000).toLocaleDateString() : '-';
             const row = document.createElement('tr');
             row.className = "hover:bg-gray-50 transition border-b border-gray-100";
-            row.innerHTML = `
-                <td class="px-4 py-3 font-bold text-gray-800">
-                    ${c.name}
-                    <div class="text-xs font-normal text-gray-400">Ultimo: ${lastDate}</div>
-                </td>
-                <td class="px-4 py-3 text-xs">
-                    <div class="text-gray-600">${c.email}</div>
-                    <div class="text-gray-500">${c.phone}</div>
-                    <div class="font-mono text-gray-400 mt-1">${c.cf}</div>
-                </td>
-                <td class="px-4 py-3 text-xs text-gray-600 max-w-xs truncate" title="${c.address}">
-                    ${c.address}
-                </td>
-                <td class="px-4 py-3 text-indigo-600 font-bold text-xs">${c.opticianName}</td>
-                <td class="px-4 py-3 text-center flex items-center justify-center gap-2">
-                    <button onclick="openClientHistory('${c.key}')" class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-3 py-1 rounded border border-indigo-200 text-xs font-bold transition flex items-center gap-1">
-                        <span>📜 Storico & Diottrie</span>
-                    </button>
-                    <button onclick="deleteGlobalClient('${c.key}')" class="bg-red-50 text-red-700 hover:bg-red-100 p-1.5 rounded border border-red-200 text-xs transition" title="Elimina Cliente e Storico">
-                        🗑️
-                    </button>
-                </td>
-            `;
+            row.innerHTML = `<td class="px-4 py-3 font-bold text-gray-800">${c.name}<div class="text-xs font-normal text-gray-400">Ultimo: ${lastDate}</div></td><td class="px-4 py-3 text-xs"><div class="text-gray-600">${c.email}</div><div class="text-gray-500">${c.phone}</div><div class="font-mono text-gray-400 mt-1">${c.cf}</div></td><td class="px-4 py-3 text-xs text-gray-600 max-w-xs truncate" title="${c.address}">${c.address}</td><td class="px-4 py-3 text-indigo-600 font-bold text-xs">${c.opticianName}</td><td class="px-4 py-3 text-center flex items-center justify-center gap-2"><button onclick="openClientHistory('${c.key}')" class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-3 py-1 rounded border border-indigo-200 text-xs font-bold transition flex items-center gap-1"><span>📜 Storico & Diottrie</span></button><button onclick="deleteGlobalClient('${c.key}')" class="bg-red-50 text-red-700 hover:bg-red-100 p-1.5 rounded border border-red-200 text-xs transition" title="Elimina Cliente e Storico">🗑️</button></td>`;
             tbody.appendChild(row);
         });
     };
 
-    // --- STAMPA PDF ---
     window.printClientsPDF = () => {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('l', 'mm', 'a4'); 
-
         const search = (document.getElementById('search-client-global').value || '').toLowerCase();
         const currentOpt = document.getElementById('filter-client-optician').value;
         const currentBrand = document.getElementById('filter-client-brand').value;
-
         const dataToPrint = uniqueClientsCache.filter(c => {
-            const matchesSearch = c.name.toLowerCase().includes(search) || 
-                                  c.cf.toLowerCase().includes(search) || 
-                                  c.email.toLowerCase().includes(search);
+            const matchesSearch = c.name.toLowerCase().includes(search) || c.cf.toLowerCase().includes(search) || c.email.toLowerCase().includes(search);
             const matchesOpt = currentOpt ? c.opticianId === currentOpt : true;
             const matchesBrand = currentBrand ? c.brandSet.has(currentBrand) : true;
             return matchesSearch && matchesOpt && matchesBrand;
         });
-
-        doc.setFontSize(16);
-        doc.text("Archivio Globale Clienti", 14, 15);
-        doc.setFontSize(10);
-        let filterText = `Totale Clienti: ${dataToPrint.length}`;
-        if(currentOpt) filterText += ` | Ottico: ${opticiansMap[currentOpt] || currentOpt}`;
-        if(currentBrand) filterText += ` | Brand: ${currentBrand}`;
+        doc.setFontSize(16); doc.text("Archivio Globale Clienti", 14, 15); doc.setFontSize(10);
+        let filterText = `Totale Clienti: ${dataToPrint.length}`; if(currentOpt) filterText += ` | Ottico: ${opticiansMap[currentOpt] || currentOpt}`; if(currentBrand) filterText += ` | Brand: ${currentBrand}`;
         doc.text(filterText, 14, 22);
-
-        const tableBody = dataToPrint.map(c => [
-            c.name, 
-            c.cf, 
-            `${c.email}\n${c.phone}`, 
-            c.opticianName, 
-            c.address
-        ]);
-
-        doc.autoTable({
-            startY: 26,
-            head: [['Nome Cliente', 'Codice Fiscale', 'Contatti', 'Ottico Rif.', 'Indirizzo']],
-            body: tableBody,
-            theme: 'grid',
-            styles: { fontSize: 9, cellPadding: 3 },
-            headStyles: { fillColor: [50, 50, 50], textColor: 255, fontStyle: 'bold' },
-            columnStyles: { 0: { fontStyle: 'bold' }, 4: { cellWidth: 60 } }
-        });
-
+        const tableBody = dataToPrint.map(c => [ c.name, c.cf, `${c.email}\n${c.phone}`, c.opticianName, c.address ]);
+        doc.autoTable({ startY: 26, head: [['Nome Cliente', 'Codice Fiscale', 'Contatti', 'Ottico Rif.', 'Indirizzo']], body: tableBody, theme: 'grid', styles: { fontSize: 9, cellPadding: 3 }, headStyles: { fillColor: [50, 50, 50], textColor: 255, fontStyle: 'bold' }, columnStyles: { 0: { fontStyle: 'bold' }, 4: { cellWidth: 60 } } });
         doc.save('Elenco_Clienti_Filtrato.pdf');
     };
 
-    // Logic Filtri
     document.getElementById('search-client-global').addEventListener('input', () => renderGlobalClients(globalOrders));
     document.getElementById('filter-client-optician').addEventListener('change', () => renderGlobalClients(globalOrders));
     document.getElementById('filter-client-brand').addEventListener('change', () => renderGlobalClients(globalOrders));
 
-    // --- ELIMINAZIONE CLIENTE ---
     window.deleteGlobalClient = async (key) => {
         if(!confirm("ATTENZIONE: Stai per eliminare questo cliente e TUTTO il suo storico ordini. Questa azione è irreversibile. Continuare?")) return;
-        
         const client = uniqueClientsCache.find(c => c.key === key);
         if(!client) return;
-
         showLoading(true);
         try {
-            // Eliminazione di tutti gli ordini associati a questo cliente
-            const deletePromises = client.history.map(h => 
-                deleteDoc(doc(db, `artifacts/${appId}/public/data/orders`, h.orderId))
-            );
+            const deletePromises = client.history.map(h => deleteDoc(doc(db, `artifacts/${appId}/public/data/orders`, h.orderId)));
             await Promise.all(deletePromises);
-            
             alert("Cliente e storico eliminati con successo.");
-            await fetchAllData(); // Ricarica tutto
-        } catch (e) {
-            alert("Errore durante l'eliminazione: " + e.message);
-        } finally {
-            showLoading(false);
-        }
+            await fetchAllData(); 
+        } catch (e) { alert("Errore durante l'eliminazione: " + e.message); } finally { showLoading(false); }
     };
 
-    // --- POPUP STORICO ---
     window.openClientHistory = (key) => {
         const client = uniqueClientsCache.find(c => c.key === key);
         if(!client) return;
-
         document.getElementById('history-modal-title').innerText = `Storico: ${client.name}`;
         document.getElementById('history-modal-subtitle').innerText = `CF: ${client.cf} | Tel: ${client.phone}`;
-        
         const tbody = document.getElementById('history-table-body');
         tbody.innerHTML = '';
-
         client.history.forEach(h => {
-            // Helper per formattare i parametri occhio
-            const formatEye = (eye) => {
-                if (!eye) return '-';
-                let s = `<div class="font-bold text-gray-700 text-xs mb-1">${eye.type || ''}</div>`;
-                if(eye.pwr) s += `<span class="bg-gray-100 px-1 rounded border text-xs mr-1">SF: ${eye.pwr}</span>`;
-                if(eye.cyl) s += `<span class="bg-gray-100 px-1 rounded border text-xs mr-1">CYL: ${eye.cyl}</span>`;
-                if(eye.axis) s += `<span class="bg-gray-100 px-1 rounded border text-xs mr-1">AX: ${eye.axis}</span>`;
-                if(eye.add) s += `<span class="bg-yellow-50 px-1 rounded border text-xs text-yellow-700">ADD: ${eye.add}</span>`;
-                return s;
-            };
-
-            const row = document.createElement('tr');
-            row.className = "border-b border-gray-100 hover:bg-gray-50";
-            row.innerHTML = `
-                <td class="px-4 py-3 text-gray-500 font-mono text-xs">${h.dateStr}</td>
-                <td class="px-4 py-3 text-sm">
-                    <div class="font-bold text-gray-800">${h.manuf}</div>
-                    <div class="text-xs text-gray-500">${h.model}</div>
-                </td>
-                <td class="px-4 py-3 text-xs">${formatEye(h.od)}</td>
-                <td class="px-4 py-3 text-xs">${formatEye(h.os)}</td>
-            `;
+            const formatEye = (eye) => { if (!eye) return '-'; let s = `<div class="font-bold text-gray-700 text-xs mb-1">${eye.type || ''}</div>`; if(eye.pwr) s += `<span class="bg-gray-100 px-1 rounded border text-xs mr-1">SF: ${eye.pwr}</span>`; if(eye.cyl) s += `<span class="bg-gray-100 px-1 rounded border text-xs mr-1">CYL: ${eye.cyl}</span>`; if(eye.axis) s += `<span class="bg-gray-100 px-1 rounded border text-xs mr-1">AX: ${eye.axis}</span>`; if(eye.add) s += `<span class="bg-yellow-50 px-1 rounded border text-xs text-yellow-700">ADD: ${eye.add}</span>`; return s; };
+            const row = document.createElement('tr'); row.className = "border-b border-gray-100 hover:bg-gray-50"; row.innerHTML = `<td class="px-4 py-3 text-gray-500 font-mono text-xs">${h.dateStr}</td><td class="px-4 py-3 text-sm"><div class="font-bold text-gray-800">${h.manuf}</div><div class="text-xs text-gray-500">${h.model}</div></td><td class="px-4 py-3 text-xs">${formatEye(h.od)}</td><td class="px-4 py-3 text-xs">${formatEye(h.os)}</td>`;
             tbody.appendChild(row);
         });
-
         historyModal.classList.remove('hidden');
     };
 
-    // --- REGISTRATION LOGIC ---
-    
-    // Funzione helper per convertire immagine in Base64
     const convertBase64 = (file) => {
         return new Promise((resolve, reject) => {
             const fileReader = new FileReader();
@@ -1240,89 +1142,50 @@
         const piva = document.getElementById('reg-piva').value;
         const address = document.getElementById('reg-address').value;
         const phone = document.getElementById('reg-phone').value;
-        const logoFile = document.getElementById('reg-logo').files[0]; // File Logo
-
+        const logoFile = document.getElementById('reg-logo').files[0]; 
         const errBox = document.getElementById('reg-error');
         const successBox = document.getElementById('reg-success');
         const confirmBtn = document.getElementById('btn-confirm-register');
-
-        if(!email || !pass || !storeName) {
-            errBox.innerText = "Compila almeno Email, Password e Nome Negozio.";
-            errBox.classList.remove('hidden'); return;
-        }
-        if(pass.length < 6) {
-            errBox.innerText = "La password deve essere di almeno 6 caratteri.";
-            errBox.classList.remove('hidden'); return;
-        }
-        
+        if(!email || !pass || !storeName) { errBox.innerText = "Compila almeno Email, Password e Nome Negozio."; errBox.classList.remove('hidden'); return; }
+        if(pass.length < 6) { errBox.innerText = "La password deve essere di almeno 6 caratteri."; errBox.classList.remove('hidden'); return; }
         let base64Logo = "";
         if (logoFile) {
-            if (logoFile.size > 500 * 1024) { // Limit 500KB
-                errBox.innerText = "L'immagine è troppo grande (Max 500KB).";
-                errBox.classList.remove('hidden'); return;
-            }
-            try {
-                base64Logo = await convertBase64(logoFile);
-            } catch (error) {
-                errBox.innerText = "Errore lettura file immagine.";
-                errBox.classList.remove('hidden'); return;
-            }
+            if (logoFile.size > 500 * 1024) { errBox.innerText = "L'immagine è troppo grande (Max 500KB)."; errBox.classList.remove('hidden'); return; }
+            try { base64Logo = await convertBase64(logoFile); } catch (error) { errBox.innerText = "Errore lettura file immagine."; errBox.classList.remove('hidden'); return; }
         }
-
         errBox.classList.add('hidden');
         confirmBtn.innerText = "Elaborazione...";
         confirmBtn.disabled = true;
-
         let secondaryApp = null;
         try {
             secondaryApp = initializeApp(firebaseConfig, "SecondaryApp");
             const secondaryAuth = getAuth(secondaryApp);
             const userCred = await createUserWithEmailAndPassword(secondaryAuth, email, pass);
             const newUid = userCred.user.uid;
-
             await setDoc(doc(db, 'opticians_registry', newUid), {
-                uid: newUid, 
-                email: email, 
-                store_name: storeName, 
-                piva: piva, 
-                address: address, 
-                phone: phone, 
-                logo_base64: base64Logo, // Salvataggio logo
-                created_at: new Date()
+                uid: newUid, email: email, store_name: storeName, piva: piva, address: address, phone: phone, logo_base64: base64Logo, created_at: new Date()
             });
-
             document.getElementById('generated-uid').innerText = newUid;
             successBox.classList.remove('hidden');
             confirmBtn.classList.add('hidden');
             opticiansMap[newUid] = storeName; 
-
         } catch (error) {
             console.error("Creation error:", error);
             let msg = error.message;
             if(error.code === 'auth/email-already-in-use') msg = "Email già registrata.";
-            errBox.innerText = msg;
-            errBox.classList.remove('hidden');
-            confirmBtn.innerText = "Crea Partner";
-            confirmBtn.disabled = false;
+            errBox.innerText = msg; errBox.classList.remove('hidden'); confirmBtn.innerText = "Crea Partner"; confirmBtn.disabled = false;
         } finally {
             if (secondaryApp) deleteApp(secondaryApp); 
         }
     });
     
-    // --- CATALOG LOGIC ---
     async function loadMasterCatalog() {
         const docRef = doc(db, "catalogs", "master");
         try {
             const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                globalCatalogData = docSnap.data().data || {};
-            } else {
-                globalCatalogData = defaultLensData;
-                await saveMasterCatalog(true); 
-            }
-        } catch (e) {
-            globalCatalogData = defaultLensData;
-        }
+            if (docSnap.exists()) { globalCatalogData = docSnap.data().data || {}; } 
+            else { globalCatalogData = defaultLensData; await saveMasterCatalog(true); }
+        } catch (e) { globalCatalogData = defaultLensData; }
         renderCatalogUI();
     }
 
@@ -1332,12 +1195,8 @@
         try {
             await setDoc(doc(db, "catalogs", "master"), { data: globalCatalogData });
             if(!silent) alert("Catalogo aggiornato!");
-        } catch(e) {
-            alert("Errore salvataggio: " + e.message);
-        } finally {
-            if(!silent) { btn.innerText = "Salva Modifiche Globali"; btn.disabled = false; }
-            renderCatalogUI();
-        }
+        } catch(e) { alert("Errore salvataggio: " + e.message); } 
+        finally { if(!silent) { btn.innerText = "Salva Modifiche Globali"; btn.disabled = false; } renderCatalogUI(); }
     };
 
     function renderCatalogUI() {
@@ -1348,7 +1207,7 @@
         let ops = '<option value="">Seleziona...</option>';
         Object.keys(globalCatalogData).sort().forEach(m => ops += `<option value="${m}">${m}</option>`);
         manufSelectModel.innerHTML = ops; manufSelectType.innerHTML = ops;
-
+        const escapeStr = (str) => str.replace(/'/g, "\\'");
         for (const manufacturer in globalCatalogData) {
             let modelsHtml = '';
             for (const model in globalCatalogData[manufacturer]) {
@@ -1357,21 +1216,20 @@
                     <div class="ml-2 mt-2 border-l-2 border-gray-200 pl-2">
                         <div class="flex justify-between text-sm font-medium text-gray-700">
                             <span>${model}</span>
-                            <button class="text-red-400 hover:text-red-600 text-xs" onclick="deleteItem('${manufacturer}', '${model}')">&times; Modello</button>
+                            <button class="text-red-400 hover:text-red-600 text-xs" onclick="deleteItem('${escapeStr(manufacturer)}', '${escapeStr(model)}')">&times; Modello</button>
                         </div>
                         <div class="flex flex-wrap gap-1 mt-1">
-                            ${types.map(t => `<span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded border border-blue-100 flex items-center gap-1">${t} <span class="cursor-pointer font-bold hover:text-red-500" onclick="deleteItem('${manufacturer}', '${model}', '${t}')">&times;</span></span>`).join('')}
+                            ${types.map(t => `<span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded border border-blue-100 flex items-center gap-1">${t} <span class="cursor-pointer font-bold hover:text-red-500" onclick="deleteItem('${escapeStr(manufacturer)}', '${escapeStr(model)}', '${escapeStr(t)}')">&times;</span></span>`).join('')}
                         </div>
                     </div>
                 `;
             }
-            
             const card = document.createElement('div');
             card.className = "bg-white border border-gray-200 rounded-lg p-4 shadow-sm";
             card.innerHTML = `
                 <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
                     <h4 class="font-bold text-indigo-700">${manufacturer}</h4>
-                    <button class="text-red-400 hover:text-red-600 text-xs" onclick="deleteItem('${manufacturer}')">Elimina</button>
+                    <button class="text-red-400 hover:text-red-600 text-xs" onclick="deleteItem('${escapeStr(manufacturer)}')">Elimina</button>
                 </div>
                 ${modelsHtml}
             `;
