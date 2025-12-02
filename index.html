@@ -176,10 +176,11 @@
           <div><label for="lens-type-od" class="block text-sm font-medium text-gray-700">Tipo Correzione</label><select id="lens-type-od" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50" disabled><option value="">-- Seleziona Tipo --</option></select></div>
           <div id="prescription-fields-od" class="space-y-3 mt-3 pl-2 border-l-2 border-blue-200 opacity-75">
             <div id="params-info-od" class="text-xs text-gray-500 italic hidden">Nessun parametro aggiuntivo richiesto.</div>
-            <div id="params-pwr-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Potere (Diottria)</label><input type="text" id="param-pwr-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50" readonly></div>
-            <div id="params-cyl-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Cilindro (CYL)</label><input type="text" id="param-cyl-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50" readonly></div>
-            <div id="params-axis-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Asse (AXIS)</label><input type="text" id="param-axis-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50" readonly></div>
-            <div id="params-add-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Addizione (ADD)</label><input type="text" id="param-add-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50" readonly></div>
+            <!-- RIMOSSO READONLY DAI CAMPI QUI SOTTO -->
+            <div id="params-pwr-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Potere (Diottria)</label><input type="text" id="param-pwr-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
+            <div id="params-cyl-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Cilindro (CYL)</label><input type="text" id="param-cyl-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
+            <div id="params-axis-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Asse (AXIS)</label><input type="text" id="param-axis-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
+            <div id="params-add-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Addizione (ADD)</label><input type="text" id="param-add-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
           </div>
       </div>
       
@@ -193,10 +194,11 @@
           <div><label for="lens-type-os" class="block text-sm font-medium text-gray-700">Tipo Correzione</label><select id="lens-type-os" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50" disabled><option value="">-- Seleziona Tipo --</option></select></div>
           <div id="prescription-fields-os" class="space-y-3 mt-3 pl-2 border-l-2 border-blue-200 opacity-75">
             <div id="params-info-os" class="text-xs text-gray-500 italic hidden">Nessun parametro aggiuntivo richiesto.</div>
-            <div id="params-pwr-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Potere (Diottria)</label><input type="text" id="param-pwr-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50" readonly></div>
-            <div id="params-cyl-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Cilindro (CYL)</label><input type="text" id="param-cyl-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50" readonly></div>
-            <div id="params-axis-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Asse (AXIS)</label><input type="text" id="param-axis-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50" readonly></div>
-            <div id="params-add-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Addizione (ADD)</label><input type="text" id="param-add-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50" readonly></div>
+            <!-- RIMOSSO READONLY DAI CAMPI QUI SOTTO -->
+            <div id="params-pwr-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Potere (Diottria)</label><input type="text" id="param-pwr-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
+            <div id="params-cyl-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Cilindro (CYL)</label><input type="text" id="param-cyl-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
+            <div id="params-axis-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Asse (AXIS)</label><input type="text" id="param-axis-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
+            <div id="params-add-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Addizione (ADD)</label><input type="text" id="param-add-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
           </div>
       </div>
     </div>
@@ -660,6 +662,10 @@
             // FIX: Force update visibility after setting values
             updateParameterFields('od');
             updateParameterFields('os');
+            
+            // FIX: Unlock Type Selects for editing
+            typeSelect_OD.disabled = false;
+            typeSelect_OS.disabled = false;
           }
         } else {
             if (!localStorage.getItem(KEY_NAME) && !localStorage.getItem(KEY_OPTICIAN_ID)) {
@@ -693,8 +699,12 @@
                 await loadLensData(savedOpticianId);
                 populateManufacturers();
                 manufacturerSelect.value = localStorage.getItem(KEY_LENS_MANUFACTURER);
+                manufacturerSelect.disabled = true; // Lock Manufacturer
+                
                 populateModels();
                 modelSelect.value = localStorage.getItem(KEY_LENS_MODEL);
+                modelSelect.disabled = true; // Lock Model
+                
                 populateTypes();
                 typeSelect_OD.value = localStorage.getItem(KEY_LENS_TYPE_OD);
                 typeSelect_OS.value = localStorage.getItem(KEY_LENS_TYPE_OS);
@@ -702,6 +712,10 @@
                 // FIX: Force update visibility after setting values from storage
                 updateParameterFields('od');
                 updateParameterFields('os');
+                
+                // FIX: Unlock Type Selects for editing
+                typeSelect_OD.disabled = false;
+                typeSelect_OS.disabled = false;
             }
         }
         toggleAddressField(); 
