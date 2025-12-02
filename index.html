@@ -16,7 +16,14 @@
     .whitespace-pre-wrap { white-space: pre-wrap; }
     #send-order-button:active img { transform: scale(0.95); }
     #send-order-button img { transition: transform 0.1s ease-out; }
-    select:disabled { background-color: #f3f4f6; opacity: 1; color: #4b5563; cursor: not-allowed; }
+    
+    /* Input disabilitati: sfondo grigio chiaro, testo scuro */
+    input:disabled, select:disabled { 
+        background-color: #f3f4f6; 
+        color: #6b7280; 
+        cursor: not-allowed; 
+        border-color: #e5e7eb;
+    }
 
     /* Toggle switch */
     .toggle-switch { position: relative; display: inline-block; width: 60px; height: 34px; }
@@ -77,7 +84,7 @@
     </div>
     
     <div class="flex border-b border-gray-200 mb-6">
-        <button id="tab-btn-patient" class="flex-1 py-2 px-1 text-center text-sm tab-active">Dati Paziente</button>
+        <button id="tab-btn-patient" class="flex-1 py-2 px-1 text-center text-sm tab-active">Dati Cliente</button>
         <button id="tab-btn-lenses" class="flex-1 py-2 px-1 text-center text-sm tab-inactive">La tua Lente</button>
         <button id="tab-btn-payment" class="flex-1 py-2 px-1 text-center text-sm tab-inactive">Pagamento</button>
     </div>
@@ -86,21 +93,21 @@
       <h2 class="text-lg font-semibold text-gray-700 pb-2">Informazioni Personali</h2>
       <div>
           <label for="patient-name" class="block text-sm font-medium text-gray-700">Nome e Cognome</label>
-          <input type="text" id="patient-name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed" readonly>
+          <input type="text" id="patient-name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled>
       </div>
       <div class="grid grid-cols-2 gap-4">
           <div>
               <label for="patient-phone" class="block text-sm font-medium text-gray-700">Telefono</label>
-              <input type="tel" id="patient-phone" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed" readonly>
+              <input type="tel" id="patient-phone" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled>
           </div>
           <div>
               <label for="patient-email" class="block text-sm font-medium text-gray-700">Email</label>
-              <input type="email" id="patient-email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 cursor-not-allowed" readonly>
+              <input type="email" id="patient-email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled>
           </div>
       </div>
       <div>
           <label for="patient-cf" class="block text-sm font-medium text-gray-700">Codice Fiscale</label>
-          <input type="text" id="patient-cf" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm uppercase bg-gray-50 text-gray-500 cursor-not-allowed" readonly>
+          <input type="text" id="patient-cf" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm uppercase" disabled>
       </div>
       <div class="hidden">
         <label for="optician-id" class="block text-sm font-medium text-gray-700">Codice Ottico</label>
@@ -645,10 +652,14 @@
             populateTypes();
             typeSelect_OD.value = fromQrData.tod; 
             typeSelect_OD.disabled = true;
-            pwrInput_OD.value = fromQrData.pod; cylInput_OD.value = fromQrData.cod; axisInput_OD.value = fromQrData.aod; addInput_OD.value = fromQrData.addod; updateParameterFields('od');
+            pwrInput_OD.value = fromQrData.pod; cylInput_OD.value = fromQrData.cod; axisInput_OD.value = fromQrData.aod; addInput_OD.value = fromQrData.addod; 
             typeSelect_OS.value = fromQrData.tos; 
             typeSelect_OS.disabled = true; 
-            pwrInput_OS.value = fromQrData.pos; cylInput_OS.value = fromQrData.cos; axisInput_OS.value = fromQrData.aos; addInput_OS.value = fromQrData.addos; updateParameterFields('os');
+            pwrInput_OS.value = fromQrData.pos; cylInput_OS.value = fromQrData.cos; axisInput_OS.value = fromQrData.aos; addInput_OS.value = fromQrData.addos; 
+            
+            // FIX: Force update visibility after setting values
+            updateParameterFields('od');
+            updateParameterFields('os');
           }
         } else {
             if (!localStorage.getItem(KEY_NAME) && !localStorage.getItem(KEY_OPTICIAN_ID)) {
@@ -659,6 +670,13 @@
             phoneInput.value = localStorage.getItem(KEY_PHONE) || '';
             emailInput.value = localStorage.getItem(KEY_EMAIL) || '';
             cfInput.value = localStorage.getItem(KEY_CF) || '';
+            
+            // FIX: Disable personal data fields when loaded from storage
+            nameInput.disabled = true;
+            phoneInput.disabled = true;
+            emailInput.disabled = true;
+            cfInput.disabled = true;
+
             const savedDeliveryOption = localStorage.getItem(KEY_DELIVERY_OPTION) || 'pickup';
             deliveryToggle.checked = (savedDeliveryOption === 'delivery'); 
             addrStreetInput.value = localStorage.getItem(KEY_ADDR_STREET) || '';
@@ -680,6 +698,10 @@
                 populateTypes();
                 typeSelect_OD.value = localStorage.getItem(KEY_LENS_TYPE_OD);
                 typeSelect_OS.value = localStorage.getItem(KEY_LENS_TYPE_OS);
+                
+                // FIX: Force update visibility after setting values from storage
+                updateParameterFields('od');
+                updateParameterFields('os');
             }
         }
         toggleAddressField(); 
@@ -811,11 +833,29 @@
           actionLoader.classList.add('hidden'); 
           actionMessage.innerHTML = 'Il tuo ordine è stato inviato.<br>Riceverai una notifica quando sarà pronto!'; 
           actionMessage.classList.remove('hidden'); 
+          
+          // FIX: Chiusura App dopo 3 secondi
           setTimeout(() => { 
-            actionTitle.innerText = "Un'offerta per te!"; 
+            actionTitle.innerText = "A presto!"; 
             actionMessage.classList.add('hidden'); 
-            offerContainer.classList.remove('hidden'); 
-          }, 4000); 
+            offerContainer.classList.remove('hidden');
+            
+            // Tentativo di chiusura
+            window.close();
+            
+            // Fallback visivo se window.close() viene bloccato dal browser
+            document.body.innerHTML = `
+                <div class="fixed inset-0 bg-white flex flex-col items-center justify-center p-8 text-center">
+                    <div class="bg-green-100 p-4 rounded-full inline-block mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-2">Ordine Inviato!</h1>
+                    <p class="text-gray-600">Puoi chiudere questa pagina.</p>
+                </div>
+            `;
+          }, 3000); 
         } catch (e) { 
           actionTitle.innerText = 'Errore Invio'; 
           actionLoader.classList.add('hidden'); 
