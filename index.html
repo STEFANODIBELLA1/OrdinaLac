@@ -17,12 +17,19 @@
     #send-order-button:active img { transform: scale(0.95); }
     #send-order-button img { transition: transform 0.1s ease-out; }
     
-    /* Input disabilitati: sfondo grigio chiaro, testo scuro */
-    input:disabled, select:disabled { 
+    /* Input disabilitati o readonly: sfondo grigio chiaro */
+    input:disabled, select:disabled, input[readonly] { 
         background-color: #f3f4f6; 
         color: #6b7280; 
         cursor: not-allowed; 
         border-color: #e5e7eb;
+    }
+    
+    /* Input modificabili: sfondo bianco */
+    input:not(:disabled):not([readonly]) {
+        background-color: #ffffff;
+        color: #111827;
+        border-color: #d1d5db;
     }
 
     /* Toggle switch */
@@ -108,30 +115,33 @@
     
     <div id="tab-content-patient" class="space-y-4 flex-1 pb-10">
       <h2 class="text-lg font-semibold text-gray-700 pb-2">Informazioni Personali</h2>
+      <!-- CAMPI MODIFICABILI (NO READONLY) -->
       <div>
           <label for="patient-name" class="block text-sm font-medium text-gray-700">Nome e Cognome</label>
-          <input type="text" id="patient-name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled>
+          <input type="text" id="patient-name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
       </div>
       <div class="grid grid-cols-2 gap-4">
           <div>
               <label for="patient-phone" class="block text-sm font-medium text-gray-700">Telefono</label>
-              <input type="tel" id="patient-phone" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled>
+              <input type="tel" id="patient-phone" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
           </div>
           <div>
               <label for="patient-email" class="block text-sm font-medium text-gray-700">Email</label>
-              <input type="email" id="patient-email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" disabled>
+              <input type="email" id="patient-email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
           </div>
       </div>
       <div>
           <label for="patient-cf" class="block text-sm font-medium text-gray-700">Codice Fiscale</label>
-          <input type="text" id="patient-cf" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm uppercase" disabled>
+          <input type="text" id="patient-cf" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm uppercase focus:ring-blue-500 focus:border-blue-500">
       </div>
+      
       <div class="hidden">
         <label for="optician-id" class="block text-sm font-medium text-gray-700">Codice Ottico</label>
         <input type="text" id="optician-id" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
         <p id="lenses-loading-message" class="text-sm text-indigo-600 mt-1 hidden">Caricamento lenti...</p>
         <p id="lenses-error-message" class="text-sm text-red-600 mt-1 hidden">Codice ottico non valido.</p>
       </div>
+      
       <div id="address-container" class="hidden bg-gray-50 p-4 rounded-md border border-gray-200 space-y-3">
         <h2 class="text-sm font-semibold text-gray-700 border-b pb-1">Indirizzo di Consegna</h2>
         <div class="flex space-x-2">
@@ -159,13 +169,17 @@
             </div>
         </div>
       </div>
+      
+      <!-- PRIVACY AGGIORNATA -->
       <div class="flex items-start mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200 shadow-sm">
         <div class="flex items-center h-5">
           <input id="privacy-check" type="checkbox" class="focus:ring-blue-500 h-5 w-5 text-blue-600 border-gray-300 rounded cursor-pointer">
         </div>
         <div class="ml-3 text-sm">
-          <label for="privacy-check" class="font-bold text-gray-800 cursor-pointer">Accetto la Privacy Policy</label>
-          <p class="text-gray-600 text-xs mt-1">Autorizzo l'invio dei miei dati all'ottico per la gestione dell'ordine.</p>
+          <label for="privacy-check" class="font-bold text-gray-800 cursor-pointer">Consenso Privacy (GDPR)</label>
+          <p class="text-gray-600 text-xs mt-1 text-justify">
+            Dichiaro di aver preso visione dell'informativa privacy ai sensi del Regolamento UE 2016/679. Acconsento al trattamento dei miei dati personali (inclusi i dati optometrici) per la gestione dell'ordine, la fatturazione e le comunicazioni di servizio con l'Ottico e i partner logistici.
+          </p>
         </div>
       </div>
     </div>
@@ -193,13 +207,14 @@
               <input type="number" id="qty-od" value="1" class="mt-1 block w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm text-center">
               <span class="text-sm text-gray-700 pt-1">pz.</span>
           </div>
+          <!-- TIPO E PARAMETRI BLOCCATI (READONLY/DISABLED) -->
           <div><label for="lens-type-od" class="block text-sm font-medium text-gray-700">Tipo Correzione</label><select id="lens-type-od" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50" disabled><option value="">-- Seleziona Tipo --</option></select></div>
           <div id="prescription-fields-od" class="space-y-3 mt-3 pl-2 border-l-2 border-blue-200 opacity-75">
             <div id="params-info-od" class="text-xs text-gray-500 italic hidden">Nessun parametro aggiuntivo richiesto.</div>
-            <div id="params-pwr-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Potere (Diottria)</label><input type="text" id="param-pwr-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
-            <div id="params-cyl-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Cilindro (CYL)</label><input type="text" id="param-cyl-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
-            <div id="params-axis-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Asse (AXIS)</label><input type="text" id="param-axis-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
-            <div id="params-add-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Addizione (ADD)</label><input type="text" id="param-add-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
+            <div id="params-pwr-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Potere (Diottria)</label><input type="text" id="param-pwr-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50" readonly></div>
+            <div id="params-cyl-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Cilindro (CYL)</label><input type="text" id="param-cyl-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50" readonly></div>
+            <div id="params-axis-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Asse (AXIS)</label><input type="text" id="param-axis-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50" readonly></div>
+            <div id="params-add-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Addizione (ADD)</label><input type="text" id="param-add-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50" readonly></div>
           </div>
       </div>
       
@@ -210,13 +225,14 @@
               <input type="number" id="qty-os" value="1" class="mt-1 block w-20 px-3 py-2 border border-gray-300 rounded-md shadow-sm text-center">
               <span class="text-sm text-gray-700 pt-1">pz.</span>
           </div>
+          <!-- TIPO E PARAMETRI BLOCCATI (READONLY/DISABLED) -->
           <div><label for="lens-type-os" class="block text-sm font-medium text-gray-700">Tipo Correzione</label><select id="lens-type-os" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50" disabled><option value="">-- Seleziona Tipo --</option></select></div>
           <div id="prescription-fields-os" class="space-y-3 mt-3 pl-2 border-l-2 border-blue-200 opacity-75">
             <div id="params-info-os" class="text-xs text-gray-500 italic hidden">Nessun parametro aggiuntivo richiesto.</div>
-            <div id="params-pwr-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Potere (Diottria)</label><input type="text" id="param-pwr-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
-            <div id="params-cyl-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Cilindro (CYL)</label><input type="text" id="param-cyl-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
-            <div id="params-axis-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Asse (AXIS)</label><input type="text" id="param-axis-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
-            <div id="params-add-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Addizione (ADD)</label><input type="text" id="param-add-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
+            <div id="params-pwr-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Potere (Diottria)</label><input type="text" id="param-pwr-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50" readonly></div>
+            <div id="params-cyl-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Cilindro (CYL)</label><input type="text" id="param-cyl-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50" readonly></div>
+            <div id="params-axis-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Asse (AXIS)</label><input type="text" id="param-axis-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50" readonly></div>
+            <div id="params-add-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Addizione (ADD)</label><input type="text" id="param-add-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50" readonly></div>
           </div>
       </div>
     </div>
@@ -681,8 +697,6 @@
             
             updateParameterFields('od');
             updateParameterFields('os');
-            typeSelect_OD.disabled = false;
-            typeSelect_OS.disabled = false;
           }
         } else {
             if (!localStorage.getItem(KEY_NAME) && !localStorage.getItem(KEY_OPTICIAN_ID)) {
@@ -694,10 +708,11 @@
             emailInput.value = localStorage.getItem(KEY_EMAIL) || '';
             cfInput.value = localStorage.getItem(KEY_CF) || '';
             
-            nameInput.disabled = true;
-            phoneInput.disabled = true;
-            emailInput.disabled = true;
-            cfInput.disabled = true;
+            // FIX: Ensure fields are NOT disabled when loading from storage
+            nameInput.disabled = false;
+            phoneInput.disabled = false;
+            emailInput.disabled = false;
+            cfInput.disabled = false;
 
             const savedDeliveryOption = localStorage.getItem(KEY_DELIVERY_OPTION) || 'pickup';
             deliveryToggle.checked = (savedDeliveryOption === 'delivery'); 
@@ -728,8 +743,9 @@
                 updateParameterFields('od');
                 updateParameterFields('os');
                 
-                typeSelect_OD.disabled = false;
-                typeSelect_OS.disabled = false;
+                // FIX: Keep lens types disabled as per request
+                typeSelect_OD.disabled = true;
+                typeSelect_OS.disabled = true;
             }
         }
         toggleAddressField(); 
@@ -798,19 +814,30 @@
       async function runOrder() { 
         const deliveryOption = deliveryToggle.checked ? 'delivery' : 'pickup';
         const addressValue = localStorage.getItem(KEY_ADDRESS);
-        const cleanPhone = (localStorage.getItem(KEY_PHONE) || '').replace(/[\s\-\(\)]/g, '');
-        const cleanCf = (localStorage.getItem(KEY_CF) || '').toUpperCase();
+        
+        // FIX: Read personal info directly from DOM inputs to capture edits
+        const currentName = document.getElementById('patient-name').value.trim();
+        const currentPhone = document.getElementById('patient-phone').value.trim();
+        const currentEmail = document.getElementById('patient-email').value.trim();
+        const currentCF = document.getElementById('patient-cf').value.trim().toUpperCase();
+
+        const cleanPhone = currentPhone.replace(/[\s\-\(\)]/g, '');
 
         const finalQtyOD = document.getElementById('quick-qty-od').value || '1';
         const finalQtyOS = document.getElementById('quick-qty-os').value || '1';
 
         const fullOrderData = {
-            patient_name: localStorage.getItem(KEY_NAME),
+            patient_name: currentName, // Use updated name
             optician_id: localStorage.getItem(KEY_OPTICIAN_ID),
             message: localStorage.getItem(KEY_MESSAGE),
             status: 'new',
             timestamp: serverTimestamp(),
-            client_info: { phone: cleanPhone, email: localStorage.getItem(KEY_EMAIL), cf: cleanCf, privacy_accepted: true },
+            client_info: { 
+                phone: cleanPhone, 
+                email: currentEmail, // Use updated email
+                cf: currentCF, // Use updated CF
+                privacy_accepted: true 
+            },
             delivery: {
                 mode: deliveryOption,
                 address_full: addressValue,
@@ -853,6 +880,13 @@
         try { 
           const ordersCollectionPath = `artifacts/${appId}/public/data/orders`; 
           await addDoc(collection(db, ordersCollectionPath), fullOrderData); 
+          
+          // Also update localStorage with the new personal info so it persists
+          localStorage.setItem(KEY_NAME, currentName);
+          localStorage.setItem(KEY_PHONE, currentPhone);
+          localStorage.setItem(KEY_EMAIL, currentEmail);
+          localStorage.setItem(KEY_CF, currentCF);
+
           localStorage.setItem(KEY_QTY_OD, '1'); localStorage.setItem(KEY_QTY_OS, '1');
           qtyInput_OD.value = '1'; qtyInput_OS.value = '1';
           quickQtyInput_OD.value = '1'; quickQtyInput_OS.value = '1';
@@ -935,7 +969,6 @@
           tapCounter++;
           if (tapTimer) clearTimeout(tapTimer);
           
-          // Reset counter after 2 seconds of inactivity
           tapTimer = setTimeout(() => { tapCounter = 0; }, 2000);
 
           if (tapCounter === 5) {
@@ -951,10 +984,8 @@
           
           if (!opticianId) return;
 
-          // Mostra modale di attesa
           remoteUpdateModal.classList.remove('hidden');
           
-          // Dati attuali
           const currentData = {
               manufacturer: localStorage.getItem(KEY_LENS_MANUFACTURER),
               model: localStorage.getItem(KEY_LENS_MODEL),
@@ -975,7 +1006,6 @@
           };
 
           try {
-              // Crea richiesta su Firestore
               const docRef = await addDoc(collection(db, "change_requests"), {
                   optician_id: opticianId,
                   client_name: clientName,
@@ -985,7 +1015,6 @@
                   timestamp: serverTimestamp()
               });
 
-              // Ascolta la risposta
               waitForRemoteUpdate(docRef.id);
 
           } catch (e) {
@@ -999,7 +1028,6 @@
               if (docSnap.exists()) {
                   const data = docSnap.data();
                   if (data.status === 'completed' && data.new_data) {
-                      // Aggiorna LocalStorage con i nuovi dati
                       const newData = data.new_data;
                       
                       localStorage.setItem(KEY_LENS_MANUFACTURER, newData.manufacturer);
@@ -1017,10 +1045,8 @@
                       document.getElementById('param-axis-os').value = newData.os.axis;
                       document.getElementById('param-add-os').value = newData.os.add;
 
-                      // Ricarica UI
                       loadSettings();
                       
-                      // Chiudi modale e pulisci listener
                       remoteUpdateModal.classList.add('hidden');
                       unsub();
                       alert("Configurazione aggiornata dall'ottico!");
