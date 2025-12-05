@@ -43,6 +43,13 @@
     .tab-inactive { color: #6b7280; border-bottom: 2px solid transparent; }
     .tab-inactive:hover { color: #374151; border-bottom: 2px solid #e5e7eb; }
     .modal-overlay { background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); }
+    
+    /* Animazione Pulse per richiesta inviata */
+    @keyframes pulse-blue {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+      50% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+    }
+    .pulse-active { animation: pulse-blue 2s infinite; }
   </style>
 </head>
 
@@ -71,6 +78,16 @@
             <p><strong>Su Android (Chrome):</strong> Clicca i tre puntini (⋮) in alto a destra e poi "Installa app".</p>
         </div>
         <button id="close-install-prompt" class="mt-6 w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow-lg font-semibold hover:bg-blue-700">Ho capito</button>
+    </div>
+</div>
+
+<!-- MODALE ATTESA AGGIORNAMENTO REMOTO -->
+<div id="remote-update-modal" class="fixed inset-0 bg-black bg-opacity-80 flex flex-col items-center justify-center p-6 hidden z-[60] backdrop-blur-sm text-center">
+    <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-sm w-full">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <h3 class="text-xl font-bold text-gray-800 mb-2">Richiesta Inviata</h3>
+        <p class="text-gray-600 text-sm mb-4">L'ottico ha ricevuto la tua richiesta di modifica. Attendi che aggiorni i tuoi dati...</p>
+        <p class="text-xs text-gray-400">Non chiudere questa schermata.</p>
     </div>
 </div>
 
@@ -155,9 +172,12 @@
 
     <div id="tab-content-lenses" class="space-y-4 hidden flex-1 pb-10">
       <h2 class="text-lg font-semibold text-gray-700 pb-2">Configurazione Lenti</h2>
-      <div class="bg-green-50 border border-green-200 p-3 rounded mb-2" id="locked-config-msg">
+      
+      <!-- TRIGGER SEGRETO: 5 TOCCHI QUI -->
+      <div class="bg-green-50 border border-green-200 p-3 rounded mb-2 cursor-pointer select-none active:bg-green-100 transition" id="locked-config-msg">
           <p class="text-xs text-green-800 font-bold">✔ Configurazione caricata dal tuo Ottico.</p>
       </div>
+
       <div>
         <label for="lens-manufacturer" class="block text-sm font-medium text-gray-700">Produttore</label>
         <select id="lens-manufacturer" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50" disabled>
@@ -176,7 +196,6 @@
           <div><label for="lens-type-od" class="block text-sm font-medium text-gray-700">Tipo Correzione</label><select id="lens-type-od" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50" disabled><option value="">-- Seleziona Tipo --</option></select></div>
           <div id="prescription-fields-od" class="space-y-3 mt-3 pl-2 border-l-2 border-blue-200 opacity-75">
             <div id="params-info-od" class="text-xs text-gray-500 italic hidden">Nessun parametro aggiuntivo richiesto.</div>
-            <!-- RIMOSSO READONLY DAI CAMPI QUI SOTTO -->
             <div id="params-pwr-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Potere (Diottria)</label><input type="text" id="param-pwr-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
             <div id="params-cyl-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Cilindro (CYL)</label><input type="text" id="param-cyl-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
             <div id="params-axis-od" class="hidden"><label class="block text-xs font-medium text-gray-500">Asse (AXIS)</label><input type="text" id="param-axis-od" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
@@ -194,7 +213,6 @@
           <div><label for="lens-type-os" class="block text-sm font-medium text-gray-700">Tipo Correzione</label><select id="lens-type-os" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50" disabled><option value="">-- Seleziona Tipo --</option></select></div>
           <div id="prescription-fields-os" class="space-y-3 mt-3 pl-2 border-l-2 border-blue-200 opacity-75">
             <div id="params-info-os" class="text-xs text-gray-500 italic hidden">Nessun parametro aggiuntivo richiesto.</div>
-            <!-- RIMOSSO READONLY DAI CAMPI QUI SOTTO -->
             <div id="params-pwr-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Potere (Diottria)</label><input type="text" id="param-pwr-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
             <div id="params-cyl-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Cilindro (CYL)</label><input type="text" id="param-cyl-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
             <div id="params-axis-os" class="hidden"><label class="block text-xs font-medium text-gray-500">Asse (AXIS)</label><input type="text" id="param-axis-os" class="mt-1 block w-full px-3 py-1 border border-gray-300 rounded-md bg-gray-50"></div>
@@ -278,7 +296,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, setLogLevel, getDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, setLogLevel, getDoc, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     let globalLensData = null;
 
@@ -403,6 +421,8 @@
       const tabContentPatient = document.getElementById('tab-content-patient');
       const tabContentLenses = document.getElementById('tab-content-lenses');
       const tabContentPayment = document.getElementById('tab-content-payment');
+      const lockedConfigMsg = document.getElementById('locked-config-msg');
+      const remoteUpdateModal = document.getElementById('remote-update-modal');
 
       function switchSettingsTab(tabName) {
         [tabBtnPatient, tabBtnLenses, tabBtnPayment].forEach(btn => {
@@ -659,11 +679,8 @@
             typeSelect_OS.disabled = true; 
             pwrInput_OS.value = fromQrData.pos; cylInput_OS.value = fromQrData.cos; axisInput_OS.value = fromQrData.aos; addInput_OS.value = fromQrData.addos; 
             
-            // FIX: Force update visibility after setting values
             updateParameterFields('od');
             updateParameterFields('os');
-            
-            // FIX: Unlock Type Selects for editing
             typeSelect_OD.disabled = false;
             typeSelect_OS.disabled = false;
           }
@@ -677,7 +694,6 @@
             emailInput.value = localStorage.getItem(KEY_EMAIL) || '';
             cfInput.value = localStorage.getItem(KEY_CF) || '';
             
-            // FIX: Disable personal data fields when loaded from storage
             nameInput.disabled = true;
             phoneInput.disabled = true;
             emailInput.disabled = true;
@@ -699,21 +715,19 @@
                 await loadLensData(savedOpticianId);
                 populateManufacturers();
                 manufacturerSelect.value = localStorage.getItem(KEY_LENS_MANUFACTURER);
-                manufacturerSelect.disabled = true; // Lock Manufacturer
+                manufacturerSelect.disabled = true; 
                 
                 populateModels();
                 modelSelect.value = localStorage.getItem(KEY_LENS_MODEL);
-                modelSelect.disabled = true; // Lock Model
+                modelSelect.disabled = true; 
                 
                 populateTypes();
                 typeSelect_OD.value = localStorage.getItem(KEY_LENS_TYPE_OD);
                 typeSelect_OS.value = localStorage.getItem(KEY_LENS_TYPE_OS);
                 
-                // FIX: Force update visibility after setting values from storage
                 updateParameterFields('od');
                 updateParameterFields('os');
                 
-                // FIX: Unlock Type Selects for editing
                 typeSelect_OD.disabled = false;
                 typeSelect_OS.disabled = false;
             }
@@ -787,7 +801,6 @@
         const cleanPhone = (localStorage.getItem(KEY_PHONE) || '').replace(/[\s\-\(\)]/g, '');
         const cleanCf = (localStorage.getItem(KEY_CF) || '').toUpperCase();
 
-        // FIX: Lettura diretta dal DOM per TUTTI i parametri
         const finalQtyOD = document.getElementById('quick-qty-od').value || '1';
         const finalQtyOS = document.getElementById('quick-qty-os').value || '1';
 
@@ -815,18 +828,18 @@
                 od: {
                     qty: finalQtyOD,
                     type: localStorage.getItem(KEY_LENS_TYPE_OD),
-                    pwr: document.getElementById('param-pwr-od').value, // FIX: Lettura DOM
-                    cyl: document.getElementById('param-cyl-od').value, // FIX: Lettura DOM
-                    axis: document.getElementById('param-axis-od').value, // FIX: Lettura DOM
-                    add: document.getElementById('param-add-od').value    // FIX: Lettura DOM
+                    pwr: document.getElementById('param-pwr-od').value, 
+                    cyl: document.getElementById('param-cyl-od').value, 
+                    axis: document.getElementById('param-axis-od').value, 
+                    add: document.getElementById('param-add-od').value    
                 },
                 os: {
                     qty: finalQtyOS,
                     type: localStorage.getItem(KEY_LENS_TYPE_OS),
-                    pwr: document.getElementById('param-pwr-os').value, // FIX: Lettura DOM
-                    cyl: document.getElementById('param-cyl-os').value, // FIX: Lettura DOM
-                    axis: document.getElementById('param-axis-os').value, // FIX: Lettura DOM
-                    add: document.getElementById('param-add-os').value    // FIX: Lettura DOM
+                    pwr: document.getElementById('param-pwr-os').value, 
+                    cyl: document.getElementById('param-cyl-os').value, 
+                    axis: document.getElementById('param-axis-os').value, 
+                    add: document.getElementById('param-add-os').value    
                 }
             }
         };
@@ -848,16 +861,13 @@
           actionMessage.innerHTML = 'Il tuo ordine è stato inviato.<br>Riceverai una notifica quando sarà pronto!'; 
           actionMessage.classList.remove('hidden'); 
           
-          // FIX: Chiusura App dopo 3 secondi
           setTimeout(() => { 
             actionTitle.innerText = "A presto!"; 
             actionMessage.classList.add('hidden'); 
             offerContainer.classList.remove('hidden');
             
-            // Tentativo di chiusura
             window.close();
             
-            // Fallback visivo se window.close() viene bloccato dal browser
             document.body.innerHTML = `
                 <div class="fixed inset-0 bg-white flex flex-col items-center justify-center p-8 text-center">
                     <div class="bg-green-100 p-4 rounded-full inline-block mb-4">
@@ -916,6 +926,108 @@
           installPrompt.classList.add('hidden');
           localStorage.setItem(KEY_HAS_VISITED, 'true');
       };
+
+      // --- LOGICA 5 TOCCHI PER RICHIESTA MODIFICA ---
+      let tapCounter = 0;
+      let tapTimer = null;
+
+      lockedConfigMsg.onclick = () => {
+          tapCounter++;
+          if (tapTimer) clearTimeout(tapTimer);
+          
+          // Reset counter after 2 seconds of inactivity
+          tapTimer = setTimeout(() => { tapCounter = 0; }, 2000);
+
+          if (tapCounter === 5) {
+              tapCounter = 0;
+              sendChangeRequest();
+          }
+      };
+
+      async function sendChangeRequest() {
+          const opticianId = localStorage.getItem(KEY_OPTICIAN_ID);
+          const clientName = localStorage.getItem(KEY_NAME);
+          const clientPhone = localStorage.getItem(KEY_PHONE);
+          
+          if (!opticianId) return;
+
+          // Mostra modale di attesa
+          remoteUpdateModal.classList.remove('hidden');
+          
+          // Dati attuali
+          const currentData = {
+              manufacturer: localStorage.getItem(KEY_LENS_MANUFACTURER),
+              model: localStorage.getItem(KEY_LENS_MODEL),
+              od: {
+                  type: localStorage.getItem(KEY_LENS_TYPE_OD),
+                  pwr: document.getElementById('param-pwr-od').value,
+                  cyl: document.getElementById('param-cyl-od').value,
+                  axis: document.getElementById('param-axis-od').value,
+                  add: document.getElementById('param-add-od').value
+              },
+              os: {
+                  type: localStorage.getItem(KEY_LENS_TYPE_OS),
+                  pwr: document.getElementById('param-pwr-os').value,
+                  cyl: document.getElementById('param-cyl-os').value,
+                  axis: document.getElementById('param-axis-os').value,
+                  add: document.getElementById('param-add-os').value
+              }
+          };
+
+          try {
+              // Crea richiesta su Firestore
+              const docRef = await addDoc(collection(db, "change_requests"), {
+                  optician_id: opticianId,
+                  client_name: clientName,
+                  client_phone: clientPhone,
+                  current_data: currentData,
+                  status: 'pending',
+                  timestamp: serverTimestamp()
+              });
+
+              // Ascolta la risposta
+              waitForRemoteUpdate(docRef.id);
+
+          } catch (e) {
+              alert("Errore invio richiesta: " + e.message);
+              remoteUpdateModal.classList.add('hidden');
+          }
+      }
+
+      function waitForRemoteUpdate(requestId) {
+          const unsub = onSnapshot(doc(db, "change_requests", requestId), (docSnap) => {
+              if (docSnap.exists()) {
+                  const data = docSnap.data();
+                  if (data.status === 'completed' && data.new_data) {
+                      // Aggiorna LocalStorage con i nuovi dati
+                      const newData = data.new_data;
+                      
+                      localStorage.setItem(KEY_LENS_MANUFACTURER, newData.manufacturer);
+                      localStorage.setItem(KEY_LENS_MODEL, newData.model);
+                      
+                      localStorage.setItem(KEY_LENS_TYPE_OD, newData.od.type);
+                      document.getElementById('param-pwr-od').value = newData.od.pwr;
+                      document.getElementById('param-cyl-od').value = newData.od.cyl;
+                      document.getElementById('param-axis-od').value = newData.od.axis;
+                      document.getElementById('param-add-od').value = newData.od.add;
+
+                      localStorage.setItem(KEY_LENS_TYPE_OS, newData.os.type);
+                      document.getElementById('param-pwr-os').value = newData.os.pwr;
+                      document.getElementById('param-cyl-os').value = newData.os.cyl;
+                      document.getElementById('param-axis-os').value = newData.os.axis;
+                      document.getElementById('param-add-os').value = newData.os.add;
+
+                      // Ricarica UI
+                      loadSettings();
+                      
+                      // Chiudi modale e pulisci listener
+                      remoteUpdateModal.classList.add('hidden');
+                      unsub();
+                      alert("Configurazione aggiornata dall'ottico!");
+                  }
+              }
+          });
+      }
 
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 

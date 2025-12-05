@@ -518,7 +518,7 @@
   <script type="module">
     import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, getDocs, query, doc, setDoc, updateDoc, getDoc, where, orderBy, deleteDoc, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, doc, setDoc, updateDoc, getDoc, where, orderBy, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDMRWXipp7VCMQiezOZSSZAhSQo8MWVgKs",
@@ -576,8 +576,7 @@
     const ordersTableBody = document.getElementById('orders-table-body');
 
     try {
-        // --- FIX CONFLITTO: INIZIALIZZAZIONE CON NOME SPECIFICO ---
-        app = initializeApp(firebaseConfig, "SupplierApp");
+        app = initializeApp(firebaseConfig);
         auth = getAuth(app);
         db = getFirestore(app);
     } catch(e) { console.error("Firebase init error:", e); }
@@ -771,9 +770,6 @@
         } catch (e) {}
     }
 
-    // --- REAL-TIME LISTENER FOR ORDERS ---
-    let unsubscribeOrders = null;
-
     async function fetchAllData() {
       showLoading(true);
       const startDate = new Date(dateStartInput.value);
@@ -782,30 +778,19 @@
       endDate.setHours(23,59,59,999);
 
       await fetchOpticianRegistry();
-      
       const q = query(collection(db, `artifacts/${appId}/public/data/orders`), where('timestamp', '>=', startDate), where('timestamp', '<=', endDate));
 
-      // Detach previous listener if exists
-      if (unsubscribeOrders) {
-          unsubscribeOrders();
-      }
-
-      // Attach new real-time listener
-      unsubscribeOrders = onSnapshot(q, (snapshot) => {
-          globalOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          globalOrders.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-          
-          processAndRenderMonitor(globalOrders);
-          
-          if(!viewClients.classList.contains('hidden')) renderGlobalClients(globalOrders);
-          
-          showLoading(false);
-      }, (error) => {
-          console.error("Error fetching orders:", error);
-          showLoading(false);
-      });
+      try {
+        const snapshot = await getDocs(q);
+        globalOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        globalOrders.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+        
+        processAndRenderMonitor(globalOrders);
+        
+        if(!viewClients.classList.contains('hidden')) renderGlobalClients(globalOrders);
+        
+      } catch (e) { console.error(e); } finally { showLoading(false); }
     }
-    
     refreshBtn.onclick = fetchAllData;
 
     async function loadOpticiansRegistry() {
@@ -1302,9 +1287,6 @@
         Object.keys(globalCatalogData).sort().forEach(m => ops += `<option value="${m}">${m}</option>`);
         manufSelectModel.innerHTML = ops; manufSelectType.innerHTML = ops;
 
-        // Funzione helper per evitare che gli apostrofi rompano l'HTML
-        const escapeStr = (str) => str.replace(/'/g, "\\'");
-
         for (const manufacturer in globalCatalogData) {
             let modelsHtml = '';
             for (const model in globalCatalogData[manufacturer]) {
@@ -1313,10 +1295,10 @@
                     <div class="ml-2 mt-2 border-l-2 border-gray-200 pl-2">
                         <div class="flex justify-between text-sm font-medium text-gray-700">
                             <span>${model}</span>
-                            <button class="text-red-400 hover:text-red-600 text-xs" onclick="deleteItem('${escapeStr(manufacturer)}', '${escapeStr(model)}')">&times; Modello</button>
+                            <button class="text-red-400 hover:text-red-600 text-xs" onclick="deleteItem('${manufacturer}', '${model}')">&times; Modello</button>
                         </div>
                         <div class="flex flex-wrap gap-1 mt-1">
-                            ${types.map(t => `<span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded border border-blue-100 flex items-center gap-1">${t} <span class="cursor-pointer font-bold hover:text-red-500" onclick="deleteItem('${escapeStr(manufacturer)}', '${escapeStr(model)}', '${escapeStr(t)}')">&times;</span></span>`).join('')}
+                            ${types.map(t => `<span class="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded border border-blue-100 flex items-center gap-1">${t} <span class="cursor-pointer font-bold hover:text-red-500" onclick="deleteItem('${manufacturer}', '${model}', '${t}')">&times;</span></span>`).join('')}
                         </div>
                     </div>
                 `;
@@ -1327,7 +1309,7 @@
             card.innerHTML = `
                 <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
                     <h4 class="font-bold text-indigo-700">${manufacturer}</h4>
-                    <button class="text-red-400 hover:text-red-600 text-xs" onclick="deleteItem('${escapeStr(manufacturer)}')">Elimina</button>
+                    <button class="text-red-400 hover:text-red-600 text-xs" onclick="deleteItem('${manufacturer}')">Elimina</button>
                 </div>
                 ${modelsHtml}
             `;

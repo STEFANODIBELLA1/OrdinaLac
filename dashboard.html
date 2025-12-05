@@ -18,6 +18,23 @@
     .nav-tab:hover:not(.active) { color: #4b5563; border-bottom-color: #d1d5db; }
     .toggle-checkbox:checked { right: 0; border-color: #68D391; }
     .toggle-checkbox:checked + .toggle-label { background-color: #68D391; }
+    
+    /* Badge Notifiche */
+    .notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: #ef4444;
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        font-size: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
   </style>
 </head>
 <body class="bg-gray-100 font-sans text-gray-800">
@@ -62,6 +79,25 @@
             </div>
           </div>
           <div class="flex items-center space-x-4">
+            
+            <!-- NOTIFICHE RICHIESTE -->
+            <div class="relative">
+                <button id="notifications-btn" class="p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none">
+                    <span class="sr-only">View notifications</span>
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    <div id="notif-badge" class="notification-badge hidden">0</div>
+                </button>
+                <!-- Dropdown Notifiche -->
+                <div id="notifications-dropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg py-1 hidden border border-gray-100 z-50 max-h-64 overflow-y-auto">
+                    <div class="px-4 py-2 text-xs font-bold text-gray-500 border-b">Richieste Modifica Dati</div>
+                    <div id="notifications-list">
+                        <p class="text-xs text-gray-400 p-4 text-center">Nessuna richiesta.</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="text-right hidden sm:block">
                 <p class="text-xs text-gray-500">Loggato come</p>
                 <p id="user-email" class="text-sm font-bold text-gray-800"></p>
@@ -132,6 +168,51 @@
   </div>
 
   <!-- MODALI -->
+  
+  <!-- MODALE MODIFICA RICHIESTA (NUOVO) -->
+  <div id="request-edit-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-6 hidden z-50">
+    <div class="bg-white w-full max-w-2xl rounded-xl shadow-2xl relative p-6 border-t-4 border-blue-500 max-h-[90vh] overflow-y-auto">
+        <h3 class="text-xl font-bold text-gray-900 mb-2">Aggiorna Dati Cliente</h3>
+        <p class="text-sm text-gray-600 mb-4">Modifica i parametri e invia l'aggiornamento all'app del cliente.</p>
+        <input type="hidden" id="req-id">
+        
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><label class="text-xs font-bold">Produttore</label><select id="req-manuf" class="w-full border rounded p-1 text-sm"></select></div>
+            <div><label class="text-xs font-bold">Modello</label><select id="req-model" class="w-full border rounded p-1 text-sm" disabled></select></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+            <!-- OD -->
+            <div class="bg-blue-50 p-3 rounded border border-blue-100">
+                <div class="font-bold text-blue-800 text-xs mb-2">OCCHIO DESTRO</div>
+                <select id="req-type-od" class="w-full border rounded p-1 text-sm mb-2"></select>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="req-pwr-od" placeholder="PWR" class="border rounded p-1 text-sm">
+                    <input type="text" id="req-cyl-od" placeholder="CYL" class="border rounded p-1 text-sm">
+                    <input type="text" id="req-axis-od" placeholder="AXIS" class="border rounded p-1 text-sm">
+                    <input type="text" id="req-add-od" placeholder="ADD" class="border rounded p-1 text-sm">
+                </div>
+            </div>
+            <!-- OS -->
+            <div class="bg-green-50 p-3 rounded border border-green-100">
+                <div class="font-bold text-green-800 text-xs mb-2">OCCHIO SINISTRO</div>
+                <select id="req-type-os" class="w-full border rounded p-1 text-sm mb-2"></select>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="req-pwr-os" placeholder="PWR" class="border rounded p-1 text-sm">
+                    <input type="text" id="req-cyl-os" placeholder="CYL" class="border rounded p-1 text-sm">
+                    <input type="text" id="req-axis-os" placeholder="AXIS" class="border rounded p-1 text-sm">
+                    <input type="text" id="req-add-os" placeholder="ADD" class="border rounded p-1 text-sm">
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 flex justify-end gap-3">
+            <button onclick="document.getElementById('request-edit-modal').classList.add('hidden')" class="bg-gray-100 text-gray-700 px-4 py-2 rounded font-bold">Annulla</button>
+            <button id="btn-save-request" class="bg-blue-600 text-white px-4 py-2 rounded font-bold hover:bg-blue-700">Invia Aggiornamento</button>
+        </div>
+    </div>
+  </div>
+
   <div id="supply-modal" class="fixed inset-0 modal-overlay flex items-center justify-center p-6 hidden z-50">
     <div class="bg-white w-full max-w-md rounded-xl shadow-2xl relative p-6 border-t-4 border-indigo-500">
         <h3 class="text-xl font-bold text-gray-900 mb-2">Richiesta Fornitura Lenti</h3>
@@ -331,11 +412,22 @@
     const notificationModalText = document.getElementById('notification-modal-text');
     const userMenuBtn = document.getElementById('user-menu-btn');
     const userMenuDropdown = document.getElementById('user-menu-dropdown');
+    
+    // NOTIFICHE
+    const notificationsBtn = document.getElementById('notifications-btn');
+    const notificationsDropdown = document.getElementById('notifications-dropdown');
+    const notificationsList = document.getElementById('notifications-list');
+    const notifBadge = document.getElementById('notif-badge');
+    const requestEditModal = document.getElementById('request-edit-modal');
 
     if(userMenuBtn && userMenuDropdown) {
         userMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); userMenuDropdown.classList.toggle('hidden'); });
         document.addEventListener('click', (e) => { if (!userMenuDropdown.classList.contains('hidden')) { if (!userMenuDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) { userMenuDropdown.classList.add('hidden'); } } });
     }
+    
+    // Toggle Notifiche
+    notificationsBtn.addEventListener('click', (e) => { e.stopPropagation(); notificationsDropdown.classList.toggle('hidden'); });
+    document.addEventListener('click', (e) => { if (!notificationsDropdown.classList.contains('hidden') && !notificationsDropdown.contains(e.target) && !notificationsBtn.contains(e.target)) { notificationsDropdown.classList.add('hidden'); } });
 
     // --- GESTIONE LOGIN CORRETTA ---
     loginForm.addEventListener('submit', async (e) => {
@@ -350,17 +442,15 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // --- BLOCCO UTENTI ANONIMI ---
-        if (user.isAnonymous) {
-            await signOut(auth);
-            return;
-        }
+        if (user.isAnonymous) { await signOut(auth); return; }
         currentOpticianUid = user.uid;
         loginView.classList.add('hidden'); dashboardView.classList.remove('hidden');
         userEmailDisplay.innerText = user.email; opticianIdCode.innerText = user.uid;
         const end = new Date(); const start = new Date(); start.setDate(end.getDate() - 30);
         dateEndInput.valueAsDate = end; dateStartInput.valueAsDate = start;
-        loadOrders(user.uid); await Promise.all([loadMasterCatalog(), loadMyConfig()]);
+        loadOrders(user.uid); 
+        await Promise.all([loadMasterCatalog(), loadMyConfig()]);
+        listenForRequests(user.uid); // ASCOLTA RICHIESTE
       } else {
         currentOpticianUid = null; loginView.classList.remove('hidden'); dashboardView.classList.add('hidden');
         loginButton.innerText = "Accedi"; loginButton.disabled = false;
@@ -425,7 +515,6 @@
         }
 
         const l = order.lens_order || {};
-        // FIX: Aggiunto AXIS alla visualizzazione
         const getP = (eye) => { 
             if(!eye) return ''; 
             let s = `<b>${eye.type || '-'}</b>`; 
@@ -475,6 +564,127 @@
     }
     searchPatientInput.addEventListener('input', () => renderOrders(allOrdersCache));
 
+    // --- LISTENER RICHIESTE MODIFICA ---
+    function listenForRequests(opticianId) {
+        const q = query(collection(db, "change_requests"), where("optician_id", "==", opticianId), where("status", "==", "pending"));
+        onSnapshot(q, (snapshot) => {
+            const requests = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
+            const count = requests.length;
+            
+            if (count > 0) {
+                notifBadge.innerText = count;
+                notifBadge.classList.remove('hidden');
+                notificationsList.innerHTML = '';
+                requests.forEach(req => {
+                    const div = document.createElement('div');
+                    div.className = "px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100";
+                    div.innerHTML = `
+                        <p class="text-sm font-bold text-gray-800">${req.client_name || 'Cliente'}</p>
+                        <p class="text-xs text-gray-500">Richiesta cambio lenti</p>
+                    `;
+                    div.onclick = () => openRequestModal(req);
+                    notificationsList.appendChild(div);
+                });
+            } else {
+                notifBadge.classList.add('hidden');
+                notificationsList.innerHTML = '<p class="text-xs text-gray-400 p-4 text-center">Nessuna richiesta.</p>';
+            }
+        });
+    }
+
+    // --- MODALE RICHIESTA ---
+    const reqManuf = document.getElementById('req-manuf');
+    const reqModel = document.getElementById('req-model');
+    const reqTypeOD = document.getElementById('req-type-od');
+    const reqTypeOS = document.getElementById('req-type-os');
+
+    function openRequestModal(req) {
+        document.getElementById('req-id').value = req.id;
+        requestEditModal.classList.remove('hidden');
+        notificationsDropdown.classList.add('hidden'); // Chiudi dropdown
+
+        // Popola Produttori (dal catalogo dell'ottico)
+        reqManuf.innerHTML = '<option value="">-- Seleziona --</option>';
+        Object.keys(myLensData).forEach(m => reqManuf.innerHTML += `<option value="${m}">${m}</option>`);
+        
+        // Pre-seleziona valori attuali
+        const cur = req.current_data;
+        if (cur.manufacturer) {
+            reqManuf.value = cur.manufacturer;
+            populateReqModels(cur.manufacturer);
+            reqModel.value = cur.model;
+            populateReqTypes(cur.manufacturer, cur.model);
+            
+            reqTypeOD.value = cur.od.type;
+            reqTypeOS.value = cur.os.type;
+        }
+
+        // Popola parametri
+        document.getElementById('req-pwr-od').value = cur.od.pwr;
+        document.getElementById('req-cyl-od').value = cur.od.cyl;
+        document.getElementById('req-axis-od').value = cur.od.axis;
+        document.getElementById('req-add-od').value = cur.od.add;
+
+        document.getElementById('req-pwr-os').value = cur.os.pwr;
+        document.getElementById('req-cyl-os').value = cur.os.cyl;
+        document.getElementById('req-axis-os').value = cur.os.axis;
+        document.getElementById('req-add-os').value = cur.os.add;
+    }
+
+    function populateReqModels(manuf) {
+        reqModel.innerHTML = '<option value="">-- Seleziona --</option>';
+        reqModel.disabled = true;
+        if (manuf && myLensData[manuf]) {
+            Object.keys(myLensData[manuf]).forEach(m => reqModel.innerHTML += `<option value="${m}">${m}</option>`);
+            reqModel.disabled = false;
+        }
+    }
+
+    function populateReqTypes(manuf, model) {
+        const types = myLensData[manuf][model];
+        let ops = '<option value="">-- Tipo --</option>';
+        types.forEach(t => ops += `<option value="${t}">${t}</option>`);
+        reqTypeOD.innerHTML = ops;
+        reqTypeOS.innerHTML = ops;
+    }
+
+    reqManuf.onchange = () => populateReqModels(reqManuf.value);
+    reqModel.onchange = () => populateReqTypes(reqManuf.value, reqModel.value);
+
+    document.getElementById('btn-save-request').onclick = async () => {
+        const reqId = document.getElementById('req-id').value;
+        const newData = {
+            manufacturer: reqManuf.value,
+            model: reqModel.value,
+            od: {
+                type: reqTypeOD.value,
+                pwr: document.getElementById('req-pwr-od').value,
+                cyl: document.getElementById('req-cyl-od').value,
+                axis: document.getElementById('req-axis-od').value,
+                add: document.getElementById('req-add-od').value
+            },
+            os: {
+                type: reqTypeOS.value,
+                pwr: document.getElementById('req-pwr-os').value,
+                cyl: document.getElementById('req-cyl-os').value,
+                axis: document.getElementById('req-axis-os').value,
+                add: document.getElementById('req-add-os').value
+            }
+        };
+
+        try {
+            await updateDoc(doc(db, "change_requests", reqId), {
+                new_data: newData,
+                status: 'completed'
+            });
+            requestEditModal.classList.add('hidden');
+            alert("Aggiornamento inviato al cliente!");
+        } catch (e) {
+            alert("Errore: " + e.message);
+        }
+    };
+
+    // --- LOGICA MODALE SUPPLY ---
     window.openSupplyModal = (orderId) => {
         const order = allOrdersCache.find(o => o.id === orderId);
         if (!order) return;
@@ -536,8 +746,6 @@
     };
     
     function printOrder(order) { const w = window.open('', '_blank', 'height=600,width=800'); w.document.write(`<html><head><title>Ordine</title><style>body{font-family:sans-serif;padding:20px;}</style></head><body><h2>Ordine: ${order.patient_name}</h2><p>${JSON.stringify(order.lens_order || order.message, null, 2)}</p><script>window.print();window.close();<\/script></body></html>`); w.document.close(); }
-    
-    // FIX: Funzione di eliminazione con gestione errori
     async function deleteOrder(id) { 
         if(!confirm("Sei sicuro di voler eliminare questo ordine?")) return;
         try {
